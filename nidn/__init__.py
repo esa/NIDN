@@ -14,7 +14,7 @@ from .plots.plot_spectra import plot_spectra
 __all__ = [
     "freq_to_wl",
     "wl_to_phys_wl",
-    "phys_freq_to_wl",
+    "phys_freq_to_phys_wl",
     "fix_random_seeds",
     "plot_model_grid",
     "plot_model_grid_per_freq",
