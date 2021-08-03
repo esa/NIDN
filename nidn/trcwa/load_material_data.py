@@ -3,14 +3,14 @@ import torch
 
 
 def _load_material_data(name, target_frequencies=[1.0]):
-    """Loads the passed wavelength,n,k data from the passed csv file for the closest frequencies and returns epsilon (permittivity).
+    """Loads the passed wavelength, n, k data from the passed csv file for the closest frequencies and returns epsilon (permittivity).
 
     Args:
-        name (str): Path to csv
+        name (str): Path to csv.
         target_frequencies (list, optional): Target frequencies to compute epsilon for. Defaults to [1.0].
 
     Returns:
-        torch.tensor: Epsilon for the material (permittivity)
+        torch.tensor: Epsilon (complex permittivity) for the material
     """
     csv_data = pandas.read_csv(name, delimiter="\t")
 

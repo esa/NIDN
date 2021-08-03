@@ -8,7 +8,7 @@ def _compute_target_frequencies(physical_frequencies: np.array):
         physical_frequencies (np.array): A set of physical frequencies.
 
     Returns:
-        np.array: Corresponding target frequencies.
+        np.array: Corresponding target frequencies
     """
     logvals = np.log10(physical_frequencies)
     target_frequencies = np.flip(

@@ -26,7 +26,7 @@ def wl_to_phys_wl(wl):
     return wl * _TRCWA_UNIT_MAGNITUDE
 
 
-def phys_freq_to_wl(input):
+def phys_freq_to_phys_wl(input):
     """Gives the physical frequency from the physical wavelength and vice versa.
 
     Args:

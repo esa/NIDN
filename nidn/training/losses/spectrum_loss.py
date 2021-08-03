@@ -20,11 +20,11 @@ def _spectrum_loss_fn(
         target_R_spectrum (torch.tensor): Target reflectance spectrum.
         target_T_spectrum (torch.tensor): Target transmittance spectrum.
         target_frequencies (list of float): Target frequencies.
-        L (float, optional): Exponent of the loss. E.g. 2 for squared loss values. Defaults to 0.5.
-        include_absorption (bool, optional): Should absorption be included in loss term. Defaults to False.
+        L (float, optional): Exponent of the loss, e.g. L=2 for squared loss values. Defaults to 0.5.
+        include_absorption (bool, optional): If absorption should be included in loss term. Defaults to False.
 
     Returns:
-        [torch.tensor]: Loss values for reflectance, transmittance and optionally absorption.
+        [torch.tensor]: Loss values for reflectance, transmittance and optionally absorption
     """
 
     R_loss, T_loss, A_loss = 0, 0, 0
@@ -38,7 +38,7 @@ def _spectrum_loss_fn(
         target_frequencies,
     ):
 
-        # If the unphysical scenario of a negative absorption i.e.
+        # If the unphysical scenario of negative absorption, i.e.
         # reflection + transmission > 1, then renormalize them to 1 and warn
         if prod_R + prod_T > 1.0:
             logger.warning(
@@ -60,4 +60,3 @@ def _spectrum_loss_fn(
         return (A_loss + R_loss + T_loss) / (3 * len(produced_R_spectrum))
     else:
         return (R_loss + T_loss) / (2 * len(produced_R_spectrum))
-
