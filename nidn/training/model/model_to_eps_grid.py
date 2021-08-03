@@ -2,7 +2,7 @@ import torch
 from dotmap import DotMap
 
 
-def _model_to_eps_grid(model, run_cfg: DotMap):
+def model_to_eps_grid(model, run_cfg: DotMap):
     """Computes a 4D grid of epsilons for the given model.
 
     Args:
