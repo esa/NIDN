@@ -6,11 +6,11 @@ def _model_to_eps_grid(model, run_cfg: DotMap):
     """Computes a 4D grid of epsilons for the given model.
 
     Args:
-        model (torch.model): Trained neural network model. Should map one 4D Input to a [real,imag] epsilon.
+        model (torch.model): Trained neural network model. Should map one 4D input to a [real,imag] epsilon.
         run_cfg (DotMap): Configuration for the run.
 
     Returns:
-        [torch.tensor]: Resulting epsilon grid.
+        [torch.tensor]: Resulting 4D [real,imag] epsilon grid
     """
 
     # Get the grid ticks
@@ -39,7 +39,7 @@ def _model_to_eps_grid(model, run_cfg: DotMap):
     # Compute model output at each grid point
     out = model(nn_inputs)
 
-    # Reshapce the output to have a 4D tensor again
+    # Reshape the output to have a 4D tensor again
     # Note we ouput real and imaginary parts separatly, hence 2*N_freq
     out = out.reshape(run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, 2 * run_cfg.N_freq)
 
@@ -54,7 +54,7 @@ def _model_to_eps_grid(model, run_cfg: DotMap):
     )
 
     # Net out is [0,1] thus we transform to desired real and imaginary ranges
-    # first half is real entries
+    # first half contains real entries
     eps.real = out[:, :, :, 0 : run_cfg.N_freq]
     eps.real = (eps.real * (run_cfg.real_max_eps - run_cfg.real_min_eps)).clip(
         run_cfg.real_min_eps, run_cfg.real_max_eps

@@ -12,7 +12,7 @@ def plot_spectra(
     target_T_spectrum,
     target_frequencies,
 ):
-    """Plots the produced spectra.
+    """Plots the produced RTA spectra together with the target spectra.
     
     Args: 
         prod_R_spectrum (torch.tensor): The produced reflection spectrum.

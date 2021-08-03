@@ -5,11 +5,11 @@ from nidn.utils.convert_units import freq_to_wl
 
 
 def plot_model_grid_per_freq(eps, grid_dim, target_frequencies, freq_idx=[0, 1, 2, 3]):
-    """Plots the real and imaginary epsilon in two separate plots for each frequency in target_frequencies.
+    """Plots the real and imaginary part of the permittivity in two separate plots for frequencies in target_frequencies defined by freq_idx.
     
     Args: 
         eps (torch.tensor): Epsilon values.
-        grid_dim (tuple): The dimensions of the grid, i.e. (Nx, Ny, N_layers)
+        grid_dim (tuple): The dimensions of the grid, i.e. (Nx, Ny, N_layers).
         target_frequencies (list of float): The frequencies for which we calculate R, T, A. 
         freq_idx (list of int): Which of the frequency indices in target_frequencies we want to plot. Defaults to [0, 1, 2, 3].
     """
@@ -71,7 +71,7 @@ def plot_model_grid_per_freq(eps, grid_dim, target_frequencies, freq_idx=[0, 1, 
             z_labels = [""] * N_layers
             for layer in range(N_layers):
                 z_labels[layer] = "L" + str(layer + 1)
-            ax.set_zticklabels(z_labels)  # Where L1 is (seemingly) the bottom one
+            ax.set_zticklabels(z_labels) # Where L1 is (seemingly) the bottom one ( #TODO confirm this)
             cb = plt.colorbar(p, ax=ax)
             cb.set_label("Real permittivity, $\epsilon'$", rotation=270, labelpad=15)
             if re_or_im_idx == 1:
