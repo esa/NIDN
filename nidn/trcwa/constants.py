@@ -27,3 +27,13 @@ _TRCWA_PLANEWAVE = {"p_amp": 0, "s_amp": 1, "p_phase": 0, "s_phase": 0}
 # Angles
 _TRCWA_THETA = 0.0
 _TRCWA_PHI = 0.0
+
+# elementary charge, C
+_TRCWA_E_CHARGE = 1.602176634 * 10 ** (-19)
+# weight of electron, kg
+_TRCWA_M_E = 9.1093837015 * 10 ** (-31)
+# vacuum permittivity, F/m
+_TRCWA_EPS_0 = 8.8541878128 * 10 ** (-12)
+
+# There is no torch.pi so we define it here
+_TRCWA_PI = torch.acos(torch.zeros(1)).item() * 2  # which is 3.1415927410125732

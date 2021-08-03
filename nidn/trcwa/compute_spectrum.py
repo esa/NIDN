@@ -1,7 +1,7 @@
 from dotmap import DotMap
 import torch
 
-from .create_trcwa_obj import _create_trcwa_obj
+from .init_trcwa import _init_trcwa
 
 
 def compute_spectrum(eps_grid, run_cfg: DotMap):
@@ -28,10 +28,10 @@ def compute_spectrum(eps_grid, run_cfg: DotMap):
     for idx, freq in enumerate(run_cfg.target_frequencies):
 
         # Create TRCWA Object for this frequency
-        trcwa_obj = _create_trcwa_obj(eps_grid[:, :, :, idx], freq)
+        trcwa = _init_trcwa(eps_grid[:, :, :, idx], freq)
 
         # Compute the spectrum
-        reflectance, transmittance = trcwa_obj.RT_Solve(normalize=1)
+        reflectance, transmittance = trcwa.RT_Solve(normalize=1)
 
         produced_R_spectrum.append(reflectance)
         produced_T_spectrum.append(transmittance)

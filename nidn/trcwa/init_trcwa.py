@@ -1,8 +1,8 @@
 from .constants import *
-from .trcwa import obj
+from .trcwa import TRCWA
 
 
-def _create_trcwa_obj(eps_grid, target_frequency):
+def _init_trcwa(eps_grid, target_frequency):
     """Creates a TRCWA object matching the given eps_grid and target_frequency.
 
     Args:
@@ -20,7 +20,7 @@ def _create_trcwa_obj(eps_grid, target_frequency):
     freqcmp = target_frequency * (1 + (1j / (2.0 * _TRCWA_Q_ABS)))
 
     # Initialize TRCWA object
-    trcwa_object = obj(
+    trcwa = TRCWA(
         _TRCWA_NG,
         _TRCWA_L1,
         _TRCWA_L2,
@@ -31,24 +31,24 @@ def _create_trcwa_obj(eps_grid, target_frequency):
     )
 
     # Add vacuum layer at the top
-    trcwa_object.Add_LayerUniform(_TRCWA_PER_LAYER_THICKNESS, _TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(_TRCWA_PER_LAYER_THICKNESS, _TRCWA_VACUUM_EPS)
 
     # Add material layers (homogeneous if Nx and Ny are 1)
     for layer in range(N_layers):
         if Nx > 1 or Ny > 1:
-            trcwa_object.Add_LayerGrid(_TRCWA_PER_LAYER_THICKNESS, Nx, Ny)
+            trcwa.Add_LayerGrid(_TRCWA_PER_LAYER_THICKNESS, Nx, Ny)
         else:
-            trcwa_object.Add_LayerUniform(
+            trcwa.Add_LayerUniform(
                 _TRCWA_PER_LAYER_THICKNESS, eps_grid.squeeze()[layer]
             )
 
     # Add vacuum layer at the bottom
-    trcwa_object.Add_LayerUniform(_TRCWA_PER_LAYER_THICKNESS, _TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(_TRCWA_PER_LAYER_THICKNESS, _TRCWA_VACUUM_EPS)
 
     # Initialize the object properly
-    trcwa_object.Init_Setup()
+    trcwa.Init_Setup()
 
-    trcwa_object.MakeExcitationPlanewave(
+    trcwa.MakeExcitationPlanewave(
         _TRCWA_PLANEWAVE["p_amp"],
         _TRCWA_PLANEWAVE["p_phase"],
         _TRCWA_PLANEWAVE["s_amp"],
@@ -58,6 +58,6 @@ def _create_trcwa_obj(eps_grid, target_frequency):
 
     # Apply eps if heterogeneous layers
     if Nx > 1 or Ny > 1:
-        trcwa_object.GridLayer_geteps(eps_grid)
+        trcwa.GridLayer_geteps(eps_grid)
 
-    return trcwa_object
+    return trcwa
