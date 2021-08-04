@@ -1,3 +1,7 @@
+# Training Properties
+seed = 42
+model_type = "siren"
+
 # Epsilon Properties
 eps_oversampling = 1
 real_min_eps = 1e-3
@@ -10,3 +14,6 @@ Nx = 5
 Ny = 5
 N_layers = 1
 
+# Target frequencies
+physical_wavelength_range = [300e-9,3e-6]
+N_freq = 20

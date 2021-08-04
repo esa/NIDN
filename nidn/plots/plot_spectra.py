@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
-from nidn.utils.convert_units import freq_to_wl
+from ..utils.convert_units import freq_to_wl
 
 
 def plot_spectra(
@@ -13,13 +13,13 @@ def plot_spectra(
     target_frequencies,
 ):
     """Plots the produced RTA spectra together with the target spectra.
-    
-    Args: 
+
+    Args:
         prod_R_spectrum (torch.tensor): The produced reflection spectrum.
         prod_T_spectrum (torch.tensor): The produced transmission spectrum.
         target_R_spectrum (torch.tensor): The target reflection spectrum.
         target_T_spectrum (torch.tensor): The target transmission spectrum.
-        target_frequencies (list of float): The frequencies for which we calculate R, T, A. 
+        target_frequencies (list of float): The frequencies for which we calculate R, T, A.
 
     """
 

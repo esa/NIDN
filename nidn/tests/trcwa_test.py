@@ -3,10 +3,7 @@ from loguru import logger
 from dotmap import DotMap
 import sys
 
-sys.path.append("../")
-
-from trcwa.compute_spectrum import compute_spectrum
-from utils.load_default_cfg import load_default_cfg
+from ..trcwa.compute_spectrum import compute_spectrum
 
 _TRCWA_TEST_TOLERANCE = 1e-7
 torch.set_printoptions(precision=12)

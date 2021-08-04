@@ -1,4 +1,4 @@
-from ..trcwa.constants import TRCWA_UNIT_MAGNITUDE, TRCWA_SPEED_OF_LIGHT
+from nidn.trcwa.constants import TRCWA_UNIT_MAGNITUDE, TRCWA_SPEED_OF_LIGHT
 
 
 def freq_to_wl(freq):

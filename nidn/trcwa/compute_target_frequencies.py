@@ -3,7 +3,7 @@ import numpy as np
 from ..utils.convert_units import phys_wl_to_wl, freq_to_wl
 
 
-def _compute_target_frequencies(
+def compute_target_frequencies(
     min_physical_wl: float, max_physical_wl: float, N_freq: int
 ):
     """Computes the target frequencies for a given set of physical frequencies.

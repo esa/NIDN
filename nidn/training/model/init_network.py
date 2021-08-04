@@ -1,4 +1,5 @@
-from ..utils import Siren, NERF
+from ..utils.siren import Siren
+from ..utils.nerf import NERF
 from dotmap import DotMap
 
 
