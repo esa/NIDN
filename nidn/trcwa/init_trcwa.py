@@ -13,46 +13,48 @@ def _init_trcwa(eps_grid, target_frequency):
         TRCWA obj: The created object which is ready to compute the spectrum.
     """
 
-    Nx, Ny, N_layers = eps_grid.shape[0:2]
+    Nx, Ny, N_layers = eps_grid.shape[0:3]
+
+    # Squeeze out Nx=1, Ny=1 dimension (for uniform layer)
+    eps_grid = eps_grid.squeeze(0)
+    eps_grid = eps_grid.squeeze(1)
 
     # Adding a small imaginary part to the frequency to avoid singularities in RCWA
     # TODO Add a nice reference for this?
-    freqcmp = target_frequency * (1 + (1j / (2.0 * _TRCWA_Q_ABS)))
+    freqcmp = target_frequency * (1 + (1j / (2.0 * TRCWA_Q_ABS)))
 
     # Initialize TRCWA object
     trcwa = TRCWA(
-        _TRCWA_NG,
-        _TRCWA_L1,
-        _TRCWA_L2,
+        TRCWA_NG,
+        TRCWA_L1,
+        TRCWA_L2,
         freqcmp,
-        _TRCWA_THETA,
-        _TRCWA_PHI,
+        TRCWA_THETA,
+        TRCWA_PHI,
         verbose=0,
     )
 
     # Add vacuum layer at the top
-    trcwa.Add_LayerUniform(_TRCWA_PER_LAYER_THICKNESS, _TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(TRCWA_PER_LAYER_THICKNESS, TRCWA_VACUUM_EPS)
 
     # Add material layers (homogeneous if Nx and Ny are 1)
     for layer in range(N_layers):
         if Nx > 1 or Ny > 1:
-            trcwa.Add_LayerGrid(_TRCWA_PER_LAYER_THICKNESS, Nx, Ny)
+            trcwa.Add_LayerGrid(TRCWA_PER_LAYER_THICKNESS, Nx, Ny)
         else:
-            trcwa.Add_LayerUniform(
-                _TRCWA_PER_LAYER_THICKNESS, eps_grid.squeeze()[layer]
-            )
+            trcwa.Add_LayerUniform(TRCWA_PER_LAYER_THICKNESS, eps_grid[layer])
 
     # Add vacuum layer at the bottom
-    trcwa.Add_LayerUniform(_TRCWA_PER_LAYER_THICKNESS, _TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(TRCWA_PER_LAYER_THICKNESS, TRCWA_VACUUM_EPS)
 
     # Initialize the object properly
     trcwa.Init_Setup()
 
     trcwa.MakeExcitationPlanewave(
-        _TRCWA_PLANEWAVE["p_amp"],
-        _TRCWA_PLANEWAVE["p_phase"],
-        _TRCWA_PLANEWAVE["s_amp"],
-        _TRCWA_PLANEWAVE["s_phase"],
+        TRCWA_PLANEWAVE["p_amp"],
+        TRCWA_PLANEWAVE["p_phase"],
+        TRCWA_PLANEWAVE["s_amp"],
+        TRCWA_PLANEWAVE["s_phase"],
         order=0,
     )
 

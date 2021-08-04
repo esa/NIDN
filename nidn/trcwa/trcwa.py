@@ -4,6 +4,7 @@ from .constants import *
 
 from .utils.fft_funs import Epsilon_fft, get_ifft
 from .utils.kbloch import Lattice_Reciprocate, Lattice_getG, Lattice_SetKs
+from .utils.torch_functions import torch_transpose, torch_dot, torch_eye, torch_zeros
 
 
 class TRCWA:
@@ -20,11 +21,11 @@ class TRCWA:
 
         """
         self.freq = freq
-        self.omega = 2 * torch.pi * freq + 0.0j
+        self.omega = 2 * TRCWA_PI * freq + 0.0j
         self.L1 = L1
         self.L2 = L2
-        self.phi = torch.array(phi)
-        self.theta = torch.array(theta)
+        self.phi = torch.tensor(phi)
+        self.theta = torch.tensor(theta)
         self.nG = nG
         self.verbose = verbose
         self.Layer_N = 0  # total number of layers
@@ -62,7 +63,7 @@ class TRCWA:
 
         self.id_list.append([0, self.Layer_N, self.Uniform_N])
         self.Uniform_ep_list.append(epsilon)
-        self.thickness_list.append(torch.array(thickness))
+        self.thickness_list.append(torch.tensor(thickness))
 
         self.Layer_N += 1
         self.Uniform_N += 1
@@ -147,47 +148,47 @@ class TRCWA:
         self.direction = direction
         theta = self.theta
         phi = self.phi
-        a0 = torch.zeros(2 * self.nG, dtype=complex)
-        bN = torch.zeros(2 * self.nG, dtype=complex)
+        a0 = torch_zeros(2 * self.nG, dtype=complex)
+        bN = torch_zeros(2 * self.nG, dtype=complex)
         if direction == "forward":
-            tmp1 = torch.zeros(2 * self.nG, dtype=complex)
+            tmp1 = torch_zeros(2 * self.nG, dtype=complex)
             tmp1[order] = 1.0
             a0 = a0 + tmp1 * (
                 -s_amp
                 * torch.cos(theta)
                 * torch.cos(phi)
-                * torch.exp(torch.array(1j * s_phase))
-                - p_amp * torch.sin(phi) * torch.exp(torch.array(1j * p_phase))
+                * torch.exp(torch.tensor(1j * s_phase))
+                - p_amp * torch.sin(phi) * torch.exp(torch.tensor(1j * p_phase))
             )
 
-            tmp2 = torch.zeros(2 * self.nG, dtype=complex)
+            tmp2 = torch_zeros(2 * self.nG, dtype=complex)
             tmp2[order + self.nG] = 1.0
             a0 = a0 + tmp2 * (
                 -s_amp
                 * torch.cos(theta)
                 * torch.sin(phi)
-                * torch.exp(torch.array(1j * s_phase))
-                + p_amp * torch.cos(phi) * torch.exp(torch.array(1j * p_phase))
+                * torch.exp(torch.tensor(1j * s_phase))
+                + p_amp * torch.cos(phi) * torch.exp(torch.tensor(1j * p_phase))
             )
         elif direction == "backward":
-            tmp1 = torch.zeros(2 * self.nG, dtype=complex)
+            tmp1 = torch_zeros(2 * self.nG, dtype=complex)
             tmp1[order] = 1.0
             bN = bN + tmp1 * (
                 -s_amp
                 * torch.cos(theta)
                 * torch.cos(phi)
-                * torch.exp(torch.array(1j * s_phase))
-                - p_amp * torch.sin(phi) * torch.exp(torch.array(1j * p_phase))
+                * torch.exp(torch.tensor(1j * s_phase))
+                - p_amp * torch.sin(phi) * torch.exp(torch.tensor(1j * p_phase))
             )
 
-            tmp2 = torch.zeros(2 * self.nG, dtype=complex)
+            tmp2 = torch_zeros(2 * self.nG, dtype=complex)
             tmp2[order + self.nG] = 1.0
             bN = bN + tmp2 * (
                 -s_amp
                 * torch.cos(theta)
                 * torch.sin(phi)
-                * torch.exp(torch.array(1j * s_phase))
-                + p_amp * torch.cos(phi) * torch.exp(torch.array(1j * p_phase))
+                * torch.exp(torch.tensor(1j * s_phase))
+                + p_amp * torch.cos(phi) * torch.exp(torch.tensor(1j * p_phase))
             )
 
         self.a0 = a0
@@ -217,7 +218,7 @@ class TRCWA:
                 ep_grid = ep_all[:, :, i - 1]
             else:
                 ep_grid = torch.reshape(
-                    torch.array(ep_all[ptr : ptr + Nx * Ny]), [Nx, Ny]
+                    torch.tensor(ep_all[ptr : ptr + Nx * Ny]), [Nx, Ny]
                 )
 
             epinv, ep2 = Epsilon_fft(dN, ep_grid, self.G)
@@ -417,14 +418,14 @@ class TRCWA:
                 bi0,
             )
             # hx, hy in Fourier space
-            fhxy = torch.dot(self.phi_list[which_layer], ai + bi)
+            fhxy = torch_dot(self.phi_list[which_layer], ai + bi)
             fhx = fhxy[: self.nG]
             fhy = fhxy[self.nG :]
 
             # ex,ey in Fourier space
             tmp1 = (ai - bi) / self.omega / self.q_list[which_layer]
-            tmp2 = torch.dot(self.phi_list[which_layer], tmp1)
-            fexy = torch.dot(self.kp_list[which_layer], tmp2)
+            tmp2 = torch_dot(self.phi_list[which_layer], tmp1)
+            fexy = torch_dot(self.kp_list[which_layer], tmp2)
             fey = -fexy[: self.nG]
             fex = fexy[self.nG :]
 
@@ -436,7 +437,7 @@ class TRCWA:
             if self.id_list[which_layer][0] == 0:
                 fez = fez / self.Uniform_ep_list[self.id_list[which_layer][2]]
             else:
-                fez = torch.dot(
+                fez = torch_dot(
                     self.Patterned_epinv_list[self.id_list[which_layer][2]], fez
                 )
             eh.append([[fex, fey, fez], [fhx, fhy, fhz]])
@@ -503,10 +504,10 @@ class TRCWA:
         abM = abMatrix * Mt
 
         # F matrix
-        Faxy = torch.dot(torch.dot(kp, phi), torch.diag(1.0 / self.omega / q))
-        Faz1 = 1.0 / self.omega * torch.dot(epinv, torch.diag(self.ky))
-        Faz2 = -1.0 / self.omega * torch.dot(epinv, torch.diag(self.kx))
-        Faz = torch.dot(torch.hstack((Faz1, Faz2)), phi)
+        Faxy = torch_dot(torch_dot(kp, phi), torch.diag(1.0 / self.omega / q))
+        Faz1 = 1.0 / self.omega * torch_dot(epinv, torch.diag(self.ky))
+        Faz2 = -1.0 / self.omega * torch_dot(epinv, torch.diag(self.kx))
+        Faz = torch_dot(torch.hstack((Faz1, Faz2)), phi)
 
         tmp1 = torch.vstack((Faxy, Faz))
         tmp2 = torch.vstack((-Faxy, Faz))
@@ -523,8 +524,8 @@ class TRCWA:
         )
 
         # integral = Tr[ abMatrix * F^\dagger *  Matconv *F ]
-        tmp = torch.dot(torch.dot(torch.conj(torch.transpose(F)), Mtotal), F)
-        val = torch.trace(torch.dot(abM, tmp))
+        tmp = torch_dot(torch_dot(torch.conj(torch_transpose(F)), Mtotal), F)
+        val = torch.trace(torch_dot(abM, tmp))
 
         if normalize == 1:
             val = val * self.normalization
@@ -556,7 +557,7 @@ class TRCWA:
             dy = ey * self.Uniform_ep_list[self.id_list[which_layer][2]]
         else:
             exy = torch.hstack((-ey, ex))
-            dxy = torch.dot(self.Patterned_ep2_list[self.id_list[which_layer][2]], exy)
+            dxy = torch_dot(self.Patterned_ep2_list[self.id_list[which_layer][2]], exy)
             dx = dxy[self.nG :]
             dy = -dxy[: self.nG]
 
@@ -587,14 +588,14 @@ def MakeKPMatrix(omega, layer_type, epinv, kx, ky):
         #                 [np.diag(-kx*ky),np.diag(kx*kx)]])
 
         Jk = torch.vstack((torch.diag(-ky), torch.diag(kx)))
-        JkkJT = torch.dot(Jk, torch.transpose(Jk))
+        JkkJT = torch_dot(Jk, torch_transpose(Jk))
 
-        kp = omega ** 2 * torch.eye(2 * nG) - epinv * JkkJT
+        kp = omega ** 2 * torch_eye(2 * nG) - epinv * JkkJT
     # patterned layer
     else:
         Jk = torch.vstack((torch.diag(-ky), torch.diag(kx)))
-        tmp = torch.dot(Jk, epinv)
-        kp = omega ** 2 * torch.eye(2 * nG) - torch.dot(tmp, torch.transpose(Jk))
+        tmp = torch_dot(Jk, epinv)
+        kp = omega ** 2 * torch_eye(2 * nG) - torch_dot(tmp, torch_transpose(Jk))
 
     return kp
 
@@ -606,7 +607,7 @@ def SolveLayerEigensystem_uniform(omega, kx, ky, epsilon):
     q = torch.where(torch.imag(q) < 0.0, -q, q)
 
     q = torch.cat((q, q))
-    phi = torch.eye(2 * nG)
+    phi = torch_eye(2 * nG)
     return q, phi
 
 
@@ -614,10 +615,10 @@ def SolveLayerEigensystem(omega, kx, ky, kp, ep2):
     nG = len(kx)
 
     k = torch.vstack((torch.diag(kx), torch.diag(ky)))
-    kkT = torch.dot(k, torch.transpose(k))
-    M = torch.dot(ep2, kp) - kkT
+    kkT = torch_dot(k, torch_transpose(k))
+    M = torch_dot(ep2, kp) - kkT
 
-    q, phi = torch.eig(M)
+    q, phi = torch.linalg.eig(M)
 
     q = torch.sqrt(q)
     # branch cut choice
@@ -631,10 +632,10 @@ def GetSMatrix(indi, indj, q_list, phi_list, kp_list, thickness_list):
     # assert type(indj) == int, 'layer index j must be integar'
 
     nG2 = len(q_list[0])
-    S11 = torch.eye(nG2, dtype=complex)
+    S11 = torch_eye(nG2, dtype=complex)
     S12 = torch.zeros_like(S11)
     S21 = torch.zeros_like(S11)
-    S22 = torch.eye(nG2, dtype=complex)
+    S22 = torch_eye(nG2, dtype=complex)
     if indi == indj:
         return S11, S12, S21, S22
     elif indi > indj:
@@ -644,17 +645,17 @@ def GetSMatrix(indi, indj, q_list, phi_list, kp_list, thickness_list):
         ## next layer
         lp1 = l + 1
         ## Q = inv(phi_l) * phi_lp1
-        Q = torch.dot(torch.inverse(phi_list[l]), phi_list[lp1])
+        Q = torch_dot(torch.inverse(phi_list[l]), phi_list[lp1])
         ## P = ql*inv(kp_l*phi_l) * kp_lp1*phi_lp1*q_lp1^-1
-        P1 = torch.dot(
-            torch.diag(q_list[l]), torch.inverse(torch.dot(kp_list[l], phi_list[l]))
+        P1 = torch_dot(
+            torch.diag(q_list[l]), torch.inverse(torch_dot(kp_list[l], phi_list[l]))
         )
-        P2 = torch.dot(
-            torch.dot(kp_list[lp1], phi_list[lp1]), torch.diag(1.0 / q_list[lp1])
+        P2 = torch_dot(
+            torch_dot(kp_list[lp1], phi_list[lp1]), torch.diag(1.0 / q_list[lp1])
         )
-        P = torch.dot(P1, P2)
-        # P1 = torch.dot(kp_list[l],phi_list[l])
-        # P2 = torch.dot(torch.dot(kp_list[lp1],phi_list[lp1]),   torch.diag(1./q_list[lp1]))
+        P = torch_dot(P1, P2)
+        # P1 = torch_dot(kp_list[l],phi_list[l])
+        # P2 = torch_dot(torch_dot(kp_list[lp1],phi_list[lp1]),   torch.diag(1./q_list[lp1]))
         # P = np.linalg.solve(P1,P2)
         # P = np.dot(np.diag(q_list[l]),P)
 
@@ -667,20 +668,20 @@ def GetSMatrix(indi, indj, q_list, phi_list, kp_list, thickness_list):
         d2 = torch.diag(torch.exp(1j * q_list[lp1] * thickness_list[lp1]))
 
         # S11 = inv(T11-d1*S12o*T12)*d1*S11o
-        P1 = T11 - torch.dot(torch.dot(d1, S12), T12)
-        P1 = torch.inv(P1)  # hold for further use
-        S11 = torch.dot(torch.dot(P1, d1), S11)
+        P1 = T11 - torch_dot(torch_dot(d1, S12), T12)
+        P1 = torch.inverse(P1)  # hold for further use
+        S11 = torch_dot(torch_dot(P1, d1), S11)
 
         # S12 = P1*(d1*S12o*T11-T12)*d2
-        P2 = torch.dot(d1, torch.dot(S12, T11)) - T12
-        S12 = torch.dot(torch.dot(P1, P2), d2)
+        P2 = torch_dot(d1, torch_dot(S12, T11)) - T12
+        S12 = torch_dot(torch_dot(P1, P2), d2)
 
         # S21 = S22o*T12*S11+S21o
-        S21 = S21 + torch.dot(S22, torch.dot(T12, S11))
+        S21 = S21 + torch_dot(S22, torch_dot(T12, S11))
 
         # S22 = S22o*T12*S12+S22o*T11*d2
-        P2 = torch.dot(S22, torch.dot(T12, S12))
-        P1 = torch.dot(S22, torch.dot(T11, d2))
+        P2 = torch_dot(S22, torch_dot(T12, S12))
+        P1 = torch_dot(S22, torch_dot(T11, d2))
         S22 = P1 + P2
 
     return S11, S12, S21, S22
@@ -696,8 +697,8 @@ def SolveExterior(a0, bN, q_list, phi_list, kp_list, thickness_list):
         0, Nlayer - 1, q_list, phi_list, kp_list, thickness_list
     )
 
-    aN = torch.dot(S11, a0) + torch.dot(S12, bN)
-    b0 = torch.dot(S21, a0) + torch.dot(S22, bN)
+    aN = torch_dot(S11, a0) + torch_dot(S12, bN)
+    b0 = torch_dot(S21, a0) + torch_dot(S22, bN)
 
     return aN, b0
 
@@ -718,11 +719,11 @@ def SolveInterior(which_layer, a0, bN, q_list, phi_list, kp_list, thickness_list
     )
 
     # tmp = inv(1-S12*pS21)
-    tmp = torch.inv(torch.eye(nG2) - torch.dot(S12, pS21))
+    tmp = torch.inv(torch_eye(nG2) - torch_dot(S12, pS21))
     # ai = tmp * (S11 a0 + S12 pS22 bN)
-    ai = torch.dot(tmp, torch.dot(S11, a0) + torch.dot(S12, torch.dot(pS22, bN)))
+    ai = torch_dot(tmp, torch_dot(S11, a0) + torch_dot(S12, torch_dot(pS22, bN)))
     # bi = pS21 ai + pS22 bN
-    bi = torch.dot(pS21, ai) + torch.dot(pS22, bN)
+    bi = torch_dot(pS21, ai) + torch_dot(pS22, bN)
 
     return ai, bi
 
@@ -741,12 +742,12 @@ def GetZPoyntingFlux(ai, bi, omega, kp, phi, q, byorder=0):
     n2 = len(ai)
     n = int(n2 / 2)
     # A = kp phi inv(omega*q)
-    A = torch.dot(torch.dot(kp, phi), torch.diag(1.0 / omega / q))
+    A = torch_dot(torch_dot(kp, phi), torch.diag(1.0 / omega / q))
 
-    pa = torch.dot(phi, ai)
-    pb = torch.dot(phi, bi)
-    Aa = torch.dot(A, ai)
-    Ab = torch.dot(A, bi)
+    pa = torch_dot(phi, ai)
+    pb = torch_dot(phi, bi)
+    Aa = torch_dot(A, ai)
+    Ab = torch_dot(A, bi)
 
     # diff = 0.5*(pb* Aa - Ab* pa)
     diff = 0.5 * (torch.conj(pb) * Aa - torch.conj(Ab) * pa)
@@ -783,7 +784,7 @@ def Matrix_zintegral(q, thickness, shift=1e-12):
     # Mab = (np.exp(1j*qj*thickness)-np.exp(-1j*np.conj(qi)*thickness))/1j/(qj+np.conj(qi))
 
     # M = t exp(0.5it (qj-qi^*)) sinc(0.5d (sjqj-siqi^*), note in python sinc = sin(pi x)/pi x
-    qij = qj - torch.conj(qi) + torch.eye(nG2) * shift
+    qij = qj - torch.conj(qi) + torch_eye(nG2) * shift
     Maa = (torch.exp(1j * qij * thickness) - 1) / 1j / qij  # this is more robust
     # Maa = thickness * np.exp(0.5j*thickness*qij) * np.sinc(0.5*thickness*qij/np.pi)
 
@@ -806,6 +807,6 @@ def Gmeshgrid(x):
     qj = []
     for i in range(N):
         qj.append(x)
-    qj = torch.array(qj)
-    qi = torch.transpose(qj)
+    qj = torch.tensor(qj)
+    qi = torch_transpose(qj)
     return qi, qj

@@ -46,10 +46,10 @@ def get_conv(dN, s_in, G):
     s_out: 1/N sum a_m exp(-2pi i mk/n), shape (nGx*nGy)
     """
     nG, _ = G.shape
-    sfft = torch.fft2(s_in) * dN
+    sfft = torch.fft.fft2(s_in) * dN
 
     ix = range(nG)
-    ii, jj = torch.meshgrid(torch.array(ix), torch.array(ix))
+    ii, jj = torch.meshgrid(torch.tensor(ix), torch.tensor(ix))
     s_out = sfft[G[ii, 0] - G[jj, 0], G[ii, 1] - G[jj, 1]]
     return s_out
 
@@ -63,7 +63,7 @@ def get_fft(dN, s_in, G):
     s_out: 1/N sum a_m exp(-2pi i mk/n), shape (nGx*nGy)
     """
 
-    sfft = torch.fft2(s_in) * dN
+    sfft = torch.fft.fft2(s_in) * dN
     return sfft[G[:, 0], G[:, 1]]
 
 

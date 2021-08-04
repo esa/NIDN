@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 
+from ..constants import *
+
 
 def Lattice_Reciprocate(L1, L2):
     """Given two lattice vectors L1,L2 in the form of (Lx,Ly), returns the
@@ -15,8 +17,8 @@ def Lattice_Reciprocate(L1, L2):
 
     d = L1[0] * L2[1] - L1[1] * L2[0]
 
-    Lk1 = torch.array([L2[1] / d, -L2[0] / d])
-    Lk2 = torch.array([-L1[1] / d, L1[0] / d])
+    Lk1 = torch.tensor([L2[1] / d, -L2[0] / d])
+    Lk2 = torch.tensor([-L1[1] / d, L1[0] / d])
 
     return Lk1, Lk2
 
@@ -46,8 +48,8 @@ def Lattice_SetKs(G, kx0, ky0, Lk1, Lk2):
     2pi factor is now included in the returned kx,ky
     """
 
-    kx = kx0 + 2 * torch.pi * (Lk1[0] * G[:, 0] + Lk2[0] * G[:, 1])
-    ky = ky0 + 2 * torch.pi * (Lk1[1] * G[:, 0] + Lk2[1] * G[:, 1])
+    kx = kx0 + 2 * TRCWA_PI * (Lk1[0] * G[:, 0] + Lk2[0] * G[:, 1])
+    ky = ky0 + 2 * TRCWA_PI * (Lk1[1] * G[:, 0] + Lk2[1] * G[:, 1])
 
     return kx, ky
 
@@ -97,7 +99,7 @@ def Gsel_circular(nG, Lk1, Lk2):
     uv = torch.dot(Lk1, Lk2)
     uxv = Lk1[0] * Lk2[1] - Lk1[1] * Lk2[0]
     circ_area = nG * torch.abs(uxv)
-    circ_radius = torch.sqrt(circ_area / torch.pi) + u + v
+    circ_radius = torch.sqrt(circ_area / TRCWA_PI) + u + v
 
     u_extent = 1 + int(circ_radius / (u * torch.sqrt(1.0 - uv ** 2 / (u * v) ** 2)))
     v_extent = 1 + int(circ_radius / (v * torch.sqrt(1.0 - uv ** 2 / (u * v) ** 2)))
@@ -107,7 +109,7 @@ def Gsel_circular(nG, Lk1, Lk2):
 
     xG = range(-u_extent, uext21 - u_extent)
     yG = range(-v_extent, vext21 - v_extent)
-    G1, G2 = torch.meshgrid(torch.array(xG), torch.array(yG))
+    G1, G2 = torch.meshgrid(torch.tensor(xG), torch.tensor(yG))
     G1 = G1.flatten()
     G2 = G2.flatten()
 

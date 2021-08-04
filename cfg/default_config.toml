@@ -1,0 +1,12 @@
+# Epsilon Properties
+eps_oversampling = 1
+real_min_eps = 1e-3
+real_max_eps = 20
+imag_min_eps = 0
+imag_max_eps = 5
+
+# Grid dimensions
+Nx = 5
+Ny = 5
+N_layers = 1
+
