@@ -4,7 +4,7 @@ from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from ..trcwa.constants import TRCWA_UNIT_MAGNITUDE
 
 
-def conversion_test():
+def test_conversion():
     """Test whether conversion from real wavelengths into target frequencies
     is correctly donewl_to_phys_wl
     """
@@ -26,4 +26,4 @@ def conversion_test():
 
 
 if __name__ == "__main__":
-    conversion_test()
+    test_conversion()
