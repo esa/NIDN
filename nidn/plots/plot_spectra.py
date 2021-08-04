@@ -3,25 +3,23 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 from ..utils.convert_units import freq_to_wl
+from ..trcwa.compute_spectrum import compute_spectrum
+from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
-def plot_spectra(
-    prod_R_spectrum,
-    prod_T_spectrum,
-    target_R_spectrum,
-    target_T_spectrum,
-    target_frequencies,
-):
+def plot_spectra(model, run_cfg,target_R_spectrum,target_T_spectrum):
     """Plots the produced RTA spectra together with the target spectra.
 
     Args:
-        prod_R_spectrum (torch.tensor): The produced reflection spectrum.
-        prod_T_spectrum (torch.tensor): The produced transmission spectrum.
+        model (torch.model): The model to be plotted.
+        run_cfg (dict): The run configuration.
         target_R_spectrum (torch.tensor): The target reflection spectrum.
         target_T_spectrum (torch.tensor): The target transmission spectrum.
-        target_frequencies (list of float): The frequencies for which we calculate R, T, A.
-
     """
+    
+    eps = model_to_eps_grid(model, run_cfg)
+    prod_R_spectrum,prod_T_spectrum = compute_spectrum(eps,run_cfg)
+    target_frequencies = run_cfg.target_frequencies
 
     prod_R_spectrum = torch.tensor(prod_R_spectrum).detach().cpu().numpy()
     prod_T_spectrum = torch.tensor(prod_T_spectrum).detach().cpu().numpy()

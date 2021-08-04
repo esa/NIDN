@@ -2,20 +2,23 @@ import torch
 import numpy as np
 from matplotlib import pyplot as plt
 
+from ..training.model.model_to_eps_grid import model_to_eps_grid
 
-def plot_model_grid(eps, grid_dim):
+
+def plot_model_grid(model, run_cfg):
     """Plots the absolute value of the epsilon over all frequencies for each 3-D grid point.
-    Args: 
-        eps (torch.tensor): Epsilon values.
-        grid_dim (tuple): The dimensions of the grid, i.e. (Nx, Ny, N_layers).
+    Args:
+        model (torch.model): The model to be plotted.
+        run_cfg (dict): The run configuration.
     """
-    Nx, Ny, N_layers = grid_dim
+    Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
+    eps = model_to_eps_grid(model, run_cfg)
     x = torch.linspace(-1, 1, Nx)
     y = torch.linspace(-1, 1, Ny)
     z = torch.linspace(-1, 1, N_layers)
     X, Y, Z = torch.meshgrid((x, y, z))
 
-    # Here we calculate the absolute value of the permittivity over all frequencies for each grid point 
+    # Here we calculate the absolute value of the permittivity over all frequencies for each grid point
     eps = torch.norm(eps, dim=3)
 
     material_id = eps.detach().cpu().numpy()
@@ -52,5 +55,7 @@ def plot_model_grid(eps, grid_dim):
     z_labels = [""] * N_layers
     for idx in range(N_layers):
         z_labels[idx] = "L" + str(idx + 1)
-    ax.set_zticklabels(z_labels)  # Where L1 is (seemingly) the bottom one ( #TODO confirm this)
+    ax.set_zticklabels(
+        z_labels
+    )  # Where L1 is (seemingly) the bottom one ( #TODO confirm this)
     cbar.set_label("Absolute value of the complex permittivity", labelpad=10)

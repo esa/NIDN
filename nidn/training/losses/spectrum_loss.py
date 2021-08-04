@@ -11,7 +11,7 @@ def _spectrum_loss_fn(
     L=0.5,
     include_absorption=False,
 ):
-    """Computes the loss for the difference in reflectance, 
+    """Computes the loss for the difference in reflectance,
     transmittance and optionally absorption spectra.
 
     Args:

@@ -10,8 +10,10 @@ from loguru import logger
 from ..utils.fix_random_seeds import fix_random_seeds
 from .model.init_network import init_network
 from ..trcwa.compute_spectrum import compute_spectrum
+from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from .model.model_to_eps_grid import model_to_eps_grid
 from .losses.spectrum_loss import _spectrum_loss_fn
+from .utils.validate_config import _validate_config
 
 
 def run_training(
@@ -31,8 +33,18 @@ def run_training(
     Returns:
         torch.model,DotMap: The best model achieved in the training run, and the loss results of the training run.
     """
+    # Validate config
+    _validate_config(run_cfg)
+
     # Fix random seed for reproducibility
     fix_random_seeds(run_cfg.seed)
+
+    # Determine target frequencies
+    run_cfg.target_frequencies = compute_target_frequencies(
+        run_cfg.physical_wavelength_range[0],
+        run_cfg.physical_wavelength_range[1],
+        run_cfg.N_freq,
+    )
 
     # Init model
     if model is None:
@@ -72,6 +84,7 @@ def run_training(
             produced_T_spectrum,
             target_reflectance_spectrum,
             target_transmittance_spectrum,
+            run_cfg.target_frequencies,
             run_cfg.L,
             run_cfg.absorption_loss,
         )
@@ -112,8 +125,6 @@ def run_training(
 
         # Perform a step in LR scheduler to update LR if necessary
         scheduler.step(loss.item())
-
-        total_it = total_it + 1
 
     # Return best model in the end
     model.load_state_dict(best_model_state_dict)

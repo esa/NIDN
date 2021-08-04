@@ -2,6 +2,8 @@ from ..utils.siren import Siren
 from ..utils.nerf import NERF
 from dotmap import DotMap
 
+import torch.nn as nn
+
 
 def init_network(
     run_cfg: DotMap,
@@ -14,7 +16,7 @@ def init_network(
         return NERF(
             in_features=run_cfg.encoding_dim,
             n_neurons=run_cfg.n_neurons,
-            activation=run_cfg.activation,
+            activation=nn.Sigmoid(),
             skip=[4],
             hidden_layers=run_cfg.hidden_layers,
         )
@@ -25,7 +27,7 @@ def init_network(
             hidden_features=run_cfg.n_neurons,
             hidden_layers=run_cfg.hidden_layers,
             outermost_linear=True,
-            outermost_activation=run_cfg.activation,
+            outermost_activation=nn.Sigmoid(),
             first_omega_0=run_cfg.siren_omega,
             hidden_omega_0=run_cfg.siren_omega,
         )

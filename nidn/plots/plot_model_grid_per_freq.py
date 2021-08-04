@@ -2,18 +2,19 @@ import torch
 import numpy as np
 from matplotlib import pyplot as plt
 from ..utils.convert_units import freq_to_wl
+from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
-def plot_model_grid_per_freq(eps, grid_dim, target_frequencies, freq_idx=[0, 1, 2, 3]):
+def plot_model_grid_per_freq(model, run_cfg, freq_idx=[0, 1, 2, 3]):
     """Plots the real and imaginary part of the permittivity in two separate plots for frequencies in target_frequencies defined by freq_idx.
 
     Args:
-        eps (torch.tensor): Epsilon values.
-        grid_dim (tuple): The dimensions of the grid, i.e. (Nx, Ny, N_layers).
-        target_frequencies (list of float): The frequencies for which we calculate R, T, A.
+        model (torch.model): The model to be plotted.
+        run_cfg (dict): The run configuration.
         freq_idx (list of int): Which of the frequency indices in target_frequencies we want to plot. Defaults to [0, 1, 2, 3].
     """
-    Nx, Ny, N_layers = grid_dim
+    Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
+    eps = model_to_eps_grid(model, run_cfg)
     x = torch.linspace(-1, 1, Nx)
     y = torch.linspace(-1, 1, Ny)
     z = torch.linspace(-1, 1, N_layers)
@@ -57,7 +58,7 @@ def plot_model_grid_per_freq(eps, grid_dim, target_frequencies, freq_idx=[0, 1, 
             )
             ax.set_title(
                 "WL="
-                + str(round(freq_to_wl(target_frequencies[freq_idx[idx]]), 2))
+                + str(round(freq_to_wl(run_cfg.target_frequencies[freq_idx[idx]]), 2))
                 + "um",
                 fontsize=8,
             )

@@ -1,6 +1,19 @@
 # Training Properties
 seed = 42
 model_type = "siren"
+iterations = 2000
+learning_rate = 6.5e-5
+
+# Loss
+L = 0.5
+absorption_loss = false
+
+# Model Parameters
+n_neurons = 100
+hidden_layers = 9
+encoding_dim = 4
+out_features = 2
+siren_omega = 1
 
 # Epsilon Properties
 eps_oversampling = 1
@@ -15,5 +28,5 @@ Ny = 5
 N_layers = 1
 
 # Target frequencies
-physical_wavelength_range = [300e-9,3e-6]
+physical_wavelength_range = [1000e-9,3e-6]
 N_freq = 20
