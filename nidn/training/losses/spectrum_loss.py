@@ -24,12 +24,12 @@ def _spectrum_loss_fn(
         include_absorption (bool, optional): If absorption should be included in loss term. Defaults to False.
 
     Returns:
-        [torch.tensor],renormalized: Loss values for reflectance, transmittance and optionally absorption and if renormalization happend.
+        [torch.tensor], renormalized: Loss values for reflectance, transmittance and optionally absorption and if renormalization happened.
     """
     logger.trace("Computing spectrum loss..")
 
     R_loss, T_loss, A_loss = 0, 0, 0
-    # Tracks if renormization happened
+    # Tracks if renormalization happened
     renormalized = False
 
     # Iterate over all frequencies
