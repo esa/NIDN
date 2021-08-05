@@ -141,7 +141,7 @@ def run_training(
         if loss < best_loss:
             best_loss = loss
             logger.info(
-                f"New Best={loss.item():.4f} SpectrumLoss={spectrum_loss.detach().item():4f}"
+                f"###  New Best={loss.item():<6.4f} with SpectrumLoss={spectrum_loss.detach().item():<6.4f} ###"
             )
             if not renormalized:
                 logger.debug("Saving model state...")
@@ -158,7 +158,7 @@ def run_training(
         if it % 5 == 0:
             wa_out = np.mean(weighted_average)
             logger.info(
-                f"It={it}\t loss={loss.item():.3e}\t  weighted_average={wa_out:.3e}\t SpectrumLoss={spectrum_loss.detach().item():4f}"
+                f"It={it:<5} Loss={loss.item():<6.4f}   |  weighted_avg={wa_out:<6.4f}  |  SpectrumLoss={spectrum_loss.detach().item():<6.4f}"
             )
 
         # Zeroes the gradient (otherwise would accumulate)
