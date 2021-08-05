@@ -50,7 +50,7 @@ class SineLayer(nn.Module):
 
 
 class Siren(nn.Module):
-    """Siren model as described in the paper and provided notebooks."""
+    """SIREN model as described in the paper by Sitzmann et al. (2020)."""
 
     def __init__(
         self,

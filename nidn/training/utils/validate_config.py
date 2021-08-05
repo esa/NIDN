@@ -5,7 +5,7 @@ def _validate_config(cfg: DotMap):
     """This function validates that all required entries are in the config.
 
     Args:
-        cfg (DotMap): Run config you intend to use
+        cfg (DotMap): Run config you intend to use.
     """
 
     # Check that all required entries are in the config

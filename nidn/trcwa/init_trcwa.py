@@ -10,7 +10,7 @@ def _init_trcwa(eps_grid, target_frequency):
         target_frequency (float): Target frequency for this simulation run.
 
     Returns:
-        TRCWA obj: The created object which is ready to compute the spectrum.
+        TRCWA obj: The created object which is ready to compute the spectrum
     """
 
     Nx, Ny, N_layers = eps_grid.shape[0:3]
@@ -20,7 +20,8 @@ def _init_trcwa(eps_grid, target_frequency):
     eps_grid = eps_grid.squeeze(1)
 
     # Adding a small imaginary part to the frequency to avoid singularities in RCWA
-    # TODO Add a nice reference for this?
+    # See page 2 of arxiv.org/pdf/2005.04840v1.pdf 
+    # or doi.org/10.1364/OE.21.030812 for a more thorough explanation
     freqcmp = target_frequency * (1 + (1j / (2.0 * TRCWA_Q_ABS)))
 
     # Initialize TRCWA object

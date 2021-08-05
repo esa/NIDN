@@ -6,7 +6,7 @@ from ..trcwa.constants import TRCWA_UNIT_MAGNITUDE
 
 def test_conversion():
     """Test whether conversion from real wavelengths into target frequencies
-    is correctly donewl_to_phys_wl
+    is correctly done.
     """
     logger.trace("Running frequency conversion test...")
     min_wl = 300e-9  # 300 nm

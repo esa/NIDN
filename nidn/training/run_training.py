@@ -71,7 +71,7 @@ def run_training(
     target_transmittance_spectrum: npt.NDArray,
     model=None,
 ):
-    """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training
+    """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training.
 
     Args:
         run_cfg (DotMap): Run configuration.
