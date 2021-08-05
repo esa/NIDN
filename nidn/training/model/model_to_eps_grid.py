@@ -135,11 +135,14 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     # We take mean over the frequency dimension in determining the fitting
     out = torch.mean(out, dim=3)
 
-    #     material_id = torch.softmax(out,dim=-1)
     # Apply softmax to get a probability distribution
-    beta = 1000
+    # material_id = torch.softmax(out, dim=-1)
+    # print(material_id.shape)
+
+    beta = 10
     # Softmax with a high beta to push towards 1
-    material_id = (beta ** out) / (beta ** out).sum(dim=1).unsqueeze(1)
+    exponential = torch.exp(beta * out)
+    material_id = exponential / exponential.sum(dim=-1).unsqueeze(-1)
 
     material_id = torch.divide(material_id, material_id.sum(-1).unsqueeze(-1))
 
