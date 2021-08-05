@@ -30,7 +30,7 @@ def Lattice_getG(nG, Lk1, Lk2, method=0):
 
     method:0 for circular truncation, 1 for parallelogramic truncation
     """
-    assert type(nG) == int, "nG must be integar"
+    assert type(nG) == int, "nG must be integer"
 
     if method == 0:
         G, nG = Gsel_circular(nG, Lk1, Lk2)

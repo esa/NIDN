@@ -9,14 +9,14 @@ def compute_spectrum(eps_grid, run_cfg: DotMap):
     """Evaluates TRCWA for the given epsilon values and run configuration.
 
     Args:
-        eps_grid (torch.tensor): Epsilon values to evaluate TRCWA.
+        eps_grid (torch.tensor): Epsilon values to run TRCWA with.
         run_cfg (DotMap): Run configuration.
 
     Raises:
-        ValueError: Raises an error epsilon contains NaN values.
+        ValueError: Raises an error if epsilon contains NaN values
 
     Returns:
-        tuple of lists: Reflection coefficients, transmission coefficients for the given epsilon values and frequencies.
+        tuple of lists: Reflection coefficients, transmission coefficients for the given epsilon values and frequencies
     """
     logger.trace("Computing spectrum")
     produced_R_spectrum = []

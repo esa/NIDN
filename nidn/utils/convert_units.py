@@ -15,13 +15,13 @@ def freq_to_wl(freq):
 
 
 def phys_wl_to_wl(phys_wl):
-    """Gives the wavelength from the physical wavelength and vice versa.
+    """Gives the wavelength from the physical wavelength.
 
     Args:
-        phys_wl (float): The physical wavelength in metres or the physical frequency in Hz.
+        phys_wl (float): The physical wavelength in metres.
 
     Returns:
-        float: The physical frequency or the physical wavelength.
+        float: The wavelength in units of TRCWA_UNIT_MAGNITUDE.
     """
     return phys_wl / TRCWA_UNIT_MAGNITUDE
 
@@ -33,7 +33,7 @@ def wl_to_phys_wl(wl):
         wl (float): The wavelength in units of TRCWA_UNIT_MAGNITUDE.
 
     Returns:
-        float: The physical wavelength.
+        float: The physical wavelength in metres.
     """
     return wl * TRCWA_UNIT_MAGNITUDE
 
