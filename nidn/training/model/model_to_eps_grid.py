@@ -64,8 +64,6 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.target_frequencies,
     )
 
-    print(out.shape)
-
     # Reshape the output to have a 4D tensor again
     # Note we ouput real and imaginary parts separatly, hence 2*N_freq
     out = out.reshape(
