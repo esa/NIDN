@@ -5,10 +5,10 @@ from ..materials.material_collection import MaterialCollection
 
 
 def print_cfg(cfg: DotMap):
-    """Prints the config in a more readable way
+    """Prints the config in a more readable way.
 
     Args:
-        cfg (DotMap): Config to print
+        cfg (DotMap): Config to print.
     """
     # Print the config three values per line
     idx = 0
