@@ -8,6 +8,7 @@ from copy import deepcopy
 from loguru import logger
 
 from .losses.spectrum_loss import _spectrum_loss_fn
+from .losses.likelihood_regularization_loss import _likelihood_regularization_loss_fn
 from ..materials.material_collection import MaterialCollection
 from .model.init_network import init_network
 from .model.model_to_eps_grid import model_to_eps_grid
@@ -134,12 +135,16 @@ def run_training(
             run_cfg.absorption_loss,
         )
 
-        loss = spectrum_loss
+        loss = 0
+        loss += spectrum_loss
+
+        if run_cfg.type == "classification" and run_cfg.use_regularization_loss:
+            loss += 0.05 * _likelihood_regularization_loss_fn(material_ids, run_cfg.L)
 
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
-        if loss < best_loss:
-            best_loss = loss
+        if spectrum_loss < best_loss:
+            best_loss = spectrum_loss
             logger.info(
                 f"###  New Best={loss.item():<6.4f} with SpectrumLoss={spectrum_loss.detach().item():<6.4f} ###"
             )

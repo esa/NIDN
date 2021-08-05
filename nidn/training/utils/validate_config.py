@@ -31,6 +31,7 @@ def _validate_config(cfg: DotMap):
         "L",
         "absorption_loss",
         "type",
+        "use_regularization_loss",
     ]
 
     for key in required_keys:
@@ -56,7 +57,7 @@ def _validate_config(cfg: DotMap):
         "imag_max_eps",
         "siren_omega",
     ]
-    boolean_keys = []
+    boolean_keys = ["use_regularization_loss"]
     string_keys = ["model_type", "type"]
     for key in integer_keys:
         if not isinstance(cfg[key], int):
