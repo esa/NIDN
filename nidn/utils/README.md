@@ -1,0 +1,1 @@
+This folder contains utility functionality which is exposed to the user. Other utility should be in the subfolder where it is needed.
