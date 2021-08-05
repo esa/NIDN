@@ -119,7 +119,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     )
 
     # Reshape the output to have a 4D tensor again
-    # Note we ouput a likelihood for each material
+    # Note we output a likelihood for each material
     out = out.reshape(
         Nx_undersampled,
         Ny_undersampled,
