@@ -13,14 +13,14 @@ n_neurons = 100
 hidden_layers = 9
 encoding_dim = 4
 out_features = 2
-siren_omega = 1
+siren_omega = 1.0
 
 # Epsilon Properties
 eps_oversampling = 1
 real_min_eps = 1e-3
-real_max_eps = 20
-imag_min_eps = 0
-imag_max_eps = 5
+real_max_eps = 20.0
+imag_min_eps = 0.0
+imag_max_eps = 5.0
 
 # Grid dimensions
 Nx = 5
