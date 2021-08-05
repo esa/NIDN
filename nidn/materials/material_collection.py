@@ -11,6 +11,7 @@ class MaterialCollection:
 
     epsilon_matrix = None
     material_names = []
+    N_materials = 0
 
     def __init__(self, target_frequencies):
         """Initalizes the MaterialCollection. Loads all materials from the data folder.
@@ -18,9 +19,9 @@ class MaterialCollection:
         Args:
             target_frequencies (list): Frequencies we are targeting. Closest ones in the data will be used.
         """
-        logger.remove()
-        logger.add(sys.stderr, format="{level} {name} {message}", level="TRACE")
         logger.trace("Initializing material collection")
+        self.epsilon_matrix = None
+        self.material_names = []
         self.target_frequencies = target_frequencies
         self.materials_folder = os.path.dirname(__file__) + "/data/"
         self._load_materials_folder()
@@ -48,6 +49,7 @@ class MaterialCollection:
         # Create a single tensor of all materials
         logger.trace("Creating material tensor")
         self.epsilon_matrix = torch.stack(eps_list).squeeze()  # .cuda()
+        self.N_materials = len(self.material_names)
 
     def _load_material_data(self, name):
         """Loads the passed wavelength,n,k data from the passed csv file for the closest frequencies and returns epsilon (permittivity).

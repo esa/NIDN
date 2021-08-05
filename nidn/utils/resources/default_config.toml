@@ -3,6 +3,7 @@ seed = 42
 model_type = "siren"
 iterations = 2000
 learning_rate = 6.5e-5
+type = "classification" # "classification" or "regression"
 
 # Loss
 L = 0.5
@@ -12,7 +13,6 @@ absorption_loss = false
 n_neurons = 100
 hidden_layers = 9
 encoding_dim = 4
-out_features = 2
 siren_omega = 1.0
 
 # Epsilon Properties

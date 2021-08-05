@@ -38,7 +38,7 @@ def plot_spectra(model, run_cfg, target_R_spectrum, target_T_spectrum):
     """
 
     # Create epsilon grid from the model
-    eps = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(model, run_cfg)
 
     # Compute the spectra for the given epsilon values
     prod_R_spectrum, prod_T_spectrum = compute_spectrum(eps, run_cfg)

@@ -25,6 +25,7 @@ class NERF(nn.Module):
     def __init__(
         self,
         in_features,
+        out_features,
         skip=[],
         n_neurons=100,
         activation=nn.Sigmoid(),
@@ -43,7 +44,7 @@ class NERF(nn.Module):
             else:
                 self.net.append(NERFLayer(n_neurons, n_neurons))
 
-        self.net.append(NERFLayer(n_neurons, 1, activation=activation))
+        self.net.append(NERFLayer(n_neurons, out_features, activation=activation))
 
     def forward(self, x):
         # save for skip connection

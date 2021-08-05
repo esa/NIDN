@@ -13,10 +13,11 @@ def init_network(
     Returns:
         torch model: Initialized model
     """
-    logger.debug("Initializing model..."+run_cfg.model_type)
+    logger.debug("Initializing model..." + run_cfg.model_type)
     if run_cfg.model_type == "nerf":
         return NERF(
             in_features=run_cfg.encoding_dim,
+            out_features=run_cfg.out_features,
             n_neurons=run_cfg.n_neurons,
             activation=nn.Sigmoid(),
             skip=[4],

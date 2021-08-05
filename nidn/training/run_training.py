@@ -7,36 +7,37 @@ from collections import deque
 from copy import deepcopy
 from loguru import logger
 
-from ..utils.fix_random_seeds import fix_random_seeds
+from .losses.spectrum_loss import _spectrum_loss_fn
+from ..materials.material_collection import MaterialCollection
 from .model.init_network import init_network
+from .model.model_to_eps_grid import model_to_eps_grid
 from ..trcwa.compute_spectrum import compute_spectrum
 from ..trcwa.compute_target_frequencies import compute_target_frequencies
-from .model.model_to_eps_grid import model_to_eps_grid
-from .losses.spectrum_loss import _spectrum_loss_fn
+from ..utils.fix_random_seeds import fix_random_seeds
 from .utils.validate_config import _validate_config
 
 
-def run_training(
-    run_cfg: DotMap,
-    target_reflectance_spectrum: npt.NDArray,
-    target_transmittance_spectrum: npt.NDArray,
-    model=None,
-):
-    """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training
+def _init_training(run_cfg: DotMap, model):
+    """Initializes additional parameters required for training
 
     Args:
         run_cfg (DotMap): Run configuration.
-        target_reflectance_spectrum (np.array): Target reflectance spectrum.
-        target_transmittance_spectrum (np.array): Target transmittance spectrum.
-        model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration. Defaults to None.
+        model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration.
 
     Returns:
-        torch.model,DotMap: The best model achieved in the training run, and the loss results of the training run.
+        DotMap, torch.model,torch.opt,torch.scheduler: Run config with additional entries, model, optimizer, scheduler
     """
-    logger.trace("Initializing training...")
 
     # Validate config
     _validate_config(run_cfg)
+
+    if run_cfg.type == "classification":
+        run_cfg.material_collection = MaterialCollection(run_cfg.target_frequencies)
+        run_cfg.N_materials = run_cfg.material_collection.N_materials
+        # If classification, the model outputs a likelihood for the presence of each material.
+        run_cfg.out_features = run_cfg.N_materials
+    else:
+        run_cfg.out_features = 2  # For regression, the model outputs epsilon directly.
 
     # Fix random seed for reproducibility
     fix_random_seeds(run_cfg.seed)
@@ -61,6 +62,31 @@ def run_training(
         optimizer, factor=0.75, patience=200, min_lr=1e-6, verbose=True
     )
 
+    return run_cfg, model, optimizer, scheduler
+
+
+def run_training(
+    run_cfg: DotMap,
+    target_reflectance_spectrum: npt.NDArray,
+    target_transmittance_spectrum: npt.NDArray,
+    model=None,
+):
+    """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training
+
+    Args:
+        run_cfg (DotMap): Run configuration.
+        target_reflectance_spectrum (np.array): Target reflectance spectrum.
+        target_transmittance_spectrum (np.array): Target transmittance spectrum.
+        model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration. Defaults to None.
+
+    Returns:
+        torch.model,DotMap: The best model achieved in the training run, and the loss results of the training run.
+    """
+    logger.trace("Initializing training...")
+
+    # Initialize training parameters, model and optimizer etc.
+    run_cfg, model, optimizer, scheduler = _init_training(run_cfg, model)
+
     results = DotMap()
 
     # When a new network is created we init empty training logs
@@ -78,10 +104,23 @@ def run_training(
         torch.cuda.empty_cache()
 
         # Compute the epsilon values from the model
-        eps_grid = model_to_eps_grid(model, run_cfg)
+        eps_grid, material_ids = model_to_eps_grid(model, run_cfg)
 
         # Compute the spectrum using TRCWA for this grid
-        produced_R_spectrum, produced_T_spectrum = compute_spectrum(eps_grid, run_cfg)
+        try:
+            produced_R_spectrum, produced_T_spectrum = compute_spectrum(
+                eps_grid, run_cfg
+            )
+        except ValueError:
+            logger.warning(
+                "ValueError encountered in compute_spectrum. This likely means the LR was too high. Reloading best model, and reducing LR."
+            )
+            model.load_state_dict(best_model_state_dict)
+            logger.info(
+                "Setting LR to {}".format(optimizer.param_groups[0]["lr"] * 0.5)
+            )
+            optimizer.param_groups[0]["lr"] *= 0.5
+            continue
 
         # Compute loss between target spectrum and
         # the one from the current network structure

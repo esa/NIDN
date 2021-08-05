@@ -10,7 +10,6 @@ def test_material_collection_init():
     assert mc.epsilon_matrix is not None
     assert mc.epsilon_matrix.shape[0] == len(mc.material_names)
     assert mc.epsilon_matrix.shape[1] == len(target_frequencies)
-    raise ()
 
 
 if __name__ == "__main__":
