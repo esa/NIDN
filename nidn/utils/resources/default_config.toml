@@ -17,6 +17,8 @@ encoding_dim = 4
 siren_omega = 1.0
 
 # Epsilon Properties
+add_noise = false
+noise_scale = 0.05
 eps_oversampling = 1
 real_min_eps = 1e-3
 real_max_eps = 20.0
