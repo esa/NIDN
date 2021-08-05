@@ -12,15 +12,14 @@ def _init_trcwa(eps_grid, target_frequency):
     Returns:
         TRCWA obj: The created object which is ready to compute the spectrum
     """
-
     Nx, Ny, N_layers = eps_grid.shape[0:3]
 
     # Squeeze out Nx=1, Ny=1 dimension (for uniform layer)
     eps_grid = eps_grid.squeeze(0)
-    eps_grid = eps_grid.squeeze(1)
+    eps_grid = eps_grid.squeeze(0)
 
     # Adding a small imaginary part to the frequency to avoid singularities in RCWA
-    # See page 2 of arxiv.org/pdf/2005.04840v1.pdf 
+    # See page 2 of arxiv.org/pdf/2005.04840v1.pdf
     # or doi.org/10.1364/OE.21.030812 for a more thorough explanation
     freqcmp = target_frequency * (1 + (1j / (2.0 * TRCWA_Q_ABS)))
 
