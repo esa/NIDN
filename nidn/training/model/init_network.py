@@ -1,8 +1,9 @@
-from ..utils.siren import Siren
-from ..utils.nerf import NERF
 from dotmap import DotMap
-
+from loguru import logger
 import torch.nn as nn
+
+from ..utils.nerf import NERF
+from ..utils.siren import Siren
 
 
 def init_network(
@@ -12,6 +13,7 @@ def init_network(
     Returns:
         torch model: Initialized model
     """
+    logger.debug("Initializing model..."+run_cfg.model_type)
     if run_cfg.model_type == "nerf":
         return NERF(
             in_features=run_cfg.encoding_dim,

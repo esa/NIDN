@@ -24,10 +24,13 @@ def _spectrum_loss_fn(
         include_absorption (bool, optional): If absorption should be included in loss term. Defaults to False.
 
     Returns:
-        [torch.tensor]: Loss values for reflectance, transmittance and optionally absorption
+        [torch.tensor], renormalized: Loss values for reflectance, transmittance and optionally absorption and if renormalization happened.
     """
+    logger.trace("Computing spectrum loss..")
 
     R_loss, T_loss, A_loss = 0, 0, 0
+    # Tracks if renormalization happened
+    renormalized = False
 
     # Iterate over all frequencies
     for prod_R, prod_T, target_R, target_T, freq in zip(
@@ -46,6 +49,7 @@ def _spectrum_loss_fn(
             )
             prod_R = prod_R / (prod_R + prod_T)
             prod_T = prod_T / (prod_R + prod_T)
+            renormalized = True
 
         # Accumulate losses
         R_loss += torch.abs(prod_R - target_R) ** L
@@ -57,6 +61,6 @@ def _spectrum_loss_fn(
             A_loss += torch.abs(prod_A - target_A) ** L
 
     if include_absorption:
-        return (A_loss + R_loss + T_loss) / (3 * len(produced_R_spectrum))
+        return (A_loss + R_loss + T_loss) / (3 * len(produced_R_spectrum)), renormalized
     else:
-        return (R_loss + T_loss) / (2 * len(produced_R_spectrum))
+        return (R_loss + T_loss) / (2 * len(produced_R_spectrum)), renormalized

@@ -33,6 +33,8 @@ def run_training(
     Returns:
         torch.model,DotMap: The best model achieved in the training run, and the loss results of the training run.
     """
+    logger.trace("Initializing training...")
+
     # Validate config
     _validate_config(run_cfg)
 
@@ -45,6 +47,9 @@ def run_training(
         run_cfg.physical_wavelength_range[1],
         run_cfg.N_freq,
     )
+
+    logger.debug("Computed target frequencies:")
+    logger.debug(run_cfg.target_frequencies)
 
     # Init model
     if model is None:
@@ -67,6 +72,7 @@ def run_training(
     best_loss = np.inf
     best_model_state_dict = model.state_dict()
 
+    logger.trace("Starting training...")
     # Training Loop
     for it in range(run_cfg.iterations):
         torch.cuda.empty_cache()
@@ -79,7 +85,7 @@ def run_training(
 
         # Compute loss between target spectrum and
         # the one from the current network structure
-        spectrum_loss = _spectrum_loss_fn(
+        spectrum_loss, renormalized = _spectrum_loss_fn(
             produced_R_spectrum,
             produced_T_spectrum,
             target_reflectance_spectrum,
@@ -94,11 +100,13 @@ def run_training(
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
         if loss < best_loss:
-            best_model_state_dict = deepcopy(model.state_dict())
             best_loss = loss
             logger.info(
                 f"New Best={loss.item():.4f} SpectrumLoss={spectrum_loss.detach().item():4f}"
             )
+            if not renormalized:
+                logger.debug("Saving model state...")
+                best_model_state_dict = deepcopy(model.state_dict())
 
         # Update the loss trend indicators
         weighted_average.append(loss.item())
@@ -126,6 +134,7 @@ def run_training(
         # Perform a step in LR scheduler to update LR if necessary
         scheduler.step(loss.item())
 
+    logger.trace("Reloading best model state...")
     # Return best model in the end
     model.load_state_dict(best_model_state_dict)
 
