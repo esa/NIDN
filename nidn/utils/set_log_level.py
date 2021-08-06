@@ -13,7 +13,7 @@ def set_log_level(log_level: str):
         sys.stderr,
         colorize=True,
         level=log_level,
-        format="{time:HH:mm:ss}|NIDN-{level}| {message}",
+        format="<green>{time:HH:mm:ss}</green>|NIDN-<blue>{level}</blue>| <level>{message}</level>",
         filter="nidn",
     )
     logger.debug(f"Setting LogLevel to {log_level}")
