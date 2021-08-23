@@ -10,12 +10,12 @@ from ..materials.material_collection import MaterialCollection
 
 
 def plot_eps_per_point(model, run_cfg, compare_to_material=None):
-    """This function plots the epsilon values of grid points against real materials
+    """This function plots the epsilon values of grid points against real materials.
 
     Args:
         model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
-        compare_to_material (str): Name of the material to compare to. Available ones are in /materials/data.
+        compare_to_material (str): Name of the material to compare with. Available ones are in /materials/data.
     """
     # Create epsilon grid from the model
     eps, _ = model_to_eps_grid(model, run_cfg)
