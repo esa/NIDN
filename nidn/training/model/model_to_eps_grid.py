@@ -11,6 +11,8 @@ def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_freque
         Ny_undersampled (int): Number of grid points in y direction. Potentially unesampled if eps_oversampling > 1.
         N_layers (int): Number of layers in the model.
         target_frequencies (list): Target frequencies.
+    Returns:
+       [torch.tensor]: Resulting 4D [real,imag] epsilon grid
     """
     # Get the grid ticks
     x = torch.linspace(-1, 1, Nx_undersampled)
