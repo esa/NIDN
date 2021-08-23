@@ -12,7 +12,7 @@ def plot_model_grid(model, run_cfg):
         run_cfg (dict): The run configuration.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
-    eps = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(model, run_cfg)
     x = torch.linspace(-1, 1, Nx)
     y = torch.linspace(-1, 1, Ny)
     z = torch.linspace(-1, 1, N_layers)

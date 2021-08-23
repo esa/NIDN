@@ -1,6 +1,8 @@
 from dotmap import DotMap
 import numpy as np
 
+from ..materials.material_collection import MaterialCollection
+
 
 def print_cfg(cfg: DotMap):
     """Prints the config in a more readable way.
@@ -15,6 +17,8 @@ def print_cfg(cfg: DotMap):
             print()
             print(f"{key}: {value}")
             idx = 0
+        elif isinstance(value, MaterialCollection):
+            print()
         else:
             if idx % 3 == 2:
                 print(f"{key:<20}: {value:<20}")

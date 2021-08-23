@@ -23,7 +23,6 @@ def _validate_config(cfg: DotMap):
         "N_freq",
         "model_type",
         "encoding_dim",
-        "out_features",
         "siren_omega",
         "n_neurons",
         "hidden_layers",
@@ -31,6 +30,7 @@ def _validate_config(cfg: DotMap):
         "iterations",
         "L",
         "absorption_loss",
+        "type",
     ]
 
     for key in required_keys:
@@ -44,7 +44,6 @@ def _validate_config(cfg: DotMap):
         "N_layers",
         "N_freq",
         "encoding_dim",
-        "out_features",
         "n_neurons",
         "eps_oversampling",
         "seed",
@@ -58,9 +57,7 @@ def _validate_config(cfg: DotMap):
         "siren_omega",
     ]
     boolean_keys = []
-    string_keys = [
-        "model_type",
-    ]
+    string_keys = ["model_type", "type"]
     for key in integer_keys:
         if not isinstance(cfg[key], int):
             raise ValueError(f"{key} must be an integer")
@@ -106,3 +103,6 @@ def _validate_config(cfg: DotMap):
         raise ValueError(f"Nx must be a multiple of eps_oversampling")
     if not cfg.Ny % cfg.eps_oversampling == 0:
         raise ValueError(f"Ny must be a multiple of eps_oversampling")
+
+    if cfg.type != "classification" and cfg.type != "regression":
+        raise ValueError(f"type must be either 'classification' or 'regression'")
