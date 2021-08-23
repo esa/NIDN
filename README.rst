@@ -16,6 +16,16 @@ Installation
 
 ``git clone`` the repository and make sure you have all the requirements installed.
 
+To set up a conda environment for the project run
+
+``conda env create -f environment.yml``.
+
+This will create a conda environment called ``nidn`` for it.
+
+If you just want to install the module in your current environment you can run 
+
+``pip install .`` in the root folder where the setup.py is located.
+
 
 Documentation 
 -------------
@@ -33,4 +43,4 @@ Acknowledgements
 ----------------
 
 Apart from all the contributors to this repository, we would like to thank 
-José Llorents M., Dario Izzo, and João Cunha.
+José Llorents Montolio, Dario Izzo, and João Cunha.
