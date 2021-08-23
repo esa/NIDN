@@ -18,14 +18,14 @@ from .utils.validate_config import _validate_config
 
 
 def _init_training(run_cfg: DotMap, model):
-    """Initializes additional parameters required for training
+    """Initializes additional parameters required for training.
 
     Args:
         run_cfg (DotMap): Run configuration.
         model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration.
 
     Returns:
-        DotMap, torch.model,torch.opt,torch.scheduler: Run config with additional entries, model, optimizer, scheduler
+        DotMap, torch.model, torch.opt, torch.scheduler: Run config with additional entries, model, optimizer, scheduler
     """
 
     # Validate config
@@ -80,7 +80,7 @@ def run_training(
         model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration. Defaults to None.
 
     Returns:
-        torch.model,DotMap: The best model achieved in the training run, and the loss results of the training run.
+        torch.model, DotMap: The best model achieved in the training run, and the loss results of the training run.
     """
     logger.trace("Initializing training...")
 

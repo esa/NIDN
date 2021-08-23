@@ -3,10 +3,10 @@ import sys
 
 
 def set_log_level(log_level: str):
-    """Set the log level for the logger
+    """Set the log level for the logger.
 
     Args:
-        log_level (str): The log level to set. Options are 'TRACE','DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL'
+        log_level (str): The log level to set. Options are 'TRACE','DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL'.
     """
     logger.remove()
     logger.add(
