@@ -10,8 +10,10 @@ Welcome to NIDN's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   README
+   tutorial
    source/modules
+
+.. include:: ../README.rst
 
 
 Indices and tables

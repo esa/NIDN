@@ -53,17 +53,17 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = "alabaster"
 
-# html_logo = "NIDN_logo.jpg"
+html_theme = "sphinx_rtd_theme"
 
-# html_theme_options = {
-#     "logo_only": True,
-#     "display_version": True,
-#     "prev_next_buttons_location": "bottom",
-#     "style_nav_header_background": "white",
-# }
+html_logo = "NIDN_logo.jpg"
+
+html_theme_options = {
+    "logo_only": True,
+    "display_version": True,
+    "prev_next_buttons_location": "bottom",
+    "style_nav_header_background": "white",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -11,8 +11,8 @@ Neural Inverse Design of Nanostructures (NIDN) is a Python project by the Advanc
 The goal of the project is to enable inverse design of nanostructures, metamaterials, 
 photonic crystals, etc., using neural networks in PyTorch. 
 
-Install
--------
+Installation
+------------
 
 ``git clone`` the repository and make sure you have all the requirements installed.
 
