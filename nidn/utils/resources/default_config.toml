@@ -7,7 +7,7 @@ type = "classification" # "classification" or "regression"
 use_regularization_loss = true # only relevant for classification
 
 # Loss
-L = 0.5
+L = 2.0
 absorption_loss = false
 
 # Model Parameters
