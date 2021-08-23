@@ -19,7 +19,6 @@ from .utils.validate_config import _validate_config
 
 def _init_training(run_cfg: DotMap, model):
     """Initializes additional parameters required for training.
-
     Args:
         run_cfg (DotMap): Run configuration.
         model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration.
