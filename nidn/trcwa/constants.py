@@ -1,14 +1,14 @@
 import torch
 
 # NB: Here, we assume that the standard is micrometre (um).
-TRCWA_UNIT_MAGNITUDE = 10 ** (-6)
+TRCWA_UNIT_MAGNITUDE = 10 ** (-7)
 
 # m /s
 TRCWA_SPEED_OF_LIGHT = 299792458.0
 
 # Q_ABS is a parameter for relaxation to better approach global optimal, at Q_ABS= inf, it will describe the real physics.
 # It can also be used to resolve singular matrix issues by setting a large but finite Q_ABS, e.g. Q_ABS= 1e5.
-# See page 2 of arxiv.org/pdf/2005.04840v1.pdf 
+# See page 2 of arxiv.org/pdf/2005.04840v1.pdf
 # or doi.org/10.1364/OE.21.030812 for a more thorough explanation
 TRCWA_Q_ABS = 1e5
 
