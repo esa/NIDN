@@ -52,10 +52,10 @@ class MaterialCollection:
         self.N_materials = len(self.material_names)
 
     def _load_material_data(self, name):
-        """Loads the passed wavelength,n,k data from the passed csv file for the closest frequencies and returns epsilon (permittivity).
+        """Loads data (wavelength, n, and k) from the passed csv file for the closest frequencies and returns epsilon (permittivity).
 
         Args:
-            name (str): Path to csv
+            name (str): Path to csv.
 
         Returns:
             torch.tensor: Epsilon for the material (permittivity)
