@@ -2,13 +2,13 @@ import torch
 
 
 def _likelihood_regularization_loss_fn(material_predictions, L=0.5, use_max=False):
-    """Computes a likelihood regularization loss the distance between predictions
+    """Computes a likelihood regularization loss for the distance between predictions
     and one / zero respectively.
 
     Args:
         material_predictions (torch.tensor): Predictions of the material for each grid point.
         L (float, optional): L (float, optional): Exponent of the loss, e.g. L=2 for squared loss values. Defaults to 0.5.
-        use_max (bool, optional): If True, the max of the material predictions is used. Defaults to True.
+        use_max (bool, optional): If True, the max of the material predictions is used. Defaults to False.
 
     Returns:
         torch.tensor: Likelihood regularization loss
