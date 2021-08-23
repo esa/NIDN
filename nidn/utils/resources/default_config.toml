@@ -4,6 +4,7 @@ model_type = "siren"
 iterations = 2000
 learning_rate = 6.5e-5
 type = "classification" # "classification" or "regression"
+use_regularization_loss = true # only relevant for classification
 
 # Loss
 L = 0.5
