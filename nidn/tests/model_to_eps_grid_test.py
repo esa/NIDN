@@ -8,7 +8,7 @@ from ..utils.load_default_cfg import load_default_cfg
 
 
 def test_model_to_eps_grid():
-    """Tests if these functions run. No correctness check of results"""
+    """Tests if these functions run. The correctness of the results is not checked."""
 
     # Test classification
     cfg = load_default_cfg()
@@ -32,7 +32,7 @@ def test_model_to_eps_grid():
     assert ids is not None
     assert eps.shape == torch.Size([cfg.Nx, cfg.Ny, cfg.N_layers, cfg.N_freq])
 
-    # Test classification
+    # Test regression
     cfg.out_features = 2
 
     cfg.type = "regression"
