@@ -36,6 +36,16 @@ setup(
     ],
     packages=[
         "nidn",
+        "nidn.materials",
+        "nidn.plots",
+        "nidn.tests",
+        "nidn.training",
+        "nidn.training.losses",
+        "nidn.training.model",
+        "nidn.training.utils",
+        "nidn.trcwa",
+        "nidn.trcwa.utils",
+        "nidn.utils",
     ],
     python_requires=">=3.8, <4",
     project_urls={
