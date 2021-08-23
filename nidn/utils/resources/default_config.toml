@@ -29,5 +29,5 @@ Ny = 5
 N_layers = 1
 
 # Target frequencies
-physical_wavelength_range = [1000e-9,3e-6]
+physical_wavelength_range = [1000e-9,10e-6]
 N_freq = 20
