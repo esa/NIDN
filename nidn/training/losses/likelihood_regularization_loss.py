@@ -11,7 +11,7 @@ def _likelihood_regularization_loss_fn(material_predictions, L=0.5, use_max=Fals
         use_max (bool, optional): If True, the max of the material predictions is used. Defaults to True.
 
     Returns:
-        torch.tensor: Likelihood regularization loss.
+        torch.tensor: Likelihood regularization loss
     """
     if use_max:
         # Take maximum value per grid point as distance
