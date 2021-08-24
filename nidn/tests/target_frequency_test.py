@@ -18,8 +18,8 @@ def test_conversion():
 
     assert len(target_frequencies) == 5
 
-    prod_min_wl = 1.0 / target_frequencies[0] * TRCWA_UNIT_MAGNITUDE
-    prod_max_wl = 1.0 / target_frequencies[-1] * TRCWA_UNIT_MAGNITUDE
+    prod_min_wl = 1.0 / target_frequencies[-1] * TRCWA_UNIT_MAGNITUDE
+    prod_max_wl = 1.0 / target_frequencies[0] * TRCWA_UNIT_MAGNITUDE
 
     assert abs(prod_min_wl - min_wl) < 1e-8
     assert abs(prod_max_wl - max_wl) < 1e-8
