@@ -1,9 +1,7 @@
-import os
-import inspect
 import torch
-
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+
 from ..utils.convert_units import freq_to_wl
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 from ..trcwa.load_material_data import _load_material_data

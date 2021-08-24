@@ -33,5 +33,4 @@ def _find_closest_material(eps, run_cfg):
     comparisons = comparisons.mean(dim=3)  # Average over frequencies
     minimal_comparisons, indices = torch.min(comparisons, dim=-1)
 
-    error = torch.mean(minimal_comparisons)
-    return error, indices
+    return minimal_comparisons, indices

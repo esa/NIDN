@@ -7,6 +7,7 @@ from .materials.layer_builder import LayerBuilder
 from .materials.material_collection import MaterialCollection
 from .plots.plot_epsilon_grid import plot_epsilon_grid
 from .plots.plot_eps_per_point import plot_eps_per_point
+from .plots.plot_material_grid import plot_material_grid
 from .plots.plot_model_grid import plot_model_grid
 from .plots.plot_model_grid_per_freq import plot_model_grid_per_freq
 from .plots.plot_spectra import plot_spectra
@@ -45,6 +46,7 @@ __all__ = [
     "phys_freq_to_phys_wl",
     "plot_epsilon_grid",
     "plot_eps_per_point",
+    "plot_material_grid",
     "plot_model_grid",
     "plot_model_grid_per_freq",
     "plot_spectra",
