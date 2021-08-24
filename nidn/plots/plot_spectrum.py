@@ -15,7 +15,7 @@ def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
     ax.set_ylabel(f"{type_name}")
     ax.set_xscale("log")
     ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-    # ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+    ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
     ax.set_ylim(ylimits)
@@ -53,7 +53,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum):
             max(max(A_spectrum), max(T_spectrum), max(R_spectrum)) + 0.1,
         ]
 
-    fig = plt.figure(figsize=(15, 5), dpi=150)
+    fig = plt.figure(figsize=(10, 4), dpi=150)
     fig.patch.set_facecolor("white")
 
     fig = _add_plot(fig, target_frequencies, R_spectrum, ylimits, 131, "Reflectance",)

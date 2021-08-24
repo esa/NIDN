@@ -4,6 +4,7 @@ from loguru import logger
 
 # Add exposed features here
 from .materials.layer_builder import LayerBuilder
+from .materials.material_collection import MaterialCollection
 from .plots.plot_epsilon_grid import plot_epsilon_grid
 from .plots.plot_eps_per_point import plot_eps_per_point
 from .plots.plot_model_grid import plot_model_grid
@@ -40,7 +41,7 @@ __all__ = [
     "freq_to_wl",
     "LayerBuilder",
     "load_default_cfg",
-    "run_training",
+    "MaterialCollection",
     "phys_freq_to_phys_wl",
     "plot_epsilon_grid",
     "plot_eps_per_point",
@@ -49,6 +50,7 @@ __all__ = [
     "plot_spectra",
     "plot_spectrum",
     "print_cfg",
+    "run_training",
     "set_log_level",
     "wl_to_phys_wl",
 ]
