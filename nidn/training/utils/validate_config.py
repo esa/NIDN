@@ -32,6 +32,8 @@ def _validate_config(cfg: DotMap):
         "absorption_loss",
         "type",
         "use_regularization_loss",
+        "add_noise",
+        "noise_scale",
     ]
 
     for key in required_keys:
@@ -56,8 +58,9 @@ def _validate_config(cfg: DotMap):
         "imag_min_eps",
         "imag_max_eps",
         "siren_omega",
+        "noise_scale",
     ]
-    boolean_keys = ["use_regularization_loss"]
+    boolean_keys = ["use_regularization_loss", "add_noise"]
     string_keys = ["model_type", "type"]
     for key in integer_keys:
         if not isinstance(cfg[key], int):
@@ -95,6 +98,7 @@ def _validate_config(cfg: DotMap):
         "learning_rate",
         "iterations",
         "eps_oversampling",
+        "noise_scale",
     ]
     for key in positive_value_keys:
         if not (cfg[key] > 0):
