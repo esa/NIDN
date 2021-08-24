@@ -1,3 +1,5 @@
+from loguru import logger
+
 from .constants import *
 from .trcwa import TRCWA
 
@@ -23,6 +25,11 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
     # See page 2 of arxiv.org/pdf/2005.04840v1.pdf
     # or doi.org/10.1364/OE.21.030812 for a more thorough explanation
     freqcmp = target_frequency * (1 + (1j / (2.0 * TRCWA_Q_ABS)))
+
+    if torch.tensor(run_cfg.TRCWA_L_grid).max() * target_frequency > 1.0:
+        logger.warning(
+            f"With a frequency of {target_frequency} and L_grid={run_cfg.TRCWA_L_grid} TRCWA may become unstable. Consider decreasing the target frequency or decreasing L_grid if R+T+A > 1."
+        )
 
     # Initialize TRCWA object
     trcwa = TRCWA(
