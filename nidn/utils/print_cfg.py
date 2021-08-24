@@ -21,8 +21,8 @@ def print_cfg(cfg: DotMap):
             print()
         else:
             if idx % 3 == 2:
-                print(f"{key:<20}: {value:<20}")
+                print(f"{key:<23}: {value:<15}|")
             else:
-                print(f"{key:<20}: {value:<20}", end="")
+                print(f"{key:<23}: {value:<15}|", end="")
         idx += 1
     print()
