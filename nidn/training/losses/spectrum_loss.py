@@ -8,7 +8,7 @@ def _spectrum_loss_fn(
     target_R_spectrum,
     target_T_spectrum,
     target_frequencies,
-    L=0.5,
+    L=2.0,
     include_absorption=False,
 ):
     """Computes the loss for the difference in reflectance,
