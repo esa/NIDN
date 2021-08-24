@@ -7,7 +7,7 @@ type = "classification" # "classification" or "regression"
 use_regularization_loss = true # only relevant for classification
 
 # Loss
-L = 0.5
+L = 2.0
 absorption_loss = false
 
 # Model Parameters
@@ -31,5 +31,5 @@ Ny = 5
 N_layers = 1
 
 # Target frequencies
-physical_wavelength_range = [1000e-9,3e-6]
+physical_wavelength_range = [250e-9,10e-6]
 N_freq = 20
