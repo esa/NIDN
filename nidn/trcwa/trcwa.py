@@ -438,13 +438,13 @@ class TRCWA:
         return ai, bi
 
     def Solve_FieldFourier(self, which_layer, z_offset):
-        """Returns the field amplitude in Fourier space: [ex,ey,ez], [hx,hy,hz]
+        """Returns the field amplitude in Fourier space: [Ex,Ey,Ez], [Hx,Hy,Hz]
         Args:
             which_layer (int): Which layer to return the field amplitude from.
-            z_offset (float or int): The z-offset at which to obtain the field amplitude. Must be 0 < z_offset < layer thickness.
+            z_offset (torch.tensor): The z-offset at which to obtain the field amplitude. Must be 0 < z_offset < layer thickness. Can be a single number or a list of numbers.
 
         Returns:
-            torch.tensor: Tensor containing the field amplitudes [[ex,ey,ez], [hx,hy,hz]] in Fourier space
+            torch.tensor: Tensors containing the field amplitudes [Ex,Ey,Ez], [Hx,Hy,Hz] in Fourier space
         """
         ai0, bi0 = self.GetAmplitudes_noTranslate(which_layer)
         # ai, bi = self.GetAmplitudes(which_layer,z_offset)
@@ -490,7 +490,16 @@ class TRCWA:
         return eh
 
     def Solve_FieldOnGrid(self, which_layer, z_offset, Nxy=None):
-        # Nxy = [Nx,Ny], if not supplied, will use the number in patterned layer
+        """To get fields in real space on grid points.
+
+        Args:
+            which_layer (int): Which layer to return the field amplitude from.
+            z_offset (torch.tensor): The z-offset at which to obtain the field amplitude. Must be 0 < z_offset < layer thickness. Can be a single number or a list of numbers.
+            Nxy (torch.tensor, optional): Nxy = [Nx,Ny], if not supplied, will use the number in patterned layer.
+
+        Returns:
+            torch.tensor: Tensors containing the field amplitudes [Ex,Ey,Ez], [Hx,Hy,Hz] in Fourier space
+        """
         # if single z_offset:  output [[ex,ey,ez],[hx,hy,hz]]
         # if z_offset is list: output [[[ex1,ey1,ez1],[hx1,hy1,hz1]],  [[ex2,ey2,ez2],[hx2,hy2,hz2]] ...]
 
