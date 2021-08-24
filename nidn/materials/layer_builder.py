@@ -60,11 +60,9 @@ class LayerBuilder:
         eps[:, :] = self.material_collection[grid_material]
 
         # Define the square
-        ind = torch.logical_not(
-            torch.logical_and(
-                torch.logical_and((grid_x > a), (grid_x < 1 - a)),
-                torch.logical_and((grid_y > a), (grid_y < 1 - a)),
-            )
+        ind = torch.logical_and(
+            torch.logical_and((grid_x > a), (grid_x < 1 - a)),
+            torch.logical_and((grid_y > a), (grid_y < 1 - a)),
         )
 
         eps[ind] = self.material_collection[square_material]
@@ -91,9 +89,7 @@ class LayerBuilder:
         eps[:, :] = self.material_collection[grid_material]
 
         # Define the circle
-        ind = torch.logical_not(
-            (grid_x - center) ** 2 + (grid_y - center) ** 2 < radius ** 2
-        )
+        ind = (grid_x - x_center) ** 2 + (grid_y - y_center) ** 2 < radius ** 2
 
         eps[ind] = self.material_collection[circle_material]
 
