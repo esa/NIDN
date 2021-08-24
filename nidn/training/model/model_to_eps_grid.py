@@ -76,8 +76,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
 
     # Initialize the epsilon grid
     eps = torch.zeros(
-        [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq],
-        dtype=torch.cfloat,
+        [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq], dtype=torch.cfloat,
     )
 
     # Net out is [0,1] thus we transform to desired real and imaginary ranges
@@ -91,6 +90,19 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
     eps.imag = (eps.imag * (run_cfg.imag_max_eps - run_cfg.imag_min_eps)).clip(
         run_cfg.imag_min_eps, run_cfg.imag_max_eps
     )
+
+    # Adds noise scaled to desired eps range times noise_scale
+    if run_cfg.add_noise:
+        eps.real += (
+            torch.randn_like(eps.real)
+            * run_cfg.noise_scale
+            * (run_cfg.real_max_eps - run_cfg.real_min_eps)
+        )
+        eps.imag += (
+            torch.randn_like(eps.imag)
+            * run_cfg.noise_scale
+            * (run_cfg.imag_max_eps - run_cfg.imag_min_eps)
+        )
 
     return eps
 
@@ -135,9 +147,9 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     # We take mean over the frequency dimension in determining the fitting
     out = torch.mean(out, dim=3)
 
-    # Apply softmax to get a probability distribution
-    # material_id = torch.softmax(out, dim=-1)
-    # print(material_id.shape)
+    # Adds noise according to specified noise_scale
+    if run_cfg.add_noise:
+        out += torch.randn_like(out) * run_cfg.noise_scale
 
     beta = 10
     # Softmax with a high beta to push towards 1
