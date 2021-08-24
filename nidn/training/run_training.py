@@ -138,7 +138,9 @@ def run_training(
         loss += spectrum_loss
 
         if run_cfg.type == "classification" and run_cfg.use_regularization_loss:
-            loss += 0.05 * _likelihood_regularization_loss_fn(material_ids, run_cfg.L)
+            loss += run_cfg.reg_loss_weight * _likelihood_regularization_loss_fn(
+                material_ids, run_cfg.L
+            )
 
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
