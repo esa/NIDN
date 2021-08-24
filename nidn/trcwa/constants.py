@@ -1,7 +1,7 @@
 import torch
 
 # NB: Here, we assume that the standard is micrometre (um).
-TRCWA_UNIT_MAGNITUDE = 10 ** (-7)
+TRCWA_UNIT_MAGNITUDE = 10 ** (-6)
 
 # m /s
 TRCWA_SPEED_OF_LIGHT = 299792458.0
