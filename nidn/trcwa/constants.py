@@ -15,8 +15,8 @@ TRCWA_Q_ABS = 1e5
 # Truncation order (actual number might be smaller)
 TRCWA_NG = 11
 
-TRCWA_L1 = [1, 0]  # everything is set relative to this
-TRCWA_L2 = [0, 1]  # it is easiest to say 1 = 1 micron
+TRCWA_L1 = [0.1, 0]  # everything is set relative to this
+TRCWA_L2 = [0, 0.1]  # it is easiest to say 1 = 1 micron
 
 # Dielectric constant for top and bottom layer (vacuum layer)
 TRCWA_VACUUM_EPS = torch.tensor(1.0)

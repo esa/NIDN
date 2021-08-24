@@ -88,7 +88,7 @@ def Gsel_parallelogramic(nG, Lk1, Lk2):
 
 def Gsel_circular(nG, Lk1, Lk2):
     """From Liu's gsel.c.
-    NG * |u x v| is approximately the area in k-space we will need
+    NG * abs(u x v) is approximately the area in k-space we will need
     cover with a circular disc. (u and v are the 2 shortest lattice
     vectors) From the area, we can find the radius (and round it
     up). Then, we can find the minimum extends in each of the two
