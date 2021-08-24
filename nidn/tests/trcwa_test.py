@@ -19,6 +19,8 @@ def test_single_layer():
     run_cfg.N_layers = 1
     run_cfg.target_frequencies = [0.5]
     run_cfg.N_freq = 1
+    run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
+    run_cfg.TRCWA_NG = 11
 
     # Get eps shape
     shape = [
@@ -55,6 +57,8 @@ def test_uniform_layer():
     run_cfg.N_layers = 1
     run_cfg.target_frequencies = [0.05, 0.1]
     run_cfg.N_freq = 2
+    run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
+    run_cfg.TRCWA_NG = 11
 
     # Get eps shape
     shape = [
@@ -96,6 +100,8 @@ def test_three_layer():
     run_cfg.N_layers = 3
     run_cfg.target_frequencies = [3.0]
     run_cfg.N_freq = 1
+    run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
+    run_cfg.TRCWA_NG = 11
 
     # Get eps shape
     shape = [
