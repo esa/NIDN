@@ -15,8 +15,8 @@ def _init_trcwa(eps_grid, target_frequency):
     Nx, Ny, N_layers = eps_grid.shape[0:3]
 
     # Squeeze out Nx=1, Ny=1 dimension (for uniform layer)
-    eps_grid = eps_grid.squeeze(0)
-    eps_grid = eps_grid.squeeze(0)
+    eps_grid = eps_grid.squeeze(0)  # squeeze X
+    eps_grid = eps_grid.squeeze(0)  # squeeze Y (now at 0)
 
     # Adding a small imaginary part to the frequency to avoid singularities in RCWA
     # See page 2 of arxiv.org/pdf/2005.04840v1.pdf

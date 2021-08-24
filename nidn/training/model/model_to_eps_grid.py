@@ -11,6 +11,8 @@ def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_freque
         Ny_undersampled (int): Number of grid points in y direction. Potentially unesampled if eps_oversampling > 1.
         N_layers (int): Number of layers in the model.
         target_frequencies (list): Target frequencies.
+    Returns:
+       [torch.tensor]: Resulting 4D [real,imag] epsilon grid
     """
     # Get the grid ticks
     x = torch.linspace(-1, 1, Nx_undersampled)
@@ -90,6 +92,19 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.imag_min_eps, run_cfg.imag_max_eps
     )
 
+    # Adds noise scaled to desired eps range times noise_scale
+    if run_cfg.add_noise:
+        eps.real += (
+            torch.randn_like(eps.real)
+            * run_cfg.noise_scale
+            * (run_cfg.real_max_eps - run_cfg.real_min_eps)
+        )
+        eps.imag += (
+            torch.randn_like(eps.imag)
+            * run_cfg.noise_scale
+            * (run_cfg.imag_max_eps - run_cfg.imag_min_eps)
+        )
+
     return eps
 
 
@@ -133,9 +148,9 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     # We take mean over the frequency dimension in determining the fitting
     out = torch.mean(out, dim=3)
 
-    # Apply softmax to get a probability distribution
-    # material_id = torch.softmax(out, dim=-1)
-    # print(material_id.shape)
+    # Adds noise according to specified noise_scale
+    if run_cfg.add_noise:
+        out += torch.randn_like(out) * run_cfg.noise_scale
 
     beta = 10
     # Softmax with a high beta to push towards 1
