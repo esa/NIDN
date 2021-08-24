@@ -9,16 +9,22 @@ from .utils.torch_functions import torch_transpose, torch_dot, torch_eye, torch_
 
 class TRCWA:
     def __init__(self, nG, L1, L2, freq, theta, phi, verbose=1):
-        """The time harmonic convention is exp(-i omega t), speed of light = 1
+        """Initializes the TRCWA class.
+
+        The time harmonic convention is exp(-i omega t), speed of light = 1.
 
         Two kinds of layers are currently supported: uniform layer,
         patterned layer from grids. Interface for patterned layer by
         direct analytic expression of Fourier series is included, but
         no examples inclded so far.
 
-        nG: truncation order, but the actual truncation order might not be nG
-        L1,L2: lattice vectors, in the list format, (x,y)
-
+        Args:
+            nG (int): Truncation order. Note: the actual truncation order might not be nG but smaller.
+            L1, L2 (float): Lattice vectors in the x and y direction, respectively. Defines the base unit of the whole system.
+            freq (float): The "unitless" frequency, given in relation to the lattice vectors. For a better understanding, read https://web.stanford.edu/group/fan/S4/units.html#length-time-and-frequency.
+            theta (float): The polar angle in radians (0 <= theta <= pi).
+            phi (float): The azimuthal angle in radians (0 <= theta < 2pi).
+            verbose (int, optional): If verbose > 0, the actual nG is printed. Defaults to 1.
         """
         self.freq = freq
         self.omega = 2 * TRCWA_PI * freq + 0.0j
@@ -87,11 +93,11 @@ class TRCWA:
         self.FourierLayer_N += 1
 
     def Init_Setup(self, Pscale=1.0, Gmethod=0):
-        """
-        Set up reciprocal lattice (Gmethod:truncation scheme, 0 for circular, 1 for rectangular)
-        Pscale: scale the period
-        Compute eigenvalues for uniform layers
-        Initialize vectors for patterned layers
+        """Set up the reciprocal lattice, compute eigenvalues for uniform layers, and initialize vectors for patterned layers.
+
+        Args:
+            Pscale (float, optional): To scale the periodicity in both lateral directions simultaneously (as an autogradable parameter). Period will be Pscale*Lx and Pscale*Ly.
+            Gmethod (int, optional): Fourier space truncation scheme; 0 for circular, 1 for rectangular.
         """
         kx0 = (
             self.omega
@@ -142,8 +148,17 @@ class TRCWA:
     def MakeExcitationPlanewave(
         self, p_amp, p_phase, s_amp, s_phase, order=0, direction="forward"
     ):
-        """
-        Front incidence
+        """Sets the excitation to be a planewave incident upon the front (first layer specified) or back of the structure.
+        If both tilt angles are specified to be zero, then the planewave is normally incident with the electric field
+        polarized along the x-axis for the p-polarization. The phase of each polarization is defined at the origin (z = 0).
+
+        Args:
+            p_amp (complex float): The electric field amplitude of the p-polarizations of the planewave. Is a complex number with absolute value between 0 and 1.
+            p_phase (float): Phase of the p-polarized part of the light.
+            s_amp (complex float): The electric field amplitude of the s-polarizations of the planewave. Is a complex number with absolute value between 0 and 1.
+            s_phase (float): Phase of the s-polarized part of the light.
+            order (int, optional): A positive integer specifying which order (mode index) to excite. Defaults to 0.
+            direction (string, optional): The direction of the planewave (forward is incident upon the front). Defaults to "forward".
         """
         self.direction = direction
         theta = self.theta
@@ -195,8 +210,10 @@ class TRCWA:
         self.bN = bN
 
     def GridLayer_geteps(self, ep_all):
-        """
-        Fourier transform + eigenvalue for grid layer
+        """Fourier transform + eigenvalue for grid layer.
+
+        Args:
+            ep_all (torch.tensor): A tensor containing all epsilon values.
         """
         ptri = 0
         ptr = 0
@@ -237,9 +254,16 @@ class TRCWA:
             ptri += 1
 
     def Return_eps(self, which_layer, Nx, Ny, component="xx"):
-        """
-        For patterned layer component = 'xx','xy','yx','yy','zz'
-        For uniform layer, currently it's assumed to be isotropic
+        """Used to get real-space epsilon profile reconstructured from the truncated Fourier orders.
+
+        Args:
+            which_layer (int): Which layer to return the epsilon values from.
+            Nx (int): Grid points within the unit cell in the x direction.
+            Ny (int): Grid points within the unit cell in the y direction.
+            component (string, optional): For patterned layer, component = 'xx','xy','yx','yy','zz'. For uniform layer, currently it's assumed to be isotropic. Defaults to "xx".
+
+        Returns:
+            torch.tensor: Real-space epsilon profile
         """
         i = which_layer
         # uniform layer
@@ -264,11 +288,15 @@ class TRCWA:
 
     def RT_Solve(self, normalize=0, byorder=0):
         """
-        Reflection and transmission power computation
-        Returns 2R and 2T, following Victor's notation
-        Maybe because 2* makes S_z = 1 for H=1 in vacuum
+        Reflection and transmission power computation.
+        Returns 2R and 2T, following Victor Liu's notation (https://web.stanford.edu/group/fan/S4/python_api.html?highlight=power#S4.Simulation.GetPowerFlux).
 
-        if normalize = 1, it will be divided by n[0]*cos(theta)
+        Args:
+            normalize (int, optional): To normalize the output when the 0-th media is not vacuum, or for oblique incidence. If normalize = 1, the output will be divided by n[0]*cos(theta). Defaults to 0.
+            byorder (int, optional): To get Poynting flux by order. If 0, the total power is computed. Defaults to 0.
+
+        Returns:
+            torch.tensor: Reflection power, Transmission power
         """
         aN, b0 = SolveExterior(
             self.a0,
@@ -312,8 +340,13 @@ class TRCWA:
         return R, T
 
     def GetAmplitudes_noTranslate(self, which_layer):
-        """
-        returns fourier amplitude
+        """To get the amplitude of the eigenvectors at some layer.
+
+        Args:
+            which_layer (int): Which layer to return the Fourier amplitude from.
+
+        Returns:
+            torch.tensor: ai, bi; each containing the complex amplitudes of each forward and backward mode
         """
         if which_layer == 0:
             aN, b0 = SolveExterior(
@@ -352,8 +385,16 @@ class TRCWA:
         return ai, bi
 
     def GetAmplitudes(self, which_layer, z_offset):
-        """
-        returns fourier amplitude
+        """To get the Fourier amplitude of the eigenvectors at some layer and at some zoffset.
+        Returns the raw mode amplitudes within a particular layer. For uniform (unpatterned) layers,
+        the modes are simply the diffracted orders The first value is guaranteed to be the straight transmitted or specularly reflected diffraction order. For patterned layers, there is typically no meaningful information in these amplitudes.
+
+        Args:
+            which_layer (int): Which layer to return the Fourier amplitude from.
+            z_offset (float): The z-offset at which to obtain the mode amplitudes. Must be 0 < z_offset < layer thickness.
+
+        Returns:
+            torch.tensor: ai, bi; containing the complex amplitudes of each forward and backward mode
         """
         if which_layer == 0:
             aN, b0 = SolveExterior(
@@ -397,8 +438,13 @@ class TRCWA:
         return ai, bi
 
     def Solve_FieldFourier(self, which_layer, z_offset):
-        """
-        returns field amplitude in fourier space: [ex,ey,ez], [hx,hy,hz]
+        """Returns the field amplitude in Fourier space: [ex,ey,ez], [hx,hy,hz]
+        Args:
+            which_layer (int): Which layer to return the field amplitude from.
+            z_offset (float or int): The z-offset at which to obtain the field amplitude. Must be 0 < z_offset < layer thickness.
+
+        Returns:
+            torch.tensor: Tensor containing the field amplitudes [[ex,ey,ez], [hx,hy,hz]] in Fourier space
         """
         ai0, bi0 = self.GetAmplitudes_noTranslate(which_layer)
         # ai, bi = self.GetAmplitudes(which_layer,z_offset)
