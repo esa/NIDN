@@ -23,6 +23,9 @@ def _add_plot(
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
     ax.set_ylim(ylimits)
+
+    L1_err = sum(abs(target_spectrum - produced_spectrum))
+    ax.text(freqs[-1] - 0.02, -0.02, f"L1 Error = {L1_err:.4f}", va="top")
     return fig
 
 
