@@ -32,6 +32,7 @@ def _validate_config(cfg: DotMap):
         "absorption_loss",
         "type",
         "use_regularization_loss",
+        "reg_loss_weight",
         "add_noise",
         "noise_scale",
         "TRCWA_L_grid",
@@ -62,6 +63,7 @@ def _validate_config(cfg: DotMap):
         "imag_max_eps",
         "siren_omega",
         "noise_scale",
+        "reg_loss_weight",
     ]
     boolean_keys = ["use_regularization_loss", "add_noise"]
     string_keys = ["model_type", "type"]
@@ -103,6 +105,7 @@ def _validate_config(cfg: DotMap):
         "eps_oversampling",
         "noise_scale",
         "TRCWA_NG",
+        "reg_loss_weight",
     ]
     for key in positive_value_keys:
         if not (cfg[key] > 0):

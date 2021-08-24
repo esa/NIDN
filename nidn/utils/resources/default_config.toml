@@ -4,6 +4,7 @@ model_type = "siren"
 iterations = 2000
 learning_rate = 6.5e-5
 type = "classification" # "classification" or "regression"
+reg_loss_weight = 0.05 # weighting of the regularization loss
 use_regularization_loss = true # only relevant for classification
 
 # Loss
