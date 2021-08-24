@@ -29,6 +29,13 @@ def compute_spectrum(eps_grid, run_cfg: DotMap):
 
     logger.debug("Checking frequencies were passed")
     assert "target_frequencies" in run_cfg, "No frequencies were passed."
+    assert len(run_cfg.target_frequencies) == run_cfg.N_freq
+
+    logger.debug("Checking passed eps_grid shape matches cfg shape")
+    assert eps_grid.shape[0] == run_cfg.Nx
+    assert eps_grid.shape[1] == run_cfg.Ny
+    assert eps_grid.shape[2] == run_cfg.N_layers
+    assert eps_grid.shape[3] == run_cfg.N_freq
 
     logger.debug("Iterating over passed frequencies")
     # For each frequency, evaluate TRCWA and with the grid of epsilon values
