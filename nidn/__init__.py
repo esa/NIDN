@@ -6,6 +6,7 @@ from loguru import logger
 from .plots.plot_model_grid import plot_model_grid
 from .plots.plot_model_grid_per_freq import plot_model_grid_per_freq
 from .plots.plot_spectra import plot_spectra
+from .plots.plot_spectrum import plot_spectrum
 from .training.run_training import run_training
 from .trcwa.compute_target_frequencies import compute_target_frequencies
 from .trcwa.get_frequency_points import get_frequency_points
@@ -38,6 +39,7 @@ __all__ = [
     "plot_model_grid",
     "plot_model_grid_per_freq",
     "plot_spectra",
+    "plot_spectrum",
     "print_cfg",
     "set_log_level",
     "wl_to_phys_wl",
