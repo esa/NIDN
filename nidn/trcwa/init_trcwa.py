@@ -25,13 +25,7 @@ def _init_trcwa(eps_grid, target_frequency):
 
     # Initialize TRCWA object
     trcwa = TRCWA(
-        TRCWA_NG,
-        TRCWA_L1,
-        TRCWA_L2,
-        freqcmp,
-        TRCWA_THETA,
-        TRCWA_PHI,
-        verbose=0,
+        TRCWA_NG, TRCWA_L1, TRCWA_L2, freqcmp, TRCWA_THETA, TRCWA_PHI, verbose=0,
     )
 
     # Add vacuum layer at the top
