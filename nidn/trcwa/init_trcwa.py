@@ -2,12 +2,13 @@ from .constants import *
 from .trcwa import TRCWA
 
 
-def _init_trcwa(eps_grid, target_frequency):
+def _init_trcwa(eps_grid, target_frequency, run_cfg):
     """Creates a TRCWA object matching the given eps_grid and target_frequency.
 
     Args:
         eps_grid (torch.tensor): Grid of epsilon values. Should be [Nx, Ny, N_layers].
         target_frequency (float): Target frequency for this simulation run.
+        run_cfg (DotMap): Run configuration.
 
     Returns:
         TRCWA obj: The created object which is ready to compute the spectrum
@@ -25,7 +26,13 @@ def _init_trcwa(eps_grid, target_frequency):
 
     # Initialize TRCWA object
     trcwa = TRCWA(
-        TRCWA_NG, TRCWA_L1, TRCWA_L2, freqcmp, TRCWA_THETA, TRCWA_PHI, verbose=0,
+        run_cfg.TRCWA_NG,
+        run_cfg.TRCWA_L_grid[0],
+        run_cfg.TRCWA_L_grid[1],
+        freqcmp,
+        TRCWA_THETA,
+        TRCWA_PHI,
+        verbose=0,
     )
 
     # Add vacuum layer at the top

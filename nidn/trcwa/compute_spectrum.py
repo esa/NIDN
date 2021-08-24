@@ -42,7 +42,7 @@ def compute_spectrum(eps_grid, run_cfg: DotMap):
     for idx, freq in enumerate(run_cfg.target_frequencies):
 
         # Create TRCWA Object for this frequency
-        trcwa = _init_trcwa(eps_grid[:, :, :, idx], freq)
+        trcwa = _init_trcwa(eps_grid[:, :, :, idx], freq, run_cfg)
 
         # Compute the spectrum
         reflectance, transmittance = trcwa.RT_Solve(normalize=1)

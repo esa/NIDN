@@ -33,3 +33,7 @@ N_layers = 1
 # Target frequencies
 physical_wavelength_range = [250e-9,10e-6]
 N_freq = 20
+
+# TRCWA parameters
+TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
+TRCWA_NG = 11 # Truncation order (actual number might be smaller)
