@@ -29,7 +29,7 @@ def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_freque
     # Normalize to max val = 1
     freq = torch.tensor(target_frequencies / max(target_frequencies))
     # Transform to -scaling to scaling
-    freq = (freq * 2 * freq_scaling) - freq_scaling
+    freq = (freq - 0.5) * 2 * freq_scaling
 
     # Create a meshgrid from the grid ticks
     X, Y, Z, FREQ = torch.meshgrid((x, y, z, freq))
@@ -79,7 +79,8 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
 
     # Initialize the epsilon grid
     eps = torch.zeros(
-        [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq], dtype=torch.cfloat,
+        [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq],
+        dtype=torch.cfloat,
     )
 
     # Net out is [0,1] thus we transform to desired real and imaginary ranges
