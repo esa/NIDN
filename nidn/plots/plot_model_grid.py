@@ -21,7 +21,7 @@ def plot_model_grid(model, run_cfg):
     # Here we calculate the absolute value of the permittivity over all frequencies for each grid point
     eps = torch.norm(eps, dim=3)
 
-    material_id = eps.detach().cpu().numpy()
+    abs_values = eps.detach().cpu().numpy()
 
     X = X.cpu().numpy()
     Y = Y.cpu().numpy()
@@ -41,7 +41,7 @@ def plot_model_grid(model, run_cfg):
         s=120,
         linewidths=0,
         alpha=1.0,
-        c=material_id,
+        c=abs_values,
     )
     cbar = plt.colorbar(p, ax=ax)
     cbar.ax.tick_params(labelsize=7)
