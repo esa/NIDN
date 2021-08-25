@@ -7,11 +7,14 @@ from .materials.layer_builder import LayerBuilder
 from .materials.material_collection import MaterialCollection
 from .plots.plot_epsilon_grid import plot_epsilon_grid
 from .plots.plot_eps_per_point import plot_eps_per_point
+from .plots.plot_material_grid import plot_material_grid
 from .plots.plot_model_grid import plot_model_grid
 from .plots.plot_model_grid_per_freq import plot_model_grid_per_freq
 from .plots.plot_spectra import plot_spectra
 from .plots.plot_spectrum import plot_spectrum
+from .training.load_run import load_run
 from .training.run_training import run_training
+from .training.save_run import save_run
 from .trcwa.compute_target_frequencies import compute_target_frequencies
 from .trcwa.get_frequency_points import get_frequency_points
 from .trcwa.compute_spectrum import compute_spectrum
@@ -41,16 +44,19 @@ __all__ = [
     "freq_to_wl",
     "LayerBuilder",
     "load_default_cfg",
+    "load_run",
     "MaterialCollection",
     "phys_freq_to_phys_wl",
     "plot_epsilon_grid",
     "plot_eps_per_point",
+    "plot_material_grid",
     "plot_model_grid",
     "plot_model_grid_per_freq",
     "plot_spectra",
     "plot_spectrum",
     "print_cfg",
     "run_training",
+    "save_run",
     "set_log_level",
     "wl_to_phys_wl",
 ]
