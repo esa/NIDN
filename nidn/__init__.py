@@ -7,7 +7,9 @@ from .plots.plot_model_grid import plot_model_grid
 from .plots.plot_model_grid_per_freq import plot_model_grid_per_freq
 from .plots.plot_spectra import plot_spectra
 from .plots.plot_eps_per_point import plot_eps_per_point
+from .training.load_run import load_run
 from .training.run_training import run_training
+from .training.save_run import save_run
 from .trcwa.compute_target_frequencies import compute_target_frequencies
 from .trcwa.get_frequency_points import get_frequency_points
 from .trcwa.compute_spectrum import compute_spectrum
@@ -36,6 +38,7 @@ __all__ = [
     "fix_random_seeds",
     "freq_to_wl",
     "load_default_cfg",
+    "load_run",
     "run_training",
     "phys_freq_to_phys_wl",
     "plot_eps_per_point",
@@ -43,6 +46,7 @@ __all__ = [
     "plot_model_grid_per_freq",
     "plot_spectra",
     "print_cfg",
+    "save_run",
     "set_log_level",
     "wl_to_phys_wl",
 ]
