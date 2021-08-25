@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
-from ..utils.convert_units import freq_to_wl
+from ..utils.convert_units import freq_to_wl, wl_to_phys_wl
 from ..trcwa.compute_spectrum import compute_spectrum
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 
@@ -11,10 +11,9 @@ def _add_plot(
     fig, target_frequencies, produced_spectrum, target_spectrum, ylimits, nr, type_name
 ):
     ax = fig.add_subplot(nr)
-    ax.plot(
-        freq_to_wl(target_frequencies), produced_spectrum, marker=6, c="cornflowerblue"
-    )
-    ax.plot(freq_to_wl(target_frequencies), target_spectrum, marker=7, c="limegreen")
+    freqs = wl_to_phys_wl(freq_to_wl(target_frequencies)) * 1e6  # in µm
+    ax.plot(freqs, produced_spectrum, marker=6, c="cornflowerblue")
+    ax.plot(freqs, target_spectrum, marker=7, c="limegreen")
     ax.legend([f"Produced {type_name}", f"Target {type_name}"], loc="lower center")
     ax.set_xlabel("Wavelength [µm]")
     ax.set_ylabel(f"{type_name}")
@@ -24,6 +23,9 @@ def _add_plot(
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
     ax.set_ylim(ylimits)
+
+    L1_err = abs(target_spectrum - produced_spectrum).mean()
+    ax.text(freqs[-1] - 0.02, -0.02, f"L1 Error = {L1_err:.4f}", va="top")
     return fig
 
 
