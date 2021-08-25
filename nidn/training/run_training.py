@@ -86,6 +86,7 @@ def run_training(
     # When a new network is created we init empty training logs
     run_cfg.results.loss_log = []
     run_cfg.results.weighted_average_log = []
+    run_cfg.results.L1_errs = []
     weighted_average = deque([], maxlen=20)
 
     # And store the best results
@@ -164,6 +165,7 @@ def run_training(
         # Update the logs
         run_cfg.results.weighted_average_log.append(np.mean(weighted_average))
         run_cfg.results.loss_log.append(loss.item())
+        run_cfg.results.L1_errs.append(L1err.detach().item())
 
         # Print every i iterations
         if it % 5 == 0:
