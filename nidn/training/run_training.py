@@ -132,8 +132,8 @@ def run_training(
         L1err, _ = _spectrum_loss_fn(
             produced_R_spectrum,
             produced_T_spectrum,
-            target_reflectance_spectrum,
-            target_transmittance_spectrum,
+            run_cfg.target_reflectance_spectrum,
+            run_cfg.target_transmittance_spectrum,
             run_cfg.target_frequencies,
             1,
             True,
