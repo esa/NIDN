@@ -131,3 +131,4 @@ dmypy.json
 my_notebooks
 .vscode
 results
+cfg

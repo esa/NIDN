@@ -30,6 +30,16 @@ def _init_training(run_cfg: DotMap):
     # Validate config
     _validate_config(run_cfg)
 
+    # Determine target frequencies
+    run_cfg.target_frequencies = compute_target_frequencies(
+        run_cfg.physical_wavelength_range[0],
+        run_cfg.physical_wavelength_range[1],
+        run_cfg.N_freq,
+    )
+
+    logger.debug("Computed target frequencies:")
+    logger.debug(run_cfg.target_frequencies)
+
     if run_cfg.type == "classification":
         run_cfg.material_collection = MaterialCollection(run_cfg.target_frequencies)
         run_cfg.N_materials = run_cfg.material_collection.N_materials
@@ -40,16 +50,6 @@ def _init_training(run_cfg: DotMap):
 
     # Fix random seed for reproducibility
     fix_random_seeds(run_cfg.seed)
-
-    # Determine target frequencies
-    run_cfg.target_frequencies = compute_target_frequencies(
-        run_cfg.physical_wavelength_range[0],
-        run_cfg.physical_wavelength_range[1],
-        run_cfg.N_freq,
-    )
-
-    logger.debug("Computed target frequencies:")
-    logger.debug(run_cfg.target_frequencies)
 
     # Init model
     if not "model" in run_cfg.keys():
@@ -132,8 +132,8 @@ def run_training(
         L1err, _ = _spectrum_loss_fn(
             produced_R_spectrum,
             produced_T_spectrum,
-            target_reflectance_spectrum,
-            target_transmittance_spectrum,
+            run_cfg.target_reflectance_spectrum,
+            run_cfg.target_transmittance_spectrum,
             run_cfg.target_frequencies,
             1,
             True,
