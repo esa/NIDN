@@ -9,7 +9,7 @@ def plot_losses(run_cfg, save_path=None):
         run_cfg (DotMap): Run configuration.
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 4), dpi=150)
     fig.patch.set_facecolor("white")
     plt.semilogy(run_cfg.results.L1_errs)
     plt.semilogy(run_cfg.results.loss_log)

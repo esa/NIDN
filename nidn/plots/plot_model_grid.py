@@ -28,7 +28,7 @@ def plot_model_grid(run_cfg, save_path=None):
     Z = Z.cpu().numpy()
 
     # Here we plot it
-    fig = plt.figure(figsize=(6, 6), dpi=150)
+    fig = plt.figure(figsize=(4, 4), dpi=150)
     fig.patch.set_facecolor("white")
 
     ax = fig.add_subplot(111, projection="3d")

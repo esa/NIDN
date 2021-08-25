@@ -3,8 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 from ..utils.convert_units import freq_to_wl
-from ..trcwa.compute_spectrum import compute_spectrum
-from ..training.model.model_to_eps_grid import model_to_eps_grid
+from ..trcwa.compute_target_frequencies import compute_target_frequencies
 
 
 def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
@@ -32,6 +31,12 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
 
+    if not "target_frequencies" in run_cfg.keys():
+        run_cfg.target_frequencies = compute_target_frequencies(
+            run_cfg.physical_wavelength_range[0],
+            run_cfg.physical_wavelength_range[1],
+            run_cfg.N_freq,
+        )
     target_frequencies = run_cfg.target_frequencies
 
     # Convert the spectra to numpy arrays for matplotlib

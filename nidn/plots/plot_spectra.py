@@ -62,7 +62,7 @@ def plot_spectra(run_cfg, save_path=None):
     )
 
     # To align all plots
-    ylimits = [-0.225, 1]
+    ylimits = [-0.225, 1.05]
     if (
         (max(prod_A_spectrum) > 1 or min(prod_A_spectrum) < 0)
         or (max(prod_T_spectrum) > 1 or min(prod_T_spectrum) < 0)
