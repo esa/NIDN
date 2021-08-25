@@ -29,15 +29,15 @@ def _add_plot(
     return fig
 
 
-def plot_spectra(model, run_cfg, target_R_spectrum, target_T_spectrum):
+def plot_spectra(model, run_cfg):
     """Plots the produced RTA spectra together with the target spectra.
 
     Args:
         model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
-        target_R_spectrum (torch.tensor): The target reflection spectrum.
-        target_T_spectrum (torch.tensor): The target transmission spectrum.
     """
+    target_R_spectrum = run_cfg.target_reflectance_spectrum
+    target_T_spectrum = run_cfg.target_transmittance_spectrum
 
     # Create epsilon grid from the model
     eps, _ = model_to_eps_grid(model, run_cfg)
