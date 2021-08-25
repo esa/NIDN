@@ -18,11 +18,10 @@ from ..utils.fix_random_seeds import fix_random_seeds
 from .utils.validate_config import _validate_config
 
 
-def _init_training(run_cfg: DotMap, model):
+def _init_training(run_cfg: DotMap):
     """Initializes additional parameters required for training.
     Args:
         run_cfg (DotMap): Run configuration.
-        model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration.
 
     Returns:
         DotMap, torch.model, torch.opt, torch.scheduler: Run config with additional entries, model, optimizer, scheduler
@@ -54,26 +53,24 @@ def _init_training(run_cfg: DotMap, model):
 
     # Init model
     if not "model" in run_cfg.keys():
-        model = init_network(run_cfg)
+        run_cfg.model = init_network(run_cfg)
 
     # Initialize some utility
-    optimizer = torch.optim.Adam(model.parameters(), lr=run_cfg.learning_rate)
+    optimizer = torch.optim.Adam(run_cfg.model.parameters(), lr=run_cfg.learning_rate)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, factor=0.75, patience=200, min_lr=1e-6, verbose=True
     )
 
-    return run_cfg, model, optimizer, scheduler
+    return run_cfg, optimizer, scheduler
 
 
 def run_training(
     run_cfg: DotMap,
-    model=None,
 ):
     """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training.
 
     Args:
         run_cfg (DotMap): Run configuration.
-        model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration. Defaults to None.
 
     Returns:
         torch.model, DotMap: The best model achieved in the training run, and the loss results of the training run.
@@ -81,7 +78,7 @@ def run_training(
     logger.trace("Initializing training...")
 
     # Initialize training parameters, model and optimizer etc.
-    run_cfg, run_cfg.model, optimizer, scheduler = _init_training(run_cfg, model)
+    run_cfg, optimizer, scheduler = _init_training(run_cfg)
 
     run_cfg.results = DotMap()
     # run_cfg.model = model

@@ -1,10 +1,3 @@
-# Target spectra
-# To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)
-target_reflectance_spectrum = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-target_transmittance_spectrum = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-physical_wavelength_range = [250e-9,10e-6]
-N_freq = 20
-
 # Training Properties
 seed = 42
 model_type = "siren"
@@ -41,3 +34,10 @@ N_layers = 1
 # TRCWA parameters
 TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
 TRCWA_NG = 11 # Truncation order (actual number might be smaller)
+
+# Target spectra
+# To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)
+target_reflectance_spectrum = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+target_transmittance_spectrum = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+physical_wavelength_range = [250e-9,10e-6]
+N_freq = 20
