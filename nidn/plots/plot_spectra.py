@@ -29,19 +29,18 @@ def _add_plot(
     return fig
 
 
-def plot_spectra(model, run_cfg, save_path=None):
+def plot_spectra(run_cfg, save_path=None):
     """Plots the produced RTA spectra together with the target spectra. Optionally saves it.
 
     Args:
-        model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     target_R_spectrum = run_cfg.target_reflectance_spectrum
     target_T_spectrum = run_cfg.target_transmittance_spectrum
 
     # Create epsilon grid from the model
-    eps, _ = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
 
     # Compute the spectra for the given epsilon values
     prod_R_spectrum, prod_T_spectrum = compute_spectrum(eps, run_cfg)
@@ -109,4 +108,4 @@ def plot_spectra(model, run_cfg, save_path=None):
     plt.tight_layout()
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/spectra_comparison.png", dpi=150)

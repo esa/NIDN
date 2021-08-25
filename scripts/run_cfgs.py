@@ -55,6 +55,7 @@ if __name__ == "__main__":
 
         logger.info("Storing results...")
         nidn.save_run(cfg, result_folder_name)
+        nidn.save_all_plots(cfg, "../results/" + result_folder_name)
 
         logger.info("Finished storing results")
 
