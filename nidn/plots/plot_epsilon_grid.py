@@ -9,7 +9,7 @@ def plot_epsilon_grid(eps, run_cfg, save_path=None):
     Args:
         eps (torch.tensor): The epsilon tensor to plot.
         run_cfg (dict): The run configuration.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
     x = torch.linspace(-1, 1, Nx)
@@ -60,4 +60,4 @@ def plot_epsilon_grid(eps, run_cfg, save_path=None):
     cbar.set_label("Absolute value of the complex permittivity", labelpad=10)
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/eps_grid.png", dpi=150)

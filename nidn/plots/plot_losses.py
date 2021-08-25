@@ -7,7 +7,7 @@ def plot_losses(run_cfg, save_path=None):
 
     Args:
         run_cfg (DotMap): Run configuration.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     fig = plt.figure()
     fig.patch.set_facecolor("white")
@@ -18,4 +18,4 @@ def plot_losses(run_cfg, save_path=None):
     plt.ylabel("Loss")
     plt.legend(["L1", "Loss", "Weighted Average Loss"])
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/losses.png", dpi=150)

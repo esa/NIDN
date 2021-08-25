@@ -9,17 +9,16 @@ from ..materials.material_collection import MaterialCollection
 from ..materials.find_closest_material import _find_closest_material
 
 
-def plot_eps_per_point(model, run_cfg, compare_to_material=None, save_path=None):
+def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None):
     """This function plots the epsilon values of grid points against real materials. Optionally saves it.
 
     Args:
-        model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
         compare_to_material (str): Name of the material to compare with. Available ones are in /materials/data.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     # Create epsilon grid from the model
-    eps, _ = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
     eps_np = eps.detach().cpu().numpy()
 
     material_collection = MaterialCollection(run_cfg.target_frequencies)
@@ -96,4 +95,4 @@ def plot_eps_per_point(model, run_cfg, compare_to_material=None, save_path=None)
             )
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/eps_per_points.png", dpi=150)

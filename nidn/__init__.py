@@ -13,6 +13,7 @@ from .plots.plot_model_grid import plot_model_grid
 from .plots.plot_model_grid_per_freq import plot_model_grid_per_freq
 from .plots.plot_spectra import plot_spectra
 from .plots.plot_spectrum import plot_spectrum
+from .plots.save_all_plots import save_all_plots
 from .training.load_run import load_run
 from .training.run_training import run_training
 from .training.save_run import save_run
@@ -58,6 +59,7 @@ __all__ = [
     "plot_spectrum",
     "print_cfg",
     "run_training",
+    "save_all_plots",
     "save_run",
     "set_log_level",
     "wl_to_phys_wl",

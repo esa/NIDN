@@ -7,17 +7,16 @@ from ..materials.find_closest_material import _find_closest_material
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
-def plot_material_grid(model, run_cfg, save_path=None):
+def plot_material_grid(run_cfg, save_path=None):
     """Plots the materials closest to the used ones for each grid point. Optionally saves it.
 
     Args:
-        model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
     # Create epsilon grid from the model
-    eps, _ = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
 
     # Setup grid
     x = torch.linspace(-1, 1, Nx)
@@ -99,4 +98,4 @@ def plot_material_grid(model, run_cfg, save_path=None):
     ax.set_zticklabels(z_labels)  # Where L1 is (seemingly) the bottom one
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/material_grid.png", dpi=150)

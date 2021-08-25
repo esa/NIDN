@@ -5,15 +5,14 @@ from matplotlib import pyplot as plt
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
-def plot_model_grid(model, run_cfg, save_path=None):
+def plot_model_grid(run_cfg, save_path=None):
     """Plots the absolute value of the epsilon over all frequencies for each 3-D grid point. Optionally saves it.
     Args:
-        model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
-    eps, _ = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
     x = torch.linspace(-1, 1, Nx)
     y = torch.linspace(-1, 1, Ny)
     z = torch.linspace(-1, 1, N_layers)
@@ -62,4 +61,4 @@ def plot_model_grid(model, run_cfg, save_path=None):
     cbar.set_label("Absolute value of the complex permittivity", labelpad=10)
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/model_grid.png", dpi=150)

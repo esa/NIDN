@@ -5,18 +5,17 @@ from ..utils.convert_units import freq_to_wl
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
-def plot_model_grid_per_freq(model, run_cfg, freq_idx=[0, 1, 2, 3], save_path=None):
+def plot_model_grid_per_freq(run_cfg, freq_idx=[0, 1, 2, 3], save_path=None):
     """Plots the real and imaginary part of the permittivity in two separate plots for
     frequencies in target_frequencies defined by freq_idx. Optionally saves it.
 
     Args:
-        model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
         freq_idx (list of int): Which of the frequency indices in target_frequencies we want to plot. Defaults to [0, 1, 2, 3].
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
-    eps, _ = model_to_eps_grid(model, run_cfg)
+    eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
 
     x = torch.linspace(-1, 1, Nx)
     y = torch.linspace(-1, 1, Ny)
@@ -88,4 +87,4 @@ def plot_model_grid_per_freq(model, run_cfg, freq_idx=[0, 1, 2, 3], save_path=No
             re_or_im_idx += 1
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/model_grid_per_freq.png", dpi=150)

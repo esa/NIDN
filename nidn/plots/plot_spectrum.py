@@ -29,7 +29,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
         run_cfg (dict): The run configuration.
         R_spectrum (torch.tensor): The reflection spectrum.
         T_spectrum (torch.tensor): The transmission spectrum.
-        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
+        save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
 
     target_frequencies = run_cfg.target_frequencies
@@ -85,4 +85,4 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
     plt.tight_layout()
 
     if save_path is not None:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path + "/spectrum.png", dpi=150)
