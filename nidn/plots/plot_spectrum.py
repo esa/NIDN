@@ -48,7 +48,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
     )
 
     # To align all plots
-    ylimits = [-0.05, 1]
+    ylimits = [-0.05, 1.05]
     if (
         (max(A_spectrum) > 1 or min(A_spectrum) < 0)
         or (max(T_spectrum) > 1 or min(T_spectrum) < 0)
