@@ -7,7 +7,9 @@ def load_run(filename):
     """Loads the saved DotMap run config.
 
     Args:
-        filename (str): Path to file
+        filename (str): Path to file.
+    Returns:
+        DotMap: Run config
     """
     with open(filename, "rb") as f:
         run = pk.load(f)
