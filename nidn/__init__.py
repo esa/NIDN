@@ -3,10 +3,15 @@ import torch
 from loguru import logger
 
 # Add exposed features here
+from .materials.layer_builder import LayerBuilder
+from .materials.material_collection import MaterialCollection
+from .plots.plot_epsilon_grid import plot_epsilon_grid
+from .plots.plot_eps_per_point import plot_eps_per_point
+from .plots.plot_material_grid import plot_material_grid
 from .plots.plot_model_grid import plot_model_grid
 from .plots.plot_model_grid_per_freq import plot_model_grid_per_freq
 from .plots.plot_spectra import plot_spectra
-from .plots.plot_eps_per_point import plot_eps_per_point
+from .plots.plot_spectrum import plot_spectrum
 from .training.run_training import run_training
 from .trcwa.compute_target_frequencies import compute_target_frequencies
 from .trcwa.get_frequency_points import get_frequency_points
@@ -35,14 +40,19 @@ __all__ = [
     "get_frequency_points",
     "fix_random_seeds",
     "freq_to_wl",
+    "LayerBuilder",
     "load_default_cfg",
-    "run_training",
+    "MaterialCollection",
     "phys_freq_to_phys_wl",
+    "plot_epsilon_grid",
     "plot_eps_per_point",
+    "plot_material_grid",
     "plot_model_grid",
     "plot_model_grid_per_freq",
     "plot_spectra",
+    "plot_spectrum",
     "print_cfg",
+    "run_training",
     "set_log_level",
     "wl_to_phys_wl",
 ]

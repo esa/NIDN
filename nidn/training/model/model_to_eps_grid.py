@@ -97,15 +97,19 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
     # Adds noise scaled to desired eps range times noise_scale
     if run_cfg.add_noise:
         eps.real += (
-            torch.randn_like(eps.real)
+            (torch.randn_like(eps.real) - 0.5)
+            * 2.0
             * run_cfg.noise_scale
             * (run_cfg.real_max_eps - run_cfg.real_min_eps)
         )
+        eps.real = eps.real.clip(run_cfg.real_min_eps, run_cfg.real_max_eps)
         eps.imag += (
-            torch.randn_like(eps.imag)
+            (torch.randn_like(eps.imag) - 0.5)
+            * 2.0
             * run_cfg.noise_scale
             * (run_cfg.imag_max_eps - run_cfg.imag_min_eps)
         )
+        eps.imag = eps.imag.clip(run_cfg.imag_min_eps, run_cfg.imag_max_eps)
 
     return eps
 

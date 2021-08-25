@@ -2,17 +2,14 @@ import torch
 import numpy as np
 from matplotlib import pyplot as plt
 
-from ..training.model.model_to_eps_grid import model_to_eps_grid
 
-
-def plot_model_grid(model, run_cfg):
+def plot_epsilon_grid(eps, run_cfg):
     """Plots the absolute value of the epsilon over all frequencies for each 3-D grid point.
     Args:
-        model (torch.model): The model to be plotted.
+        eps (torch.tensor): The epsilon tensor to plot.
         run_cfg (dict): The run configuration.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
-    eps, _ = model_to_eps_grid(model, run_cfg)
     x = torch.linspace(-1, 1, Nx)
     y = torch.linspace(-1, 1, Ny)
     z = torch.linspace(-1, 1, N_layers)
@@ -21,7 +18,7 @@ def plot_model_grid(model, run_cfg):
     # Here we calculate the absolute value of the permittivity over all frequencies for each grid point
     eps = torch.norm(eps, dim=3)
 
-    abs_values = eps.detach().cpu().numpy()
+    material_id = eps.detach().cpu().numpy()
 
     X = X.cpu().numpy()
     Y = Y.cpu().numpy()
@@ -41,7 +38,7 @@ def plot_model_grid(model, run_cfg):
         s=120,
         linewidths=0,
         alpha=1.0,
-        c=abs_values,
+        c=material_id,
     )
     cbar = plt.colorbar(p, ax=ax)
     cbar.ax.tick_params(labelsize=7)
