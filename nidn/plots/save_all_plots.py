@@ -17,7 +17,7 @@ def save_all_plots(run_cfg, save_path):
     """
     logger.info("Saving all plots to {}".format(save_path))
 
-    logger.debug("Saving spectra plot")
+    logger.debug("Saving spectra comparison plot")
     plot_spectra(run_cfg, save_path=save_path)
 
     logger.debug("Saving losses plot")
