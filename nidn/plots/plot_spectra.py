@@ -29,12 +29,13 @@ def _add_plot(
     return fig
 
 
-def plot_spectra(model, run_cfg):
-    """Plots the produced RTA spectra together with the target spectra.
+def plot_spectra(model, run_cfg, save_path=None):
+    """Plots the produced RTA spectra together with the target spectra. Optionally saves it.
 
     Args:
         model (torch.model): The model to be plotted.
         run_cfg (dict): The run configuration.
+        save_path (str, optional): Path to save the plot at. Defaults to None, then the plot will not be saved.
     """
     target_R_spectrum = run_cfg.target_reflectance_spectrum
     target_T_spectrum = run_cfg.target_transmittance_spectrum
@@ -106,3 +107,6 @@ def plot_spectra(model, run_cfg):
     )
 
     plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=150)
