@@ -53,7 +53,7 @@ def _init_training(run_cfg: DotMap, model):
     logger.debug(run_cfg.target_frequencies)
 
     # Init model
-    if model is None:
+    if not "model" in run_cfg.keys():
         model = init_network(run_cfg)
 
     # Initialize some utility
@@ -67,16 +67,12 @@ def _init_training(run_cfg: DotMap, model):
 
 def run_training(
     run_cfg: DotMap,
-    target_reflectance_spectrum: npt.NDArray,
-    target_transmittance_spectrum: npt.NDArray,
     model=None,
 ):
     """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training.
 
     Args:
         run_cfg (DotMap): Run configuration.
-        target_reflectance_spectrum (np.array): Target reflectance spectrum.
-        target_transmittance_spectrum (np.array): Target transmittance spectrum.
         model (torch.model, optional): Model to continue training. If None, a new model will be created according to the run configuration. Defaults to None.
 
     Returns:
@@ -127,8 +123,8 @@ def run_training(
         spectrum_loss, renormalized = _spectrum_loss_fn(
             produced_R_spectrum,
             produced_T_spectrum,
-            target_reflectance_spectrum,
-            target_transmittance_spectrum,
+            run_cfg.target_reflectance_spectrum,
+            run_cfg.target_transmittance_spectrum,
             run_cfg.target_frequencies,
             run_cfg.L,
             run_cfg.absorption_loss,

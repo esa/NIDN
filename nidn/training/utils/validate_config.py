@@ -37,6 +37,8 @@ def _validate_config(cfg: DotMap):
         "noise_scale",
         "TRCWA_L_grid",
         "TRCWA_NG",
+        "target_reflectance_spectrum",
+        "target_transmittance_spectrum",
     ]
 
     for key in required_keys:
@@ -67,6 +69,7 @@ def _validate_config(cfg: DotMap):
     ]
     boolean_keys = ["use_regularization_loss", "add_noise"]
     string_keys = ["model_type", "type"]
+
     for key in integer_keys:
         if not isinstance(cfg[key], int):
             raise ValueError(f"{key} must be an integer")
@@ -126,3 +129,15 @@ def _validate_config(cfg: DotMap):
 
     if not all(cfg.TRCWA_L_grid) >= 0:
         raise ValueError(f"TRCWA_L_grid must be positive")
+
+    if not all(cfg.target_transmittance_spectrum) >= 0:
+        raise ValueError(f"target_transmittance_spectrum must be positive")
+
+    if not all(cfg.target_reflectance_spectrum) >= 0:
+        raise ValueError(f"target_reflectance_spectrum must be positive")
+
+    if not len(cfg.target_transmittance_spectrum) == cfg.N_freq:
+        raise ValueError(f"target_transmittance_spectrum must have length N_freq")
+
+    if not len(cfg.target_reflectance_spectrum) == cfg.N_freq:
+        raise ValueError(f"target_reflectance_spectrum must have length N_freq")
