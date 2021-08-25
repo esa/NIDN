@@ -19,6 +19,8 @@ def test_single_layer():
     run_cfg.N_layers = 1
     run_cfg.target_frequencies = [0.5]
     run_cfg.N_freq = 1
+    run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
+    run_cfg.TRCWA_NG = 11
 
     # Get eps shape
     shape = [
@@ -29,13 +31,7 @@ def test_single_layer():
     ]
 
     # Get a grid of 1 + 1j
-    eps_grid = (
-        torch.ones(
-            shape,
-            dtype=torch.cfloat,
-        )
-        * (1.0 + 1j)
-    )
+    eps_grid = torch.ones(shape, dtype=torch.cfloat,) * (1.0 + 1j)
 
     logger.debug("Computing spectrum...")
 
@@ -61,6 +57,8 @@ def test_uniform_layer():
     run_cfg.N_layers = 1
     run_cfg.target_frequencies = [0.05, 0.1]
     run_cfg.N_freq = 2
+    run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
+    run_cfg.TRCWA_NG = 11
 
     # Get eps shape
     shape = [
@@ -71,10 +69,7 @@ def test_uniform_layer():
     ]
 
     # Get a grid of 3 + 1.5j
-    eps_grid = torch.ones(
-        shape,
-        dtype=torch.cfloat,
-    )
+    eps_grid = torch.ones(shape, dtype=torch.cfloat,)
 
     eps_grid = eps_grid * (3.0 + 1.5j)
 
@@ -104,7 +99,9 @@ def test_three_layer():
     run_cfg.Ny = 9
     run_cfg.N_layers = 3
     run_cfg.target_frequencies = [3.0]
-    run_cfg.N_freq = 2
+    run_cfg.N_freq = 1
+    run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
+    run_cfg.TRCWA_NG = 11
 
     # Get eps shape
     shape = [
@@ -115,13 +112,7 @@ def test_three_layer():
     ]
 
     # Get a somewhat interesting grid
-    eps_grid = (
-        torch.ones(
-            shape,
-            dtype=torch.cfloat,
-        )
-        * (-4.2 + 0.42j)
-    )
+    eps_grid = torch.ones(shape, dtype=torch.cfloat,) * (-4.2 + 0.42j)
 
     eps_grid[0:3, 0:3, 0, :] = eps_grid[0:3, 0:3, 0, :] * 1.0
     eps_grid[0:3, 0:3, 1, :] = eps_grid[0:3, 0:3, 1, :] * 2.0

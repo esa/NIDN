@@ -32,8 +32,11 @@ def _validate_config(cfg: DotMap):
         "absorption_loss",
         "type",
         "use_regularization_loss",
+        "reg_loss_weight",
         "add_noise",
         "noise_scale",
+        "TRCWA_L_grid",
+        "TRCWA_NG",
     ]
 
     for key in required_keys:
@@ -50,6 +53,7 @@ def _validate_config(cfg: DotMap):
         "n_neurons",
         "eps_oversampling",
         "seed",
+        "TRCWA_NG",
     ]
     float_keys = [
         "L",
@@ -59,6 +63,7 @@ def _validate_config(cfg: DotMap):
         "imag_max_eps",
         "siren_omega",
         "noise_scale",
+        "reg_loss_weight",
     ]
     boolean_keys = ["use_regularization_loss", "add_noise"]
     string_keys = ["model_type", "type"]
@@ -99,6 +104,8 @@ def _validate_config(cfg: DotMap):
         "iterations",
         "eps_oversampling",
         "noise_scale",
+        "TRCWA_NG",
+        "reg_loss_weight",
     ]
     for key in positive_value_keys:
         if not (cfg[key] > 0):
@@ -111,3 +118,11 @@ def _validate_config(cfg: DotMap):
 
     if cfg.type != "classification" and cfg.type != "regression":
         raise ValueError(f"type must be either 'classification' or 'regression'")
+
+    if not cfg.TRCWA_L_grid[1][0] < cfg.TRCWA_L_grid[1][1]:
+        raise ValueError(f"TRCWA_L_grid dim1 must be ordered from low to high")
+    if not cfg.TRCWA_L_grid[0][0] > cfg.TRCWA_L_grid[0][1]:
+        raise ValueError(f"TRCWA_L_grid dim0 must be ordered from high to low")
+
+    if not all(cfg.TRCWA_L_grid) >= 0:
+        raise ValueError(f"TRCWA_L_grid must be positive")

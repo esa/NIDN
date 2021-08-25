@@ -4,6 +4,7 @@ model_type = "siren"
 iterations = 2000
 learning_rate = 6.5e-5
 type = "classification" # "classification" or "regression"
+reg_loss_weight = 0.05 # weighting of the regularization loss
 use_regularization_loss = true # only relevant for classification
 
 # Loss
@@ -33,3 +34,7 @@ N_layers = 1
 # Target frequencies
 physical_wavelength_range = [250e-9,10e-6]
 N_freq = 20
+
+# TRCWA parameters
+TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
+TRCWA_NG = 11 # Truncation order (actual number might be smaller)
