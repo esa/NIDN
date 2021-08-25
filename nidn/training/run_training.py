@@ -24,7 +24,7 @@ def _init_training(run_cfg: DotMap):
         run_cfg (DotMap): Run configuration.
 
     Returns:
-        DotMap, torch.model, torch.opt, torch.scheduler: Run config with additional entries, model, optimizer, scheduler
+        DotMap, torch.opt, torch.scheduler: Run config with additional entries and model, optimizer, and scheduler
     """
 
     # Validate config
@@ -67,13 +67,13 @@ def _init_training(run_cfg: DotMap):
 def run_training(
     run_cfg: DotMap,
 ):
-    """Runs a training run with the passed config, target reflectance and transmittance spectra. Optionally a model can be passed to continue training.
+    """Runs a training run with the passed config.
 
     Args:
         run_cfg (DotMap): Run configuration.
 
     Returns:
-        torch.model, DotMap: The best model achieved in the training run, and the loss results of the training run.
+        DotMap: The loss results of the training run
     """
     logger.trace("Initializing training...")
 
