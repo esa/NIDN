@@ -85,18 +85,19 @@ def run_training(
     logger.trace("Initializing training...")
 
     # Initialize training parameters, model and optimizer etc.
-    run_cfg, model, optimizer, scheduler = _init_training(run_cfg, model)
+    run_cfg, run_cfg.model, optimizer, scheduler = _init_training(run_cfg, model)
 
-    results = DotMap()
+    run_cfg.results = DotMap()
+    # run_cfg.model = model
 
     # When a new network is created we init empty training logs
-    results.loss_log = []
-    results.weighted_average_log = []
+    run_cfg.results.loss_log = []
+    run_cfg.results.weighted_average_log = []
     weighted_average = deque([], maxlen=20)
 
     # And store the best results
     best_loss = np.inf
-    best_model_state_dict = model.state_dict()
+    run_cfg.best_model_state_dict = run_cfg.model.state_dict()
 
     logger.trace("Starting training...")
     # Training Loop
@@ -104,7 +105,7 @@ def run_training(
         torch.cuda.empty_cache()
 
         # Compute the epsilon values from the model
-        eps_grid, material_ids = model_to_eps_grid(model, run_cfg)
+        eps_grid, material_ids = model_to_eps_grid(run_cfg.model, run_cfg)
 
         # Compute the spectrum using TRCWA for this grid
         try:
@@ -115,7 +116,7 @@ def run_training(
             logger.warning(
                 "ValueError encountered in compute_spectrum. This likely means the LR was too high. Reloading best model, and reducing LR."
             )
-            model.load_state_dict(best_model_state_dict)
+            run_cfg.model.load_state_dict(run_cfg.best_model_state_dict)
             logger.info(
                 "Setting LR to {}".format(optimizer.param_groups[0]["lr"] * 0.5)
             )
@@ -151,14 +152,14 @@ def run_training(
             )
             if not renormalized:
                 logger.debug("Saving model state...")
-                best_model_state_dict = deepcopy(model.state_dict())
+                run_cfg.best_model_state_dict = deepcopy(run_cfg.model.state_dict())
 
         # Update the loss trend indicators
         weighted_average.append(loss.item())
 
         # Update the logs
-        results.weighted_average_log.append(np.mean(weighted_average))
-        results.loss_log.append(loss.item())
+        run_cfg.results.weighted_average_log.append(np.mean(weighted_average))
+        run_cfg.results.loss_log.append(loss.item())
 
         # Print every i iterations
         if it % 5 == 0:
@@ -181,6 +182,6 @@ def run_training(
 
     logger.trace("Reloading best model state...")
     # Return best model in the end
-    model.load_state_dict(best_model_state_dict)
+    run_cfg.model.load_state_dict(run_cfg.best_model_state_dict)
 
-    return model, results
+    return run_cfg
