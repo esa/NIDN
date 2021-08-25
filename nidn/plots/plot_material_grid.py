@@ -8,7 +8,7 @@ from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
 def plot_material_grid(model, run_cfg):
-    """Plots the materials closed to used for each grid point. 
+    """Plots the materials closest to the used ones for each grid point. 
     
     Args:
         model (torch.model): The model to be plotted.
