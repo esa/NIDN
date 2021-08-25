@@ -134,6 +134,17 @@ def run_training(
             run_cfg.absorption_loss,
         )
 
+        # Compute L1 error for logging
+        L1err, _ = _spectrum_loss_fn(
+            produced_R_spectrum,
+            produced_T_spectrum,
+            target_reflectance_spectrum,
+            target_transmittance_spectrum,
+            run_cfg.target_frequencies,
+            1,
+            True,
+        )
+
         loss = 0
         loss += spectrum_loss
 
@@ -147,7 +158,7 @@ def run_training(
         if spectrum_loss < best_loss:
             best_loss = spectrum_loss
             logger.info(
-                f"###  New Best={loss.item():<6.4f} with SpectrumLoss={spectrum_loss.detach().item():<6.4f} ###"
+                f"###  New Best={loss.item():<6.4f} with SpectrumLoss={spectrum_loss.detach().item():<6.4f} ### L1={L1err.detach().item():.4f}"
             )
             if not renormalized:
                 logger.debug("Saving model state...")
@@ -162,9 +173,10 @@ def run_training(
 
         # Print every i iterations
         if it % 5 == 0:
+
             wa_out = np.mean(weighted_average)
             logger.info(
-                f"It={it:<5} Loss={loss.item():<6.4f}   |  weighted_avg={wa_out:<6.4f}  |  SpectrumLoss={spectrum_loss.detach().item():<6.4f}"
+                f"It={it:<5} Loss={loss.item():<6.4f}   |  weighted_avg={wa_out:<6.4f}  |  SpectrumLoss={spectrum_loss.detach().item():<6.4f} | L1={L1err.detach().item():.4f}"
             )
 
         # Zeroes the gradient (otherwise would accumulate)
