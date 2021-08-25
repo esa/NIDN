@@ -26,6 +26,20 @@ class MaterialCollection:
         self.materials_folder = os.path.dirname(__file__) + "/data/"
         self._load_materials_folder()
 
+    def __getitem__(self, key):
+        """Given the name of a material will return the corresponding epsilon tensor.
+
+        Args:
+            key (str): Name of the material.
+
+        Returns:
+            torch.tensor: The corresponding epsilon tensor.
+        """
+        if key in self.material_names:
+            return self.epsilon_matrix[self.material_names.index(key)]
+        else:
+            raise KeyError(f"Material '{key}' not found in the material collection.")
+
     def _load_materials_folder(self):
         """Loads all csv files from folder "data"
         and sets up the EPS_MATRIX and MATERIAL_NAMES
