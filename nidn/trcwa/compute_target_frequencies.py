@@ -22,6 +22,7 @@ def compute_target_frequencies(
     logval_min = np.log10(min_physical_freq)
     logval_max = np.log10(max_physical_freq)
 
-    target_frequencies = np.logspace(logval_min, logval_max, num=N_freq, base=10)
+    target_frequencies = np.linspace(min_physical_freq, max_physical_freq, num=N_freq)
+    # target_frequencies = np.logspace(logval_min, logval_max, num=N_freq, base=10)
     target_frequencies = np.sort(target_frequencies)
     return target_frequencies

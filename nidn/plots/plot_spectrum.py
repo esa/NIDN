@@ -14,7 +14,7 @@ def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
     ax.set_ylabel(f"{type_name}")
     ax.set_xscale("log")
     ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-    ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+    # ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
     ax.set_ylim(ylimits)

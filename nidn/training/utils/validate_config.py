@@ -10,6 +10,7 @@ def _validate_config(cfg: DotMap):
 
     # Check that all required entries are in the config
     required_keys = [
+        "name",
         "seed",
         "eps_oversampling",
         "real_min_eps",
@@ -68,7 +69,7 @@ def _validate_config(cfg: DotMap):
         "reg_loss_weight",
     ]
     boolean_keys = ["use_regularization_loss", "add_noise"]
-    string_keys = ["model_type", "type"]
+    string_keys = ["model_type", "type", "name"]
 
     for key in integer_keys:
         if not isinstance(cfg[key], int):

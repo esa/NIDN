@@ -23,13 +23,13 @@ def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_freque
     freq_scaling = 32.0
 
     # Linearly spaced frequency points
-    # freq = torch.linspace(-freq_scaling, freq_scaling, len(target_frequencies))
+    freq = torch.linspace(-freq_scaling, freq_scaling, len(target_frequencies))
 
     # Logspaced frequency points
     # Normalize to max val = 1
-    freq = torch.tensor(target_frequencies / max(target_frequencies))
+    # freq = torch.tensor(target_frequencies / max(target_frequencies))
     # Transform to -scaling to scaling
-    freq = (freq - 0.5) * 2 * freq_scaling
+    # freq = (freq - 0.5) * 2 * freq_scaling
 
     # Create a meshgrid from the grid ticks
     X, Y, Z, FREQ = torch.meshgrid((x, y, z, freq))
@@ -159,7 +159,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     if run_cfg.add_noise:
         out += torch.randn_like(out) * run_cfg.noise_scale
 
-    beta = 10
+    beta = 16
     # Softmax with a high beta to push towards 1
     exponential = torch.exp(beta * out)
     material_id = exponential / exponential.sum(dim=-1).unsqueeze(-1)
