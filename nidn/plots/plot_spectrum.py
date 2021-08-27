@@ -36,6 +36,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
             run_cfg.physical_wavelength_range[0],
             run_cfg.physical_wavelength_range[1],
             run_cfg.N_freq,
+            run_cfg.freq_distribution,
         )
     target_frequencies = run_cfg.target_frequencies
 

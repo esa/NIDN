@@ -35,6 +35,7 @@ def _init_training(run_cfg: DotMap):
         run_cfg.physical_wavelength_range[0],
         run_cfg.physical_wavelength_range[1],
         run_cfg.N_freq,
+        run_cfg.freq_distribution,
     )
 
     logger.debug("Computed target frequencies:")

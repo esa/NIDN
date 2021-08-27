@@ -12,7 +12,7 @@ def test_conversion():
     min_wl = 300e-9  # 300 nm
     max_wl = 3e-6  # 3 µm
 
-    target_frequencies = compute_target_frequencies(min_wl, max_wl, 5)
+    target_frequencies = compute_target_frequencies(min_wl, max_wl, 5, "linear")
     logger.debug("Proposed frequencies are")
     logger.debug(target_frequencies)
 

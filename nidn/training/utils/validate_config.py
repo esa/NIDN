@@ -40,6 +40,7 @@ def _validate_config(cfg: DotMap):
         "TRCWA_NG",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
+        "freq_distribution",
     ]
 
     for key in required_keys:
@@ -69,7 +70,7 @@ def _validate_config(cfg: DotMap):
         "reg_loss_weight",
     ]
     boolean_keys = ["use_regularization_loss", "add_noise"]
-    string_keys = ["model_type", "type", "name"]
+    string_keys = ["model_type", "type", "name", "freq_distribution"]
 
     for key in integer_keys:
         if not isinstance(cfg[key], int):
@@ -142,3 +143,6 @@ def _validate_config(cfg: DotMap):
 
     if not len(cfg.target_reflectance_spectrum) == cfg.N_freq:
         raise ValueError(f"target_reflectance_spectrum must have length N_freq")
+
+    if not (cfg.freq_distribution == "linear" or cfg.freq_distribution == "log"):
+        raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
