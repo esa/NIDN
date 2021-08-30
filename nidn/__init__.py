@@ -15,6 +15,7 @@ from .plots.plot_spectra import plot_spectra
 from .plots.plot_spectrum import plot_spectrum
 from .plots.save_all_plots import save_all_plots
 from .training.load_run import load_run
+from .training.model.model_to_eps_grid import model_to_eps_grid
 from .training.run_training import run_training
 from .training.save_run import save_run
 from .trcwa.compute_target_frequencies import compute_target_frequencies
@@ -48,6 +49,7 @@ __all__ = [
     "load_default_cfg",
     "load_run",
     "MaterialCollection",
+    "model_to_eps_grid",
     "phys_freq_to_phys_wl",
     "plot_epsilon_grid",
     "plot_eps_per_point",

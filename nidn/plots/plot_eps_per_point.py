@@ -79,6 +79,20 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None):
     if compare_to_material is not None:
         ax.plot(wl, material_data.real, "--", color="black", linewidth=1.5)
         ax2.plot(wl, material_data.imag, "--", color="black", linewidth=1.5)
+        ax.text(
+            wl.max(),
+            material_data.real[0],
+            " " + compare_to_material,
+            va="center",
+            fontsize=7,
+        )
+        ax2.text(
+            wl.max(),
+            material_data.imag[0],
+            " " + compare_to_material,
+            va="center",
+            fontsize=7,
+        )
     else:
         _, indices = _find_closest_material(eps, run_cfg)
         unique_indices = torch.unique(indices)

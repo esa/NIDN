@@ -1,8 +1,10 @@
 # Training Properties
-seed = 42
+name = "example_name"
+use_gpu = false
+seed = 100
 model_type = "siren"
-iterations = 2000
-learning_rate = 6.5e-5
+iterations = 3000
+learning_rate = 8e-5
 type = "regression" # "classification" or "regression"
 reg_loss_weight = 0.05 # weighting of the regularization loss
 use_regularization_loss = true # only relevant for classification
@@ -21,15 +23,15 @@ siren_omega = 1.0
 add_noise = false
 noise_scale = 0.001
 eps_oversampling = 1
-real_min_eps = 1e-3
-real_max_eps = 50.0
+real_min_eps = -20.0
+real_max_eps = 20.0
 imag_min_eps = 0.0
-imag_max_eps = 30.0
+imag_max_eps = 3.0
 
 # Grid dimensions
-Nx = 16
-Ny = 16
-N_layers = 1
+Nx = 1
+Ny = 1
+N_layers = 8
 
 # TRCWA parameters
 TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
@@ -37,7 +39,10 @@ TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 
 # Target spectra
 # To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)
-target_reflectance_spectrum = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-target_transmittance_spectrum = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-physical_wavelength_range = [250e-9,10e-6]
+# This should be from low wavelength to high wavelength
+avoid_zero_eps = true
+target_reflectance_spectrum = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
+target_transmittance_spectrum = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+physical_wavelength_range = [1e-6,30e-6]
+freq_distribution = "linear" # "linear" or "log"
 N_freq = 20

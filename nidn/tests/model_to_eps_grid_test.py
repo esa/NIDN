@@ -19,6 +19,7 @@ def test_model_to_eps_grid():
         cfg.physical_wavelength_range[0],
         cfg.physical_wavelength_range[1],
         cfg.N_freq,
+        cfg.freq_distribution,
     )
 
     cfg.material_collection = MaterialCollection(cfg.target_frequencies)

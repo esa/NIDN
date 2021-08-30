@@ -30,11 +30,16 @@ def _init_training(run_cfg: DotMap):
     # Validate config
     _validate_config(run_cfg)
 
+    # Enable GPU if desired
+    if run_cfg.use_gpu:
+        torch.set_default_tensor_type(torch.cuda.FloatTensor)
+
     # Determine target frequencies
     run_cfg.target_frequencies = compute_target_frequencies(
         run_cfg.physical_wavelength_range[0],
         run_cfg.physical_wavelength_range[1],
         run_cfg.N_freq,
+        run_cfg.freq_distribution,
     )
 
     logger.debug("Computed target frequencies:")
@@ -58,7 +63,7 @@ def _init_training(run_cfg: DotMap):
     # Initialize some utility
     optimizer = torch.optim.Adam(run_cfg.model.parameters(), lr=run_cfg.learning_rate)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, factor=0.75, patience=200, min_lr=1e-6, verbose=True
+        optimizer, factor=0.66, patience=500, min_lr=1e-6, verbose=True
     )
 
     return run_cfg, optimizer, scheduler
@@ -137,11 +142,13 @@ def run_training(
             run_cfg.target_transmittance_spectrum,
             run_cfg.target_frequencies,
             1,
-            True,
+            False,
         )
 
         loss = 0
         loss += spectrum_loss
+
+        spectrum_loss = spectrum_loss.item()  # Convert to scalar
 
         if run_cfg.type == "classification" and run_cfg.use_regularization_loss:
             loss += run_cfg.reg_loss_weight * _likelihood_regularization_loss_fn(
@@ -150,10 +157,10 @@ def run_training(
 
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
-        if spectrum_loss < best_loss:
-            best_loss = spectrum_loss
+        if loss < best_loss:
+            best_loss = loss
             logger.info(
-                f"###  New Best={loss.item():<6.4f} with SpectrumLoss={spectrum_loss.detach().item():<6.4f} ### L1={L1err.detach().item():.4f}"
+                f"###  New Best={loss.item():<6.4f} with SpectrumLoss={spectrum_loss:<6.4f} ### L1={L1err.detach().item():.4f}"
             )
             if not renormalized:
                 logger.debug("Saving model state...")
@@ -172,7 +179,7 @@ def run_training(
 
             wa_out = np.mean(weighted_average)
             logger.info(
-                f"It={it:<5} Loss={loss.item():<6.4f}   |  weighted_avg={wa_out:<6.4f}  |  SpectrumLoss={spectrum_loss.detach().item():<6.4f} | L1={L1err.detach().item():.4f}"
+                f"It={it:<5} Loss={loss.item():<6.4f}   |  weighted_avg={wa_out:<6.4f}  |  SpectrumLoss={spectrum_loss:<6.4f} | L1={L1err.detach().item():.4f}"
             )
 
         # Zeroes the gradient (otherwise would accumulate)
