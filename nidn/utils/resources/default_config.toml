@@ -1,5 +1,6 @@
 # Training Properties
 name = "example_name"
+use_gpu = false
 seed = 100
 model_type = "siren"
 iterations = 3000
@@ -22,10 +23,10 @@ siren_omega = 1.0
 add_noise = false
 noise_scale = 0.001
 eps_oversampling = 1
-real_min_eps = 1e-3
-real_max_eps = 100.0
+real_min_eps = -20.0
+real_max_eps = 20.0
 imag_min_eps = 0.0
-imag_max_eps = 5.0
+imag_max_eps = 3.0
 
 # Grid dimensions
 Nx = 1
@@ -39,6 +40,7 @@ TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 # Target spectra
 # To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)
 # This should be from low wavelength to high wavelength
+avoid_zero_eps = true
 target_reflectance_spectrum = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
 target_transmittance_spectrum = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 physical_wavelength_range = [1e-6,30e-6]

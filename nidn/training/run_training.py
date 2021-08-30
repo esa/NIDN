@@ -30,6 +30,10 @@ def _init_training(run_cfg: DotMap):
     # Validate config
     _validate_config(run_cfg)
 
+    # Enable GPU if desired
+    if run_cfg.use_gpu:
+        torch.set_default_tensor_type(torch.cuda.FloatTensor)
+
     # Determine target frequencies
     run_cfg.target_frequencies = compute_target_frequencies(
         run_cfg.physical_wavelength_range[0],

@@ -41,6 +41,8 @@ def _validate_config(cfg: DotMap):
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "freq_distribution",
+        "use_gpu",
+        "avoid_zero_eps",
     ]
 
     for key in required_keys:
@@ -69,7 +71,7 @@ def _validate_config(cfg: DotMap):
         "noise_scale",
         "reg_loss_weight",
     ]
-    boolean_keys = ["use_regularization_loss", "add_noise"]
+    boolean_keys = ["use_regularization_loss", "add_noise", "use_gpu", "avoid_zero_eps"]
     string_keys = ["model_type", "type", "name", "freq_distribution"]
 
     for key in integer_keys:
