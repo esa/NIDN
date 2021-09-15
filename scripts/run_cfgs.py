@@ -54,7 +54,7 @@ if __name__ == "__main__":
         logger.info("Finished running {}".format(cfg_filepath))
 
         logger.info("Storing results...")
-        subfolder_name = cfg.name
+        subfolder_name = cfg.name + "_" + dt_string
         nidn.save_run(cfg, result_folder_name + "/" + subfolder_name + "/")
         nidn.save_all_plots(
             cfg, "../results/" + result_folder_name + "/" + subfolder_name + "/"
