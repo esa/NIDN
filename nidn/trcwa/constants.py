@@ -15,8 +15,6 @@ TRCWA_Q_ABS = 1e5
 # Dielectric constant for top and bottom layer (vacuum layer)
 TRCWA_VACUUM_EPS = torch.tensor(1.0)
 
-TRCWA_PER_LAYER_THICKNESS = 1.0
-
 # Planewave excitation
 TRCWA_PLANEWAVE = {"p_amp": 0, "s_amp": 1, "p_phase": 0, "s_phase": 0}
 

@@ -73,6 +73,13 @@ def _validate_config(cfg: DotMap):
     ]
     boolean_keys = ["use_regularization_loss", "add_noise", "use_gpu", "avoid_zero_eps"]
     string_keys = ["model_type", "type", "name", "freq_distribution"]
+    list_keys = [
+        "TRCWA_PER_LAYER_THICKNESS",
+        "TRCWA_L_grid",
+        "target_reflectance_spectrum",
+        "target_transmittance_spectrum",
+        "physical_wavelength_range",
+    ]
 
     for key in integer_keys:
         if not isinstance(cfg[key], int):
@@ -89,6 +96,10 @@ def _validate_config(cfg: DotMap):
     for key in string_keys:
         if not isinstance(cfg[key], str):
             raise ValueError(f"{key} must be a string")
+
+    for key in list_keys:
+        if not isinstance(cfg[key], list):
+            raise ValueError(f"{key} must be a list")
 
     # Check that all values are within the correct ranges
     if not (cfg.real_min_eps <= cfg.real_max_eps):
@@ -145,6 +156,15 @@ def _validate_config(cfg: DotMap):
 
     if not len(cfg.target_reflectance_spectrum) == cfg.N_freq:
         raise ValueError(f"target_reflectance_spectrum must have length N_freq")
+
+    if not (all(cfg.TRCWA_PER_LAYER_THICKNESS) >= 0.0):
+        raise ValueError(f"thickness must a positive number.")
+
+    if not (
+        len(cfg.TRCWA_PER_LAYER_THICKNESS) == cfg.N_layers
+        or len(cfg.TRCWA_PER_LAYER_THICKNESS) == 1
+    ):
+        raise ValueError(f"TRCWA_PER_LAYER_THICKNESS must have length 1 or N_layers")
 
     if not (cfg.freq_distribution == "linear" or cfg.freq_distribution == "log"):
         raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
