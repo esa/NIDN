@@ -19,7 +19,7 @@ def plot_model_grid(run_cfg, save_path=None):
     X, Y, Z = torch.meshgrid((x, y, z))
 
     # Here we calculate the absolute value of the permittivity over all frequencies for each grid point
-    eps = torch.norm(eps, dim=3)
+    eps = torch.mean(eps, dim=3)
 
     abs_values = eps.detach().cpu().numpy()
 
