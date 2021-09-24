@@ -3,8 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 from ..utils.convert_units import freq_to_wl
-from ..trcwa.compute_spectrum import compute_spectrum
-from ..training.model.model_to_eps_grid import model_to_eps_grid
+from ..trcwa.compute_target_frequencies import compute_target_frequencies
 
 
 def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
@@ -15,7 +14,7 @@ def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
     ax.set_ylabel(f"{type_name}")
     ax.set_xscale("log")
     ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-    ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+    # ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
     ax.set_ylim(ylimits)
@@ -32,6 +31,13 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
 
+    if not "target_frequencies" in run_cfg.keys():
+        run_cfg.target_frequencies = compute_target_frequencies(
+            run_cfg.physical_wavelength_range[0],
+            run_cfg.physical_wavelength_range[1],
+            run_cfg.N_freq,
+            run_cfg.freq_distribution,
+        )
     target_frequencies = run_cfg.target_frequencies
 
     # Convert the spectra to numpy arrays for matplotlib
@@ -43,7 +49,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
     )
 
     # To align all plots
-    ylimits = [-0.05, 1]
+    ylimits = [-0.05, 1.05]
     if (
         (max(A_spectrum) > 1 or min(A_spectrum) < 0)
         or (max(T_spectrum) > 1 or min(T_spectrum) < 0)

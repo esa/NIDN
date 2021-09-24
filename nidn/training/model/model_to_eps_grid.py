@@ -2,7 +2,33 @@ import torch
 from dotmap import DotMap
 
 
-def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_frequencies):
+def _avoid_zero_eps(eps, cutoff=1e-2):
+    """Clips epsilon values close to zero to either cutoff or -cutoff.
+
+    Args:
+        eps (torch.tensor): epsilon to be clipped.
+        cutoff (float, optional): Cutoff border. Defaults to 1e-2.
+
+    Returns:
+        torch.tensor: modified eps tensor
+    """
+    # catch zeroes
+    indices = eps.real == 0.0
+    eps.real[indices] = cutoff
+    # catch close to zeroes
+    indices = torch.logical_and(eps.real < cutoff, eps.real > -cutoff)
+    eps.real[indices] = cutoff * torch.sign(eps.real[indices])
+    return eps
+
+
+def _eval_model(
+    model,
+    Nx_undersampled,
+    Ny_undersampled,
+    N_layers,
+    target_frequencies,
+    freq_distribution,
+):
     """Evaluates the model on the grid.
 
     Args:
@@ -11,6 +37,7 @@ def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_freque
         Ny_undersampled (int): Number of grid points in y direction. Potentially unesampled if eps_oversampling > 1.
         N_layers (int): Number of layers in the model.
         target_frequencies (list): Target frequencies.
+        freq_distribution (list): Distribution of points in frequency space. Should be "linear" or "log".
     Returns:
        [torch.tensor]: Resulting 4D [real,imag] epsilon grid
     """
@@ -22,14 +49,17 @@ def _eval_model(model, Nx_undersampled, Ny_undersampled, N_layers, target_freque
     # Scales sampling domain of frequencies
     freq_scaling = 32.0
 
-    # Linearly spaced frequency points
-    # freq = torch.linspace(-freq_scaling, freq_scaling, len(target_frequencies))
-
-    # Logspaced frequency points
-    # Normalize to max val = 1
-    freq = torch.tensor(target_frequencies / max(target_frequencies))
-    # Transform to -scaling to scaling
-    freq = (freq * 2 * freq_scaling) - freq_scaling
+    if freq_distribution == "linear":
+        # Linearly spaced frequency points
+        freq = torch.linspace(-freq_scaling, freq_scaling, len(target_frequencies))
+    elif freq_distribution == "log":
+        # Logspaced frequency points as in cfg
+        # Normalize to max val = 1
+        freq = torch.tensor(target_frequencies / max(target_frequencies))
+        # Transform to -scaling to scaling
+        freq = (freq - 0.5) * 2 * freq_scaling
+    else:
+        raise ValueError("Unknown frequency distribution. Should be 'log' or 'linear'")
 
     # Create a meshgrid from the grid ticks
     X, Y, Z, FREQ = torch.meshgrid((x, y, z, freq))
@@ -65,6 +95,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
         Ny_undersampled,
         run_cfg.N_layers,
         run_cfg.target_frequencies,
+        run_cfg.freq_distribution,
     )
 
     # Reshape the output to have a 4D tensor again
@@ -79,15 +110,25 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
 
     # Initialize the epsilon grid
     eps = torch.zeros(
-        [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq], dtype=torch.cfloat,
+        [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq],
+        dtype=torch.cfloat,
     )
 
     # Net out is [0,1] thus we transform to desired real and imaginary ranges
     # first half contains real entries
     eps.real = out[:, :, :, 0 : run_cfg.N_freq]
-    eps.real = (eps.real * (run_cfg.real_max_eps - run_cfg.real_min_eps)).clip(
+
+    # scale up to [0 , (max-min_eps)]
+    eps.real = eps.real * (run_cfg.real_max_eps - run_cfg.real_min_eps)
+
+    # translate to [min_eps, max_eps] and clip outliers
+    eps.real = (eps.real + run_cfg.real_min_eps).clip(
         run_cfg.real_min_eps, run_cfg.real_max_eps
     )
+
+    if run_cfg.avoid_zero_eps:
+        _avoid_zero_eps(eps)
+
     # second half imaginary
     eps.imag = out[:, :, :, run_cfg.N_freq :]
     eps.imag = (eps.imag * (run_cfg.imag_max_eps - run_cfg.imag_min_eps)).clip(
@@ -135,6 +176,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
         Ny_undersampled,
         run_cfg.N_layers,
         run_cfg.target_frequencies,
+        run_cfg.freq_distribution,
     )
 
     # Reshape the output to have a 4D tensor again
@@ -158,7 +200,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     if run_cfg.add_noise:
         out += torch.randn_like(out) * run_cfg.noise_scale
 
-    beta = 10
+    beta = 16
     # Softmax with a high beta to push towards 1
     exponential = torch.exp(beta * out)
     material_id = exponential / exponential.sum(dim=-1).unsqueeze(-1)
@@ -169,6 +211,9 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     eps = (material_id.unsqueeze(-1) * run_cfg.material_collection.epsilon_matrix).sum(
         -2
     )
+
+    if run_cfg.avoid_zero_eps:
+        _avoid_zero_eps(eps)
 
     return eps, material_id
 

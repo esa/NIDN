@@ -21,6 +21,7 @@ def get_frequency_points(run_cfg: DotMap):
         run_cfg.physical_wavelength_range[0],
         run_cfg.physical_wavelength_range[1],
         run_cfg.N_freq,
+        run_cfg.freq_distribution,
     )
 
     physical_target_frequencies = wl_to_phys_wl(freq_to_wl(run_cfg.target_frequencies))
