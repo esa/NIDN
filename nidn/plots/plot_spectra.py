@@ -108,4 +108,4 @@ def plot_spectra(run_cfg, save_path=None):
     plt.tight_layout()
 
     if save_path is not None:
-        plt.savefig(save_path + "/spectra.png", dpi=150)
+        plt.savefig(save_path + "/spectra_comparison.png", dpi=150)
