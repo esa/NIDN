@@ -10,7 +10,7 @@ reg_loss_weight = 0.05 # weighting of the regularization loss
 use_regularization_loss = true # only relevant for classification
 
 # Loss
-L = 0.5
+L = 1.0
 absorption_loss = false
 
 # Model Parameters
