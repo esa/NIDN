@@ -23,8 +23,8 @@ siren_omega = 1.0
 add_noise = false
 noise_scale = 0.001
 eps_oversampling = 1
-real_min_eps = -20.0
-real_max_eps = 20.0
+real_min_eps = -100.0
+real_max_eps = 100.0
 imag_min_eps = 0.0
 imag_max_eps = 3.0
 
