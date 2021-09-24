@@ -1,11 +1,7 @@
 .. NIDN Readme file
 
-.. image:: NIDN_logo.jpg
-    :width: 537px
-    :align: center
-    :height: 192px
-    :alt: NIDN_logo
-
+Neural Inverse Design of Nanostructures (NIDN)
+----------------------------------------------
 
 Neural Inverse Design of Nanostructures (NIDN) is a Python project by the Advanced Concepts Team of ESA.
 The goal of the project is to enable inverse design of nanostructures, metamaterials, 

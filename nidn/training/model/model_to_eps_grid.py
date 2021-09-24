@@ -34,6 +34,25 @@ def _get_transformed_grid(Nx_undersampled, Ny_undersampled, N_layers, thicknesse
     return x, y, z
 
 
+def _avoid_zero_eps(eps, cutoff=1e-2):
+    """Clips epsilon values close to zero to either cutoff or -cutoff.
+
+    Args:
+        eps (torch.tensor): epsilon to be clipped.
+        cutoff (float, optional): Cutoff border. Defaults to 1e-2.
+
+    Returns:
+        torch.tensor: modified eps tensor
+    """
+    # catch zeroes
+    indices = eps.real == 0.0
+    eps.real[indices] = cutoff
+    # catch close to zeroes
+    indices = torch.logical_and(eps.real < cutoff, eps.real > -cutoff)
+    eps.real[indices] = cutoff * torch.sign(eps.real[indices])
+    return eps
+
+
 def _eval_model(
     model,
     Nx_undersampled,
@@ -142,13 +161,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
     )
 
     if run_cfg.avoid_zero_eps:
-        eps_cutoff = 1e-1
-        # catch zeroes
-        indices = eps.real == 0.0
-        eps.real[indices] = eps_cutoff
-        # catch close to zeroes
-        indices = torch.logical_and(eps.real < eps_cutoff, eps.real > -eps_cutoff)
-        eps.real[indices] = eps_cutoff * torch.sign(eps.real[indices])
+        _avoid_zero_eps(eps)
 
     # second half imaginary
     eps.imag = out[:, :, :, run_cfg.N_freq :]
@@ -235,12 +248,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
     )
 
     if run_cfg.avoid_zero_eps:
-        # catch zeroes
-        indices = eps.real == 0.0
-        eps.real[indices] = 1e-3
-        # catch close to zeroes
-        indices = torch.logical_and(eps.real < 1e-3, eps.real > -1e-3)
-        eps.real[indices] = 1e-3 * torch.sign(eps.real[indices])
+        _avoid_zero_eps(eps)
 
     return eps, material_id
 
