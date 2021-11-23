@@ -157,7 +157,7 @@ def _validate_config(cfg: DotMap):
     if not len(cfg.target_reflectance_spectrum) == cfg.N_freq:
         raise ValueError(f"target_reflectance_spectrum must have length N_freq")
 
-    if not (all(cfg.TRCWA_PER_LAYER_THICKNESS) >= 0.0):
+    if not (all(cfg.TRCWA_PER_LAYER_THICKNESS) > 0.0):
         raise ValueError(f"thickness must a positive number.")
 
     if not (
