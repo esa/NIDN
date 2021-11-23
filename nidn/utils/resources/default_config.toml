@@ -34,6 +34,8 @@ Ny = 1
 N_layers = 8
 
 # TRCWA parameters
+TRCWA_PER_LAYER_THICKNESS = [1.0] # len 1 for uniform thickness
+# TRCWA_PER_LAYER_THICKNESS = [0.1,0.5,0.4] # optionally list of thicknesses for each layer
 TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
 TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 

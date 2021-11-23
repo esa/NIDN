@@ -14,9 +14,10 @@ class LayerBuilder:
         self.run_cfg = run_cfg
         self.material_collection = MaterialCollection(self.run_cfg.target_frequencies)
 
-    def _setup_grid_and_materials(self,):
-        """Utility function to setup essentials.
-        """
+    def _setup_grid_and_materials(
+        self,
+    ):
+        """Utility function to setup essentials."""
         # Get the grid ticks
         x0 = torch.linspace(0, 1, self.run_cfg.Nx)
         y0 = torch.linspace(0, 1, self.run_cfg.Ny)

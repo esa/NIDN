@@ -2,6 +2,38 @@ import torch
 from dotmap import DotMap
 
 
+def _get_transformed_grid(Nx_undersampled, Ny_undersampled, N_layers, thicknesses):
+    """Creates x,y,z in the space [-1,1]**3 . Z weighted by thicknesses
+
+    Args:
+          model (torch.model): Trained neural network model. Should map one 4D input.
+        Nx_undersampled (int): Number of grid points in x direction. Potentially unesampled if eps_oversampling > 1.
+        Ny_undersampled (int): Number of grid points in y direction. Potentially unesampled if eps_oversampling > 1.
+        N_layers (int): Number of layers in the model.
+        target_frequencies (list): Target frequencies.
+        freq_distribution (list): Distribution of points in frequency space. Should be "linear" or "log".
+        thicknesses (list): List of thicknesses for each layer or scalar for all.
+    Returns:
+       [torch.tensor,torch.tensor,torch.tensor]: x,y,z
+
+    """
+    # Get the grid ticks
+    x = torch.linspace(-1, 1, Nx_undersampled)
+    y = torch.linspace(-1, 1, Ny_undersampled)
+
+    # Space z uniform for equally thick layers, else weight by thickness
+    if len(thicknesses) == 1:
+        z = torch.linspace(-1, 1, N_layers)
+    else:
+        total_thickness = sum(thicknesses)
+        # normalize to 0 to 1
+        z = torch.tensor(thicknesses) / total_thickness
+        # Transform to -1 to 1
+        z = (z * 2) - 1
+
+    return x, y, z
+
+
 def _avoid_zero_eps(eps, cutoff=1e-2):
     """Clips epsilon values close to zero to either cutoff or -cutoff.
 
@@ -28,6 +60,7 @@ def _eval_model(
     N_layers,
     target_frequencies,
     freq_distribution,
+    thicknesses,
 ):
     """Evaluates the model on the grid.
 
@@ -38,13 +71,13 @@ def _eval_model(
         N_layers (int): Number of layers in the model.
         target_frequencies (list): Target frequencies.
         freq_distribution (list): Distribution of points in frequency space. Should be "linear" or "log".
+        thicknesses (list): List of thicknesses for each layer or scalar for all.
     Returns:
        [torch.tensor]: Resulting 4D [real,imag] epsilon grid
     """
-    # Get the grid ticks
-    x = torch.linspace(-1, 1, Nx_undersampled)
-    y = torch.linspace(-1, 1, Ny_undersampled)
-    z = torch.linspace(-1, 1, N_layers)
+    x, y, z = _get_transformed_grid(
+        Nx_undersampled, Ny_undersampled, N_layers, thicknesses
+    )
 
     # Scales sampling domain of frequencies
     freq_scaling = 32.0
@@ -96,6 +129,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.N_layers,
         run_cfg.target_frequencies,
         run_cfg.freq_distribution,
+        run_cfg.TRCWA_PER_LAYER_THICKNESS,
     )
 
     # Reshape the output to have a 4D tensor again
@@ -177,6 +211,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.N_layers,
         run_cfg.target_frequencies,
         run_cfg.freq_distribution,
+        run_cfg.TRCWA_PER_LAYER_THICKNESS,
     )
 
     # Reshape the output to have a 4D tensor again

@@ -22,6 +22,10 @@ class MaterialCollection:
         logger.trace("Initializing material collection")
         self.epsilon_matrix = None
         self.material_names = []
+
+        if len(target_frequencies) == 0:
+            raise ValueError("No target frequencies specified.")
+
         self.target_frequencies = target_frequencies
         self.materials_folder = os.path.dirname(__file__) + "/data/"
         self._load_materials_folder()

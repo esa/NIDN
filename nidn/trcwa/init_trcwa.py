@@ -2,6 +2,7 @@ from loguru import logger
 
 from .constants import *
 from .trcwa import TRCWA
+from ..materials.material_collection import MaterialCollection
 
 
 def _init_trcwa(eps_grid, target_frequency, run_cfg):
@@ -43,17 +44,27 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
     )
 
     # Add vacuum layer at the top
-    trcwa.Add_LayerUniform(TRCWA_PER_LAYER_THICKNESS, TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
 
     # Add material layers (homogeneous if Nx and Ny are 1)
     for layer in range(N_layers):
-        if Nx > 1 or Ny > 1:
-            trcwa.Add_LayerGrid(TRCWA_PER_LAYER_THICKNESS, Nx, Ny)
+
+        # Set thickness based on config
+        if len(run_cfg.TRCWA_PER_LAYER_THICKNESS) == 1:
+            thickness = run_cfg.TRCWA_PER_LAYER_THICKNESS[0]
         else:
-            trcwa.Add_LayerUniform(TRCWA_PER_LAYER_THICKNESS, eps_grid[layer])
+            thickness = run_cfg.TRCWA_PER_LAYER_THICKNESS[layer]
+
+        if Nx > 1 or Ny > 1:
+            trcwa.Add_LayerGrid(thickness, Nx, Ny)
+        else:
+            trcwa.Add_LayerUniform(thickness, eps_grid[layer])
+
+    # Add silicon nitride layer
+    # trcwa.Add_LayerUniform(thickness=1.0, epsilon=16.0 + 0.0j)
 
     # Add vacuum layer at the bottom
-    trcwa.Add_LayerUniform(TRCWA_PER_LAYER_THICKNESS, TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
 
     # Initialize the object properly
     trcwa.Init_Setup()
