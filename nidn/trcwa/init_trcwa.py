@@ -2,6 +2,7 @@ from loguru import logger
 
 from .constants import *
 from .trcwa import TRCWA
+from ..materials.material_collection import MaterialCollection
 
 
 def _init_trcwa(eps_grid, target_frequency, run_cfg):
@@ -58,6 +59,9 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
             trcwa.Add_LayerGrid(thickness, Nx, Ny)
         else:
             trcwa.Add_LayerUniform(thickness, eps_grid[layer])
+
+    # Add silicon nitride layer
+    # trcwa.Add_LayerUniform(thickness=1.0, epsilon=16.0 + 0.0j)
 
     # Add vacuum layer at the bottom
     trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
