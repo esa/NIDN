@@ -13,7 +13,7 @@ def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
     ax.set_xlabel("Wavelength [µm]")
     ax.set_ylabel(f"{type_name}")
     ax.set_xscale("log")
-    ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+    # ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
     # ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
@@ -21,7 +21,7 @@ def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
     return fig
 
 
-def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
+def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None, filename=None):
     """Plots the produced RTA spectra. Optionally saves it.
 
     Args:
@@ -29,6 +29,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
         R_spectrum (torch.tensor): The reflection spectrum.
         T_spectrum (torch.tensor): The transmission spectrum.
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
+        filename (str, optional): Filename to save the plot in. Defaults to None, then the plot will be saved with the name "spectrum.png".
     """
 
     if not "target_frequencies" in run_cfg.keys():
@@ -91,4 +92,7 @@ def plot_spectrum(run_cfg, R_spectrum, T_spectrum, save_path=None):
     plt.tight_layout()
 
     if save_path is not None:
-        plt.savefig(save_path + "/spectrum.png", dpi=150)
+        if filename is None:
+            plt.savefig(save_path + "/spectrum.png", dpi=150)
+        else:
+            plt.savefig(save_path + "/" + filename + ".png", dpi=300)
