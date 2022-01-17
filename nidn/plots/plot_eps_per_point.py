@@ -9,12 +9,12 @@ from ..materials.material_collection import MaterialCollection
 from ..materials.find_closest_material import _find_closest_material
 
 
-def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None):
+def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend=True):
     """This function plots the epsilon values of grid points against real materials. Optionally saves it.
 
     Args:
         run_cfg (dict): The run configuration.
-        compare_to_material (str): Name of the material to compare with. Available ones are in /materials/data.
+        compare_to_material (str or list): Name(s) of the material to compare with. Available ones are in /materials/data.
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
     """
     # Create epsilon grid from the model
@@ -25,7 +25,12 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None):
 
     # Load material data for comparison
     if compare_to_material is not None:
-        material_data = material_collection[compare_to_material]
+        if type(compare_to_material) is str:
+            material_data = material_collection[compare_to_material]
+        else:
+            material_data = []
+            for mat in compare_to_material:
+                material_data.append(material_collection[mat])
 
     # Create figure
     fig = plt.figure(figsize=(10, 6), dpi=150)
@@ -37,8 +42,8 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None):
     wl = freq_to_wl(run_cfg.target_frequencies)
 
     # Add some horizontal space
-    ax.set_xlim(wl.min(), 2.5 * wl.max())
-    ax2.set_xlim(wl.min(), 2.5 * wl.max())
+    ax.set_xlim(wl.min(), 2 * wl.max())
+    ax2.set_xlim(wl.min(), 2 * wl.max())
 
     ax.set_xlabel("Wavelength [µm]")
     ax.set_ylabel("Epsilon real part")
@@ -60,39 +65,56 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None):
                 ax.plot(wl, eps_point_real, linewidth=1)
                 ax2.plot(wl, eps_point_imag, linewidth=1)
 
-                ax.text(
-                    wl.max(),
-                    eps_point_real[0],
-                    f" {N_layer},{x},{y}",
-                    va="center",
-                    fontsize=7,
-                )
-                ax2.text(
-                    wl.max(),
-                    eps_point_imag[0],
-                    f" {N_layer},{x},{y}",
-                    va="center",
-                    fontsize=7,
-                )
+                # if not legend:
+                #     ax.text(
+                #         wl.max(),
+                #         eps_point_real[0],
+                #         f" {N_layer},{x},{y}",
+                #         va="center",
+                #         fontsize=7,
+                #     )
+                #     ax2.text(
+                #         wl.max(),
+                #         eps_point_imag[0],
+                #         f" {N_layer},{x},{y}",
+                #         va="center",
+                #         fontsize=7,
+                #     )
+
+    if legend:
+        # Add legend
+        names = [
+            f"{N_layer},{x},{y}"
+            for x in range(eps.shape[0])
+            for y in range(eps.shape[1])
+            for N_layer in range(eps.shape[2])
+        ]
+        ax.legend(names)
+        ax2.legend(names)
 
     # Plot material data
     if compare_to_material is not None:
-        ax.plot(wl, material_data.real, "--", color="black", linewidth=1.5)
-        ax2.plot(wl, material_data.imag, "--", color="black", linewidth=1.5)
-        ax.text(
-            wl.max(),
-            material_data.real[0],
-            " " + compare_to_material,
-            va="center",
-            fontsize=7,
-        )
-        ax2.text(
-            wl.max(),
-            material_data.imag[0],
-            " " + compare_to_material,
-            va="center",
-            fontsize=7,
-        )
+        if type(compare_to_material) is str:
+            material_data = [material_data]
+            compare_to_material = [compare_to_material]
+        for mat_data, mat_name in zip(material_data, compare_to_material):
+
+            ax.plot(wl, mat_data.real, "--", color="black", linewidth=1.5)
+            ax2.plot(wl, mat_data.imag, "--", color="black", linewidth=1.5)
+            ax.text(
+                wl.max(),
+                mat_data.real[0],
+                " " + mat_name,
+                va="center",
+                fontsize=7,
+            )
+            ax2.text(
+                wl.max(),
+                mat_data.imag[0],
+                " " + mat_name,
+                va="center",
+                fontsize=7,
+            )
     else:
         _, indices = _find_closest_material(eps, run_cfg)
         unique_indices = torch.unique(indices)
