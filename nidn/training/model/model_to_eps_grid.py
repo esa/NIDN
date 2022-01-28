@@ -82,6 +82,10 @@ def _eval_model(
     # Scales sampling domain of frequencies
     freq_scaling = 32.0
 
+    # Layers should be independent, so we scale the sampling in that dimension
+    z_scaling = 100.0
+    z *= z_scaling
+
     if freq_distribution == "linear":
         # Linearly spaced frequency points
         freq = torch.linspace(-freq_scaling, freq_scaling, len(target_frequencies))
