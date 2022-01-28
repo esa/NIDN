@@ -42,8 +42,8 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
     wl = freq_to_wl(run_cfg.target_frequencies)
 
     # Add some horizontal space
-    ax.set_xlim(wl.min(), 2 * wl.max())
-    ax2.set_xlim(wl.min(), 2 * wl.max())
+    ax.set_xlim(wl.min(), wl.max() + (0.3 * (wl.max() - wl.min())))
+    ax2.set_xlim(wl.min(), wl.max() + (0.3 * (wl.max() - wl.min())))
 
     ax.set_xlabel("Wavelength [µm]")
     ax.set_ylabel("Epsilon real part")

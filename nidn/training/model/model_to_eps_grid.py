@@ -83,7 +83,7 @@ def _eval_model(
     freq_scaling = 32.0
 
     # Layers should be independent, so we scale the sampling in that dimension
-    z_scaling = 100.0
+    z_scaling = 1000.0
     z *= z_scaling
 
     if freq_distribution == "linear":
