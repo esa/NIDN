@@ -22,6 +22,8 @@ def test_single_layer():
     run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
     run_cfg.TRCWA_NG = 11
     run_cfg.TRCWA_PER_LAYER_THICKNESS = [1.0]
+    run_cfg.TRCWA_TOP_LAYER_EPS = 1.0  # epsilon for top layer, 1.0 for vacuum
+    run_cfg.TRCWA_BOTTOM_LAYER_EPS = 1.0  # epsilon for top layer, 1.0 for vacuum
 
     # Get eps shape
     shape = [
@@ -67,6 +69,8 @@ def test_uniform_layer():
     run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
     run_cfg.TRCWA_NG = 11
     run_cfg.TRCWA_PER_LAYER_THICKNESS = [1.0]
+    run_cfg.TRCWA_TOP_LAYER_EPS = 1.0  # epsilon for top layer, 1.0 for vacuum
+    run_cfg.TRCWA_BOTTOM_LAYER_EPS = 1.0  # epsilon for top layer, 1.0 for vacuum
 
     # Get eps shape
     shape = [
@@ -114,6 +118,8 @@ def test_three_layer():
     run_cfg.TRCWA_L_grid = [[1.0, 0.0], [0.0, 1.0]]
     run_cfg.TRCWA_NG = 11
     run_cfg.TRCWA_PER_LAYER_THICKNESS = [1.0]
+    run_cfg.TRCWA_TOP_LAYER_EPS = 1.0  # epsilon for top layer, 1.0 for vacuum
+    run_cfg.TRCWA_BOTTOM_LAYER_EPS = 1.0  # epsilon for top layer, 1.0 for vacuum
 
     # Get eps shape
     shape = [

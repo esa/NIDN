@@ -38,6 +38,8 @@ def _validate_config(cfg: DotMap):
         "noise_scale",
         "TRCWA_L_grid",
         "TRCWA_NG",
+        "TRCWA_TOP_LAYER_EPS",
+        "TRCWA_BOTTOM_LAYER_EPS",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "freq_distribution",
@@ -70,6 +72,8 @@ def _validate_config(cfg: DotMap):
         "siren_omega",
         "noise_scale",
         "reg_loss_weight",
+        "TRCWA_TOP_LAYER_EPS",
+        "TRCWA_BOTTOM_LAYER_EPS",
     ]
     boolean_keys = ["use_regularization_loss", "add_noise", "use_gpu", "avoid_zero_eps"]
     string_keys = ["model_type", "type", "name", "freq_distribution"]

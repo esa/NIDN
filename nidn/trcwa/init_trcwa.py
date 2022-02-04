@@ -44,7 +44,9 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
     )
 
     # Add vacuum layer at the top
-    trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
+    trcwa.Add_LayerUniform(
+        thickness=1.0, epsilon=torch.tensor(run_cfg.TRCWA_TOP_LAYER_EPS)
+    )
 
     # Add material layers (homogeneous if Nx and Ny are 1)
     for layer in range(N_layers):
@@ -60,11 +62,10 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
         else:
             trcwa.Add_LayerUniform(thickness, eps_grid[layer])
 
-    # Add silicon nitride layer
-    # trcwa.Add_LayerUniform(thickness=1.0, epsilon=16.0 + 0.0j)
-
-    # Add vacuum layer at the bottom
-    trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
+    # Add layer at the bottom
+    trcwa.Add_LayerUniform(
+        thickness=1.0, epsilon=torch.tensor(run_cfg.TRCWA_BOTTOM_LAYER_EPS)
+    )
 
     # Initialize the object properly
     trcwa.Init_Setup()

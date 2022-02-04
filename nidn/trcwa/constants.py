@@ -12,9 +12,6 @@ TRCWA_SPEED_OF_LIGHT = 299792458.0
 # or doi.org/10.1364/OE.21.030812 for a more thorough explanation
 TRCWA_Q_ABS = 1e5
 
-# Dielectric constant for top and bottom layer (vacuum layer)
-TRCWA_VACUUM_EPS = torch.tensor(1.0)
-
 # Planewave excitation
 TRCWA_PLANEWAVE = {"p_amp": 0, "s_amp": 1, "p_phase": 0, "s_phase": 0}
 
