@@ -1,6 +1,6 @@
 import torch
 from matplotlib import pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import AutoLocator, AutoMinorLocator
 
 from ..utils.convert_units import freq_to_wl
 from ..training.model.model_to_eps_grid import model_to_eps_grid
@@ -53,8 +53,11 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
     ax2.set_ylabel("Epsilon imaginary part")
     ax2.set_xscale("log")
 
-    ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-    ax2.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
+    ax2.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
+
+    ax.xaxis.set_major_locator(AutoLocator())
+    ax2.xaxis.set_major_locator(AutoLocator())
 
     # Iterate over all grid points
     for x in range(eps.shape[0]):
