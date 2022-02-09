@@ -138,23 +138,6 @@ def compute_fdtd_spectrum(cfg: DotMap):
         grid2.reset()
     return transmission_spectrum, reflection_spectrum
 
-
-#run_cfg = nidn.load_default_cfg()
-#t,r = compute_fdtd_spectrum(run_cfg)
-
-#nidn.plot_spectrum(run_cfg,r,t)
-#wavs = [run_cfg.physical_wavelength_range[0] + i*(run_cfg.physical_wavelength_range[1]-run_cfg.physical_wavelength_range[0])/20 for i in range(len(t))]
-
-#plt.plot(wavs,t)
-#plt.xlabel("Wavelength")
-#plt.ylabel("Transmission coefficient")
-#plt.show()
-#plt.plot(wavs,r)
-#plt.xlabel("Wavelength")
-#plt.ylabel("Reflection coefficient")
-#plt.show()
-
-
 def plot_fdtd_spectrum(cfg: DotMap):
     transmission_spectrum, reflection_spectrum = compute_fdtd_spectrum(cfg)
     nidn.plot_spectrum(cfg,reflection_spectrum,transmission_spectrum)
