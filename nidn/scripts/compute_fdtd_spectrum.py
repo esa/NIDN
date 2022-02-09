@@ -1,11 +1,8 @@
 from cProfile import run
 import fdtd
-import fdtd.backend as bd
-import matplotlib.pyplot as plt
 from dotmap import DotMap
 import sys
 import math
-import numpy
 sys.path.append(r"C:\Users\to-bo\OneDrive\Documents\ESA\NIDN\Developer\nidn")
 
 import nidn
@@ -26,6 +23,7 @@ def compute_fdtd_spectrum(cfg: DotMap):
     OBJECT_START_X = int(2.5*10**(-6)/(GRID_SPACING))
     OBJECT_END_X = int(3.5*10**(-6)/(GRID_SPACING))
     PULSE_SOURCE = False
+    NITER = 200
     SPEED_LIGHT: float = 299_792_458.0  # [m/s] speed of light
     # Run two simulations for each frequency, one in free space and one with an object placed. Two detectors are placed in the grid, one just before the object and one just after. 
     # The transmission and reflectance coefficiioent respectively are calculating by dividing the rms value for the case with an object by the case wiithout the object
@@ -37,7 +35,6 @@ def compute_fdtd_spectrum(cfg: DotMap):
             permittivity=1.0,
             permeability=1.0
         )
-        print(WAVELENGTH)
         # PML boundaries in x direction and periodic boundary in y direction.
         grid[0:PML_THICKNESS, :, :] = fdtd.PML(name="pml_xlow")
         grid[-PML_THICKNESS:, :, :] = fdtd.PML(name="pml_xhigh")
@@ -65,7 +62,7 @@ def compute_fdtd_spectrum(cfg: DotMap):
 
 
         # run simulation
-        grid.run(300, progress_bar=False)
+        grid.run(NITER, progress_bar=False)
         transmission_output = transmisssion_detector.detector_values()
         reflection_output = reflection_detector.detector_values()
         # Add object
@@ -100,7 +97,7 @@ def compute_fdtd_spectrum(cfg: DotMap):
 
         # run new simulation
         
-        grid2.run(300, progress_bar = False)
+        grid2.run(NITER, progress_bar = False)
         transmission_output2 = transmisssion_detector2.detector_values()
         reflection_output2 = reflection_detector2.detector_values()
 
@@ -142,16 +139,22 @@ def compute_fdtd_spectrum(cfg: DotMap):
     return transmission_spectrum, reflection_spectrum
 
 
-run_cfg = nidn.load_default_cfg()
+#run_cfg = nidn.load_default_cfg()
+#t,r = compute_fdtd_spectrum(run_cfg)
 
-t,r = compute_fdtd_spectrum(run_cfg)
-wavs = [run_cfg.physical_wavelength_range[0] + i*(run_cfg.physical_wavelength_range[1]-run_cfg.physical_wavelength_range[0])/20 for i in range(len(t))]
+#nidn.plot_spectrum(run_cfg,r,t)
+#wavs = [run_cfg.physical_wavelength_range[0] + i*(run_cfg.physical_wavelength_range[1]-run_cfg.physical_wavelength_range[0])/20 for i in range(len(t))]
 
-plt.plot(wavs,t)
-plt.xlabel("Wavelength")
-plt.ylabel("Transmission coefficient")
-plt.show()
-plt.plot(wavs,r)
-plt.xlabel("Wavelength")
-plt.ylabel("Reflection coefficient")
-plt.show()
+#plt.plot(wavs,t)
+#plt.xlabel("Wavelength")
+#plt.ylabel("Transmission coefficient")
+#plt.show()
+#plt.plot(wavs,r)
+#plt.xlabel("Wavelength")
+#plt.ylabel("Reflection coefficient")
+#plt.show()
+
+
+def plot_fdtd_spectrum(cfg: DotMap):
+    transmission_spectrum, reflection_spectrum = compute_fdtd_spectrum(cfg)
+    nidn.plot_spectrum(cfg,reflection_spectrum,transmission_spectrum)
