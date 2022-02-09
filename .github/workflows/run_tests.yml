@@ -7,9 +7,11 @@ on:
   push:
     branches:
     - main
+    - waveregime-internship
   pull_request:
     branches:
     - main
+    - waveregime-internship
 jobs:
   build:
 
