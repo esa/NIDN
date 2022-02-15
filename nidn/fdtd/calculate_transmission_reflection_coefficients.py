@@ -24,8 +24,6 @@ def calculate_transmission_reflection_coefficients(
     Returns:
         tuple[float, float]: Transmission coefficient and reflection coefficient
     """
-    # If method == 'MEAN SQUARE, then use the mean square to get the coefficients
-    # If method == 'FT', use fourier transform method
 
     if time_to_frequency_domain_method.upper() == "MEAN SQUARE":
         transmission_coefficient = _mean_square(transmission_signals[1]) / _mean_square(

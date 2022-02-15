@@ -3,6 +3,7 @@ import torch
 from loguru import logger
 
 # Add exposed features here
+from .fdtd.init_fdtd import init_fdtd
 from .materials.layer_builder import LayerBuilder
 from .materials.material_collection import MaterialCollection
 from .plots.plot_epsilon_grid import plot_epsilon_grid
@@ -45,6 +46,7 @@ __all__ = [
     "get_frequency_points",
     "fix_random_seeds",
     "freq_to_wl",
+    "init_fdtd",
     "LayerBuilder",
     "load_default_cfg",
     "load_run",
