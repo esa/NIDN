@@ -1,0 +1,1 @@
+FDTD_UNIT_MAGNITUDE = 10 ** (-6)

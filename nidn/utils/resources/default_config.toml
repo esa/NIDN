@@ -39,6 +39,18 @@ TRCWA_PER_LAYER_THICKNESS = [1.0] # len 1 for uniform thickness
 TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
 TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 
+# FDTD parameters
+FDTD_grid = [5,2,1]
+FDTD_use_pointsource = false
+FDTD_use_pulsesource = false
+FDTD_pml_thickness = 1.5
+FDTD_source = [1.5,1.0]
+FDTD_free_space_distance = 1
+FDTD_reflection_detector_x = 2.4
+FDTD_niter = 200
+FDTD_PER_LAYER_THICKNESS = [1.0]
+
+
 # Target spectra
 # To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)
 # This should be from low wavelength to high wavelength
