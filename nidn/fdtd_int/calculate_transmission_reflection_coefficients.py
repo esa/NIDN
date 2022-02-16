@@ -2,9 +2,8 @@ from dotmap import DotMap
 from torch.fft import rfft, rfftfreq
 import numpy as np
 import torch
-import numpy
 
-from nidn.utils.global_constants import SPEED_OF_LIGHT
+from ..utils.global_constants import SPEED_OF_LIGHT
 
 
 def calculate_transmission_reflection_coefficients(
@@ -24,14 +23,12 @@ def calculate_transmission_reflection_coefficients(
     Returns:
         tuple[float, float]: Transmission coefficient and reflection coefficient
     """
-
+    true_reflection = [reflection_signals[1][i]-reflection_signals[0][i] for i in range(len(reflection_signals[0]))]
     if time_to_frequency_domain_method.upper() == "MEAN SQUARE":
         transmission_coefficient = _mean_square(transmission_signals[1]) / _mean_square(
             transmission_signals[0]
         )
-        reflection_coefficient = _mean_square(reflection_signals[1]) / _mean_square(
-            reflection_signals[0]
-        )
+        reflection_coefficient = _mean_square(true_reflection) / _mean_square(reflection_signals[0])
     elif time_to_frequency_domain_method.upper() == "FOURIER TRANSFORM":
         transmission_coefficient = (
             _fft(transmission_signals[1], cfg)
@@ -39,7 +36,7 @@ def calculate_transmission_reflection_coefficients(
             * np.exp()
         )  # Some exponential should be multiplied here
         reflection_coefficient = (
-            _fft(reflection_signals[1], cfg)
+            _fft(true_reflection, cfg)
             / _fft(reflection_signals[0], cfg)
             * np.exp()
         )

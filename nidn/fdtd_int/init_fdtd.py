@@ -1,8 +1,8 @@
 from dotmap import DotMap
 import fdtd
 
-from nidn.fdtd.constants import FDTD_UNIT_MAGNITUDE
-from nidn.utils.global_constants import SPEED_OF_LIGHT
+from ..utils.global_constants import SPEED_OF_LIGHT
+from .constants import FDTD_UNIT_MAGNITUDE
 
 
 def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
@@ -20,11 +20,11 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
     scaling = FDTD_UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * 0.1)
     grid = fdtd.Grid(
         (
-            int(cfg.FDTD_grid[0] * scaling),
             int(
-                cfg.FDTD_grid[1] * scaling
+                cfg.FDTD_grid[0] * scaling
                 + cfg.N_layers * scaling * cfg.FDTD_per_layer_thickness
             ),
+            int(cfg.FDTD_grid[1] * scaling),
             int(cfg.FDTD_grid[2] * scaling),
         ),
         grid_spacing=cfg.physical_wavelength_range[0] * 0.1,
@@ -53,11 +53,13 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
             grid = _add_object(
                 grid,
                 int(
-                    cfg.FDTD_free_space_distance * scaling
+                    cfg.FDTD_pml_thickness * scaling
+                    + cfg.FDTD_free_space_distance * scaling
                     + i * scaling * cfg.FDTD_per_layer_thickness
                 ),
                 int(
-                    cfg.FDTD_object[1] * scaling
+                    cfg.FDTD_pml_thickness * scaling
+                    + cfg.FDTD_free_space_distance * scaling
                     + (i + 1) * scaling * cfg.FDTD_per_layer_thickness
                 ),
                 permittivity[i],
@@ -144,6 +146,6 @@ def _add_object(grid, object_start_x, object_end_x, permittivity):
     """
 
     grid[object_start_x:object_end_x, :, :] = fdtd.AnisotropicObject(
-        permittivity=permittivity, name="object"
+        permittivity=permittivity
     )
     return grid

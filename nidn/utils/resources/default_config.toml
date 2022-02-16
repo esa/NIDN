@@ -40,15 +40,15 @@ TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
 TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 
 # FDTD parameters
-FDTD_grid = [5,2,1]
+FDTD_grid = [5.0,2.0,1.0]
 FDTD_use_pointsource = false
 FDTD_use_pulsesource = false
 FDTD_pml_thickness = 1.5
-FDTD_source = [1.5,1]
+FDTD_source = [1.5,1.0]
 FDTD_free_space_distance = 1
 FDTD_reflection_detector_x = 2.4
 FDTD_niter = 200
-FDTD_PER_LAYER_THICKNESS = 1.0
+FDTD_per_layer_thickness = 1.0
 
 
 # Target spectra

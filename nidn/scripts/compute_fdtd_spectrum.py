@@ -1,7 +1,8 @@
 import fdtd
 from dotmap import DotMap
 import sys
-import torch
+
+from nidn.utils.global_constants import SPEED_OF_LIGHT
 
 sys.path.append("../")
 
@@ -27,9 +28,8 @@ def compute_fdtd_spectrum(cfg: DotMap):
     object_start_x = int(2.5 * 10 ** (-6) / (grid_spacing))
     object_end_x = int(3.5 * 10 ** (-6) / (grid_spacing))
     pulse_source = False
-    niter = 200
-    speed_of_light: float = 299_792_458.0  # [m/s] speed of light
-    use_point_source = True  # If false, line source is used
+    niter = cfg.FDTD_niter
+    use_point_source = False  # If false, line source is used
     # Run two simulations for each frequency, one in free space and one with an object placed.
     # Two detectors are placed in the grid, one just before the object and one just after.
     # The transmission and reflectance coefficiioent respectively are calculating by dividing
@@ -51,7 +51,7 @@ def compute_fdtd_spectrum(cfg: DotMap):
             use_point_source,
             source_x,
             source_y,
-            wavelength / speed_of_light,
+            wavelength / SPEED_OF_LIGHT,
             pulse_source,
         )
 
@@ -77,7 +77,7 @@ def compute_fdtd_spectrum(cfg: DotMap):
             use_point_source,
             source_x,
             source_y,
-            wavelength / speed_of_light,
+            wavelength / SPEED_OF_LIGHT,
             pulse_source,
         )
         grid2, transmission_detector2, reflection_detector2 = _add_detectors_to_grid(

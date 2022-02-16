@@ -3,7 +3,8 @@ import torch
 from loguru import logger
 
 # Add exposed features here
-from .fdtd.init_fdtd import init_fdtd
+from .fdtd_int.init_fdtd import init_fdtd
+from .fdtd_int.FDTD_compute_spectrum import FDTD_compute_spectrum
 from .materials.layer_builder import LayerBuilder
 from .materials.material_collection import MaterialCollection
 from .plots.plot_epsilon_grid import plot_epsilon_grid
