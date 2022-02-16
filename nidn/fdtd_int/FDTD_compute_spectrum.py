@@ -1,6 +1,7 @@
 from weakref import ref
 from dotmap import DotMap
 import sys
+from tqdm import tqdm
 
 sys.path.append("../")
 import torch
@@ -27,9 +28,8 @@ def FDTD_compute_spectrum(cfg: DotMap, permittivity):
     t_spectrum = []
     r_spectrum = []
     physical_wavelengths, norm_freq = nidn.get_frequency_points(cfg)
-    scaling = FDTD_UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * 0.1)
 
-    for w in physical_wavelengths:
+    for w in tqdm(physical_wavelengths):
         transmission = []
         reflection = []
         grid, t_detector, r_detector = init_fdtd(

@@ -57,6 +57,7 @@ FDTD_per_layer_thickness = 1.0
 avoid_zero_eps = true
 target_reflectance_spectrum = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
 target_transmittance_spectrum = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
-physical_wavelength_range = [1e-6,30e-6]
+physical_wavelength_range = [4e-7,10e-7]
 freq_distribution = "linear" # "linear" or "log"
 N_freq = 20
+
