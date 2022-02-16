@@ -1,7 +1,6 @@
 from weakref import ref
 from dotmap import DotMap
 import sys
-from pandas import array
 
 sys.path.append("../")
 import torch
@@ -37,18 +36,14 @@ def FDTD_compute_spectrum(cfg: DotMap, permittivity):
             cfg, False, w, permittivity=permittivity
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
-        t, r = _get_detector_values(
-            t_detector, r_detector
-        )
+        t, r = _get_detector_values(t_detector, r_detector)
         transmission.append(t)
         reflection.append(r)
         grid, t_detector, r_detector = init_fdtd(
             cfg, True, w, permittivity=permittivity
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
-        t, r = _get_detector_values(
-            t_detector, r_detector
-        )
+        t, r = _get_detector_values(t_detector, r_detector)
         transmission.append(t)
         reflection.append(r)
         (
@@ -68,9 +63,7 @@ def FDTD_compute_spectrum(cfg: DotMap, permittivity):
     return t_spectrum, r_spectrum
 
 
-def _get_detector_values(
-    transmission_detector, reflection_detector
-):
+def _get_detector_values(transmission_detector, reflection_detector):
     """Extract the signals detected by the transmission detector and the reflection detector
 
     Args:
@@ -111,20 +104,17 @@ def _get_abs_value_from_3D_signal(signal):
     for i in range(len(signal)):
         abs_value.append(
             torch.sqrt(
-                torch.tensor(
-                    signal[i][0] ** 2
-                    + signal[i][1] ** 2
-                    + signal[i][2] ** 2
-                )
+                torch.tensor(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2)
             )
         )
     return abs_value
 
+
 def _average_along_detector(signal):
     avg = []
     for e in signal:
-        s = [0,0,0]
+        s = [0, 0, 0]
         for p in e:
-            s+= p
+            s += p
         avg.append(s)
     return avg
