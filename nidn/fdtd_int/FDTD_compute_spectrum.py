@@ -13,6 +13,7 @@ from .constants import FDTD_UNIT_MAGNITUDE
 import nidn
 from .init_fdtd import init_fdtd
 import matplotlib.pyplot as plt
+import fdtd
 
 
 def FDTD_compute_spectrum(cfg: DotMap, permittivity):
@@ -25,6 +26,7 @@ def FDTD_compute_spectrum(cfg: DotMap, permittivity):
     Returns:
         tuple[array, array]: Transmission spectrum and reflection spectrum
     """
+    fdtd.set_backend("torch")
     t_spectrum = []
     r_spectrum = []
     physical_wavelengths, norm_freq = nidn.get_frequency_points(cfg)
@@ -43,9 +45,16 @@ def FDTD_compute_spectrum(cfg: DotMap, permittivity):
             cfg, True, w, permittivity=permittivity
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
+        # plt.figure()
+        # grid.visualize(z=0)
         t, r = _get_detector_values(t_detector, r_detector)
         transmission.append(t)
         reflection.append(r)
+        time = [i for i in range(len(transmission[0]))]
+        # plt.plot(time, transmission[0])
+        # plt.plot(time, transmission[1])
+        # plt.show()
+        print(w)
         (
             transmission_coefficient,
             reflection_coefficient,
@@ -99,7 +108,6 @@ def _get_abs_value_from_3D_signal(signal):
         Array: One dimentional time-signal
     """
     signal = _average_along_detector(signal)
-
     abs_value = []
     for i in range(len(signal)):
         abs_value.append(
@@ -112,9 +120,11 @@ def _get_abs_value_from_3D_signal(signal):
 
 def _average_along_detector(signal):
     avg = []
-    for e in signal:
-        s = [0, 0, 0]
-        for p in e:
-            s += p
+    for t in signal:
+        s = [torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)]
+        for p in t:
+            s[0] += p[0]
+            s[1] += p[1]
+            s[2] += p[2]
         avg.append(s)
     return avg

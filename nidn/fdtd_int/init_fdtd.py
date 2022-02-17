@@ -18,6 +18,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         fdtd:Grid: Grid with all the added object, ready to be run
     """
     scaling = FDTD_UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * 0.1)
+    # fdtd.set_backend("torch")
     grid = fdtd.Grid(
         (
             int(
@@ -25,7 +26,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                 + cfg.N_layers * scaling * cfg.FDTD_per_layer_thickness
             ),
             int(cfg.FDTD_grid[1] * scaling),
-            int(cfg.FDTD_grid[2] * scaling),
+            1,
         ),
         grid_spacing=cfg.physical_wavelength_range[0] * 0.1,
         permittivity=1.0,
@@ -81,6 +82,7 @@ def _add_boundaries(grid, pml_thickness):
     grid[0:pml_thickness, :, :] = fdtd.PML(name="pml_xlow")
     grid[-pml_thickness:, :, :] = fdtd.PML(name="pml_xhigh")
     grid[:, 0, :] = fdtd.PeriodicBoundary(name="ybounds")
+    # grid[:, :, 0] = fdtd.PeriodicBoundary(name="zbounds")
     return grid
 
 
