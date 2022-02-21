@@ -1,7 +1,8 @@
 from dotmap import DotMap
 from torch.fft import rfft, rfftfreq
-import numpy as np
-import torch
+from torch import sqrt, tensor
+
+from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
 
 from ..utils.global_constants import SPEED_OF_LIGHT
 
@@ -23,22 +24,27 @@ def calculate_transmission_reflection_coefficients(
     Returns:
         tuple[float, float]: Transmission coefficient and reflection coefficient
     """
-    true_reflection = [reflection_signals[1][i]-reflection_signals[0][i] for i in range(len(reflection_signals[0]))]
+    # Substract the free_space reflection signal from the material reflection signal, to eliminate unreflected signal from detector
+    # The detector detects signal passing through both ways, and is placed between the source and the material.
+    # Thus, most of the signal prsent is the unreflected signal, which must be removed.
+    true_reflection = [
+        reflection_signals[1][i] - reflection_signals[0][i]
+        for i in range(len(reflection_signals[0]))
+    ]
+
     if time_to_frequency_domain_method.upper() == "MEAN SQUARE":
         transmission_coefficient = _mean_square(transmission_signals[1]) / _mean_square(
             transmission_signals[0]
         )
-        reflection_coefficient = _mean_square(true_reflection) / _mean_square(reflection_signals[0])
+        reflection_coefficient = _mean_square(true_reflection) / _mean_square(
+            reflection_signals[0]
+        )
     elif time_to_frequency_domain_method.upper() == "FOURIER TRANSFORM":
-        transmission_coefficient = (
-            _fft(transmission_signals[1], cfg)
-            / _fft(transmission_signals[0], cfg)
-            * np.exp()
-        )  # Some exponential should be multiplied here
-        reflection_coefficient = (
-            _fft(true_reflection, cfg)
-            / _fft(reflection_signals[0], cfg)
-            * np.exp()
+        transmission_coefficient = _fft(transmission_signals[1], cfg) / _fft(
+            transmission_signals[0], cfg
+        )
+        reflection_coefficient = _fft(true_reflection, cfg) / _fft(
+            reflection_signals[0], cfg
         )
     return transmission_coefficient, reflection_coefficient
 
@@ -65,9 +71,9 @@ def _fft(signal, cfg: DotMap):
         tuple[array,array]: fourier frequenices and their corresponding values
     """
     sampling_frequencies = (
-        cfg.physical_wavelength_range[0] * 0.1 / (torch.sqrt(2) * SPEED_OF_LIGHT)
+        cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE / (sqrt(2) * SPEED_OF_LIGHT)
     )
-    tensor_signal = torch.tensor(signal)
+    tensor_signal = tensor(signal)
 
     yf = rfft(tensor_signal)
     xf = rfftfreq(cfg.FDTD_niter, sampling_frequencies)

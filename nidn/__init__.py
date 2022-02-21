@@ -3,8 +3,6 @@ import torch
 from loguru import logger
 
 # Add exposed features here
-from .fdtd_int.init_fdtd import init_fdtd
-from .fdtd_int.FDTD_compute_spectrum import FDTD_compute_spectrum
 from .materials.layer_builder import LayerBuilder
 from .materials.material_collection import MaterialCollection
 from .plots.plot_epsilon_grid import plot_epsilon_grid
@@ -22,7 +20,7 @@ from .training.run_training import run_training
 from .training.save_run import save_run
 from .trcwa.compute_target_frequencies import compute_target_frequencies
 from .trcwa.get_frequency_points import get_frequency_points
-from .trcwa.compute_spectrum import compute_spectrum
+from .utils.compute_spectrum import compute_spectrum
 from .utils.convert_units import freq_to_wl, wl_to_phys_wl, phys_freq_to_phys_wl
 from .utils.fix_random_seeds import fix_random_seeds
 from .utils.load_default_cfg import load_default_cfg
@@ -47,7 +45,6 @@ __all__ = [
     "get_frequency_points",
     "fix_random_seeds",
     "freq_to_wl",
-    "init_fdtd",
     "LayerBuilder",
     "load_default_cfg",
     "load_run",

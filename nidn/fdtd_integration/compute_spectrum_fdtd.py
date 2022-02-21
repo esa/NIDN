@@ -1,75 +1,71 @@
-from weakref import ref
 from dotmap import DotMap
-import sys
 from tqdm import tqdm
+from torch import sqrt, tensor
 
-sys.path.append("../")
-import torch
+from ..trcwa.get_frequency_points import get_frequency_points
 from .calculate_transmission_reflection_coefficients import (
     calculate_transmission_reflection_coefficients,
 )
-
 from .constants import FDTD_UNIT_MAGNITUDE
-import nidn
 from .init_fdtd import init_fdtd
+
 import matplotlib.pyplot as plt
-import fdtd
 
 
-def FDTD_compute_spectrum(cfg: DotMap, permittivity):
+def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     """Generates a spectrum of transmission and reflection coefficients for the specified wavelengths in the cfg, by using FDTD simulations.
 
     Args:
+        permitivity (torch.tensor): Array of permittivity for each layer
         cfg (DotMap): Configurations needed to perform the simulations
-        permitivity (Array): Array of permittivity for each layer
 
     Returns:
         tuple[array, array]: Transmission spectrum and reflection spectrum
     """
-    fdtd.set_backend("torch")
-    t_spectrum = []
-    r_spectrum = []
-    physical_wavelengths, norm_freq = nidn.get_frequency_points(cfg)
+    transmission_spectrum = []
+    reflection_spectrum = []
+    physical_wavelengths, norm_freq = get_frequency_points(cfg)
+
+    # For each wavelength, calculate transmission and reflection coefficents
 
     for w in tqdm(physical_wavelengths):
-        transmission = []
-        reflection = []
-        grid, t_detector, r_detector = init_fdtd(
-            cfg, False, w, permittivity=permittivity
+        transmission_signal = []
+        reflection_signal = []
+
+        # Create simulation in free space and run it
+        grid, transmission_detector, reflection_detector = init_fdtd(
+            cfg, include_object=False, wavelength=w, permittivity=permittivity
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
-        t, r = _get_detector_values(t_detector, r_detector)
-        transmission.append(t)
-        reflection.append(r)
-        grid, t_detector, r_detector = init_fdtd(
-            cfg, True, w, permittivity=permittivity
+        transmission_free_space, reflection_free_space = _get_detector_values(
+            transmission_detector, reflection_detector
+        )
+        transmission_signal.append(transmission_free_space)
+        reflection_signal.append(reflection_free_space)
+
+        # Create the same simulation, but add material in the form of one or many layers, and run again
+        grid, transmission_detector, reflection_detector = init_fdtd(
+            cfg, include_object=True, wavelength=w, permittivity=permittivity
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
-        # plt.figure()
-        # grid.visualize(z=0)
-        t, r = _get_detector_values(t_detector, r_detector)
-        transmission.append(t)
-        reflection.append(r)
-        time = [i for i in range(len(transmission[0]))]
-        # plt.plot(time, transmission[0])
-        # plt.plot(time, transmission[1])
-        # plt.show()
-        print(w)
+        transmission_material, reflection_material = _get_detector_values(
+            transmission_detector, reflection_detector
+        )
+        transmission_signal.append(transmission_material)
+        reflection_signal.append(reflection_material)
+        time = [i for i in range(len(transmission_signal[0]))]
+        # Calculate transmission and reflection coefficients,
+        # by using the signals from the free space simulation and the material simulation
         (
             transmission_coefficient,
             reflection_coefficient,
         ) = calculate_transmission_reflection_coefficients(
-            transmission, reflection, "MEAN SQUARE", cfg
+            transmission_signal, reflection_signal, "MEAN SQUARE", cfg
         )
-        t_spectrum.append(transmission_coefficient)
-        r_spectrum.append(reflection_coefficient)
-    # For each wavelength:
-    # Run simulation
-    # Get detector values
-    # Postprocess signal,  i.e. phase shift and more if applicable
-    # Calculate transmission, reflection (and absorption coefficients)
-    # Return transmission spectrum, reflection spectrum (and absorption spectrum)
-    return t_spectrum, r_spectrum
+        transmission_spectrum.append(transmission_coefficient)
+        reflection_spectrum.append(reflection_coefficient)
+
+    return transmission_spectrum, reflection_spectrum
 
 
 def _get_detector_values(transmission_detector, reflection_detector):
@@ -108,23 +104,30 @@ def _get_abs_value_from_3D_signal(signal):
         Array: One dimentional time-signal
     """
     signal = _average_along_detector(signal)
+
     abs_value = []
     for i in range(len(signal)):
         abs_value.append(
-            torch.sqrt(
-                torch.tensor(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2)
-            )
+            sqrt(tensor(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2))
         )
     return abs_value
 
 
 def _average_along_detector(signal):
+    """Average the signal along each point of a line detector
+
+    Args:
+        signal (Array[timesteps, points_on_detector,3]): E or H -field signal from a line detector
+
+    Returns:
+        Array[timesteps, 3]: averaged signal along detector
+    """
     avg = []
-    for t in signal:
-        s = [torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)]
-        for p in t:
-            s[0] += p[0]
-            s[1] += p[1]
-            s[2] += p[2]
+    for e in signal:
+        s = [tensor(0.0), tensor(0.0), tensor(0.0)]
+        for p in e:
+            s[0] += p[0] / len(e)
+            s[1] += p[1] / len(e)
+            s[2] += p[2] / len(e)
         avg.append(s)
     return avg
