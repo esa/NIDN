@@ -1,7 +1,7 @@
 from dotmap import DotMap
 import fdtd
 
-from ..utils.global_constants import SPEED_OF_LIGHT
+from ..utils.global_constants import EPS_0, SPEED_OF_LIGHT
 from .constants import FDTD_UNIT_MAGNITUDE, FDTD_GRID_SCALE
 
 
@@ -70,6 +70,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                     )
                 ),
                 permittivity[i],
+                frequency=SPEED_OF_LIGHT / wavelength,
             )
     return grid, t_detector, r_detector
 
@@ -140,7 +141,7 @@ def _add_detectors(grid, transmission_detector_x, reflection_detector_x):
     return grid, transmission_detector, reflection_detector
 
 
-def _add_object(grid, object_start_x, object_end_x, permittivity):
+def _add_object(grid, object_start_x, object_end_x, permittivity, frequency):
     """Add a object to the fdtd grid, with a specified permittivity. The object covers the entire grid in the y-direction.
 
     Args:
@@ -153,7 +154,8 @@ def _add_object(grid, object_start_x, object_end_x, permittivity):
         fdtd.Grid: The grid with the added object
     """
 
-    grid[object_start_x:object_end_x, :, :] = fdtd.AnisotropicObject(
-        permittivity=permittivity
+    grid[object_start_x:object_end_x, :, :] = fdtd.AbsorbingObject(
+        permittivity=permittivity.real,
+        conductivity=permittivity.imag * frequency * EPS_0,
     )
     return grid
