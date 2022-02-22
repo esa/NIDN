@@ -69,7 +69,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                         + (i + 1) * cfg.PER_LAYER_THICKNESS[0]
                     )
                 ),
-                permittivity[i],
+                permittivity[0][0][i], # TODO: Implement possibility for patterned grid, currently uniform layer is used
                 frequency=SPEED_OF_LIGHT / wavelength,
             )
     return grid, t_detector, r_detector

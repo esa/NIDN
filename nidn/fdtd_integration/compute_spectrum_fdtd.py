@@ -27,7 +27,6 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     # For each wavelength, calculate transmission and reflection coefficents
 
     for i in tqdm(range(len(physical_wavelengths))):
-        print(physical_wavelengths[i])
         transmission_signal = []
         reflection_signal = []
 
@@ -36,7 +35,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
             cfg,
             include_object=False,
             wavelength=physical_wavelengths[i],
-            permittivity=permittivity[:, i],
+            permittivity=permittivity[:, :, :, i],
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_free_space, reflection_free_space = _get_detector_values(
@@ -50,7 +49,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
             cfg,
             include_object=True,
             wavelength=physical_wavelengths[i],
-            permittivity=permittivity[:, i],
+            permittivity=permittivity[:, :, :, i],
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_material, reflection_material = _get_detector_values(
