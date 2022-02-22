@@ -14,5 +14,5 @@ def compute_spectrum(eps_grid, cfg):
     """
     if cfg.solver == "FDTD":
         return compute_spectrum_fdtd(eps_grid, cfg)
-    elif cfg.solver == "RCWA":
+    elif cfg.solver == "TRCWA":
         return compute_spectrum_trcwa(eps_grid, cfg)

@@ -129,7 +129,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.N_layers,
         run_cfg.target_frequencies,
         run_cfg.freq_distribution,
-        run_cfg.TRCWA_PER_LAYER_THICKNESS,
+        run_cfg.PER_LAYER_THICKNESS,
     )
 
     # Reshape the output to have a 4D tensor again
@@ -211,7 +211,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.N_layers,
         run_cfg.target_frequencies,
         run_cfg.freq_distribution,
-        run_cfg.TRCWA_PER_LAYER_THICKNESS,
+        run_cfg.PER_LAYER_THICKNESS,
     )
 
     # Reshape the output to have a 4D tensor again

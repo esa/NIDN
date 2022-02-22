@@ -45,7 +45,7 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
     )
 
     # Add vacuum layer at the top
-    trcwa.Add_LayerUniform(thickness=1.0, epsilon=EPS_0)
+    trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
 
     # Add material layers (homogeneous if Nx and Ny are 1)
     for layer in range(N_layers):
@@ -65,7 +65,7 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
     # trcwa.Add_LayerUniform(thickness=1.0, epsilon=16.0 + 0.0j)
 
     # Add vacuum layer at the bottom
-    trcwa.Add_LayerUniform(thickness=1.0, epsilon=EPS_0)
+    trcwa.Add_LayerUniform(thickness=1.0, epsilon=TRCWA_VACUUM_EPS)
 
     # Initialize the object properly
     trcwa.Init_Setup()
