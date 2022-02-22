@@ -12,12 +12,12 @@ Available Objects:
 ## Imports
 
 # typing
+from ..utils.global_constants import ETA_0
 from .typing_ import Tensorlike, ListOrSlice
 
 # relative
 from .grid import Grid
 from .backend import backend as bd
-from . import constants as const
 
 
 ## Object
@@ -195,7 +195,7 @@ class AbsorbingObject(Object):
             * self.inverse_permittivity
             * self.conductivity
             * self.grid.grid_spacing
-            * const.eta0
+            * ETA_0
         )
 
     def update_E(self, curl_H):

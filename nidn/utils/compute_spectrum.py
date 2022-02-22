@@ -13,6 +13,6 @@ def compute_spectrum(eps_grid, cfg):
         Array, Array: Reflection spectrumand transmission spectrum
     """
     if cfg.solver == "FDTD":
-        return compute_spectrum_fdtd(eps_grid[0, 0, :, 0].real, cfg)
+        return compute_spectrum_fdtd(eps_grid, cfg)
     elif cfg.solver == "RCWA":
         return compute_spectrum_trcwa(eps_grid, cfg)

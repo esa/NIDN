@@ -26,7 +26,7 @@ def calculate_transmission_reflection_coefficients(
     """
     # Substract the free_space reflection signal from the material reflection signal, to eliminate unreflected signal from detector
     # The detector detects signal passing through both ways, and is placed between the source and the material.
-    # Thus, most of the signal prsent is the unreflected signal, which must be removed.
+    # Thus, most of the signal present is the unreflected signal, which must be removed.
     true_reflection = [
         reflection_signals[1][i] - reflection_signals[0][i]
         for i in range(len(reflection_signals[0]))
@@ -39,6 +39,9 @@ def calculate_transmission_reflection_coefficients(
         reflection_coefficient = _mean_square(true_reflection) / _mean_square(
             reflection_signals[0]
         )
+
+    # TODO: Finish the FFT version. Not sure if this can be done with a single dirac pulse as signal, or repeated for every frequency. The formula is:
+    # t(w) = F(transmission signal with layers)/F(transmission signal free space)*exp(j*x_position*some coefficient)
     elif time_to_frequency_domain_method.upper() == "FOURIER TRANSFORM":
         transmission_coefficient = _fft(transmission_signals[1], cfg) / _fft(
             transmission_signals[0], cfg

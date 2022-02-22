@@ -35,10 +35,10 @@ solver = "FDTD" # Options: FDTD, TRCWA
 Nx = 1
 Ny = 1
 N_layers = 8
+PER_LAYER_THICKNESS = [1.0] # len 1 for uniform thickness
+# PER_LAYER_THICKNESS = [0.1,0.5,0.4] # optionally list of thicknesses for each layer
 
 # TRCWA parameters
-TRCWA_PER_LAYER_THICKNESS = [1.0] # len 1 for uniform thickness
-# TRCWA_PER_LAYER_THICKNESS = [0.1,0.5,0.4] # optionally list of thicknesses for each layer
 TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
 TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 
@@ -51,7 +51,6 @@ FDTD_source = [1.5,1.0] # Coordinates of the source used in FDTD simulations, in
 FDTD_free_space_distance = 1 # The thickness of the free space layer before and after the material layers, in FDTD unit magnitudes
 FDTD_reflection_detector_x = 2.4 # X-coordinates of the reflection detector for the FDTD simulation, in FDTD unit magnitudes
 FDTD_niter = 200 # Number of iterations / timesteps to run the FDTD for
-FDTD_per_layer_thickness = 1.0 # Theckeness of each material layer in the FDTD simulation, in FDTD magnitde units
 
 
 # Target spectra

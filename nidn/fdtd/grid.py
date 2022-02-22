@@ -18,12 +18,13 @@ from datetime import datetime
 from tqdm import tqdm
 from numpy import savez
 
+from ..utils.global_constants import SPEED_OF_LIGHT
+
 # typing
 from .typing_ import Tuple, Number, Tensorlike
 
 # relative
 from .backend import backend as bd
-from . import constants as const
 
 ## Functions
 def curl_E(E: Tensorlike) -> Tensorlike:
@@ -129,7 +130,7 @@ class Grid:
             self.courant_number = float(courant_number)
 
         # timestep of the simulation
-        self.time_step = self.courant_number * self.grid_spacing / const.c
+        self.time_step = self.courant_number * self.grid_spacing / SPEED_OF_LIGHT
 
         # save electric and magnetic field
         self.E = bd.zeros((self.Nx, self.Ny, self.Nz, 3))
@@ -169,13 +170,13 @@ class Grid:
         self.folder = None
 
     def _handle_distance(self, distance: Number) -> int:
-        """ transform a distance to an integer number of gridpoints """
+        """transform a distance to an integer number of gridpoints"""
         if not isinstance(distance, int):
             return int(float(distance) / self.grid_spacing + 0.5)
         return distance
 
     def _handle_time(self, time: Number) -> int:
-        """ transform a time value to an integer number of timesteps """
+        """transform a time value to an integer number of timesteps"""
         if not isinstance(time, int):
             return int(float(time) / self.time_step + 0.5)
         return time
@@ -183,7 +184,7 @@ class Grid:
     def _handle_tuple(
         self, shape: Tuple[Number, Number, Number]
     ) -> Tuple[int, int, int]:
-        """ validate the grid shape and transform to a length-3 tuple of ints """
+        """validate the grid shape and transform to a length-3 tuple of ints"""
         if len(shape) != 3:
             raise ValueError(
                 f"invalid grid shape {shape}\n"
@@ -196,7 +197,7 @@ class Grid:
         return x, y, z
 
     def _handle_slice(self, s: slice) -> slice:
-        """ validate the slice and transform possibly float values to ints """
+        """validate the slice and transform possibly float values to ints"""
         start = (
             s.start
             if not isinstance(s.start, float)
@@ -211,7 +212,7 @@ class Grid:
         return slice(start, stop, step)
 
     def _handle_single_key(self, key):
-        """ transform a single index key to a slice or list """
+        """transform a single index key to a slice or list"""
         try:
             len(key)
             return [self._handle_distance(k) for k in key]
@@ -224,27 +225,27 @@ class Grid:
 
     @property
     def x(self) -> int:
-        """ get the number of grid cells in the x-direction """
+        """get the number of grid cells in the x-direction"""
         return self.Nx * self.grid_spacing
 
     @property
     def y(self) -> int:
-        """ get the number of grid cells in the y-direction """
+        """get the number of grid cells in the y-direction"""
         return self.Ny * self.grid_spacing
 
     @property
     def z(self) -> int:
-        """ get the number of grid cells in the y-direction """
+        """get the number of grid cells in the y-direction"""
         return self.Nz * self.grid_spacing
 
     @property
     def shape(self) -> Tuple[int, int, int]:
-        """ get the shape of the FDTD grid """
+        """get the shape of the FDTD grid"""
         return (self.Nx, self.Ny, self.Nz)
 
     @property
     def time_passed(self) -> float:
-        """ get the total time passed """
+        """get the total time passed"""
         return self.time_steps_passed * self.time_step
 
     def run(self, total_time: Number, progress_bar: bool = True):
@@ -273,7 +274,7 @@ class Grid:
         self.time_steps_passed += 1
 
     def update_E(self):
-        """ update the electric field by using the curl of the magnetic field """
+        """update the electric field by using the curl of the magnetic field"""
 
         # update boundaries: step 1
         for boundary in self.boundaries:
@@ -299,7 +300,7 @@ class Grid:
             det.detect_E()
 
     def update_H(self):
-        """ update the magnetic field by using the curl of the electric field """
+        """update the magnetic field by using the curl of the electric field"""
 
         # update boundaries: step 1
         for boundary in self.boundaries:
@@ -325,28 +326,28 @@ class Grid:
             det.detect_H()
 
     def reset(self):
-        """ reset the grid by setting all fields to zero """
+        """reset the grid by setting all fields to zero"""
         self.H *= 0.0
         self.E *= 0.0
         self.time_steps_passed *= 0
 
     def add_source(self, name, source):
-        """ add a source to the grid """
+        """add a source to the grid"""
         source._register_grid(self)
         self.sources[name] = source
 
     def add_boundary(self, name, boundary):
-        """ add a boundary to the grid """
+        """add a boundary to the grid"""
         boundary._register_grid(self)
         self.boundaries[name] = boundary
 
     def add_detector(self, name, detector):
-        """ add a detector to the grid """
+        """add a detector to the grid"""
         detector._register_grid(self)
         self.detectors[name] = detector
 
     def add_object(self, name, obj):
-        """ add an object to the grid """
+        """add an object to the grid"""
         obj._register_grid(self)
         self.objects[name] = obj
 

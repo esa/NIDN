@@ -6,10 +6,7 @@ from ..trcwa.get_frequency_points import get_frequency_points
 from .calculate_transmission_reflection_coefficients import (
     calculate_transmission_reflection_coefficients,
 )
-from .constants import FDTD_UNIT_MAGNITUDE
 from .init_fdtd import init_fdtd
-
-import matplotlib.pyplot as plt
 
 
 def compute_spectrum_fdtd(permittivity, cfg: DotMap):
@@ -34,7 +31,10 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
 
         # Create simulation in free space and run it
         grid, transmission_detector, reflection_detector = init_fdtd(
-            cfg, include_object=False, wavelength=w, permittivity=permittivity
+            cfg,
+            include_object=False,
+            wavelength=w,
+            permittivity=permittivity[0, 0, :, 0].real,
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_free_space, reflection_free_space = _get_detector_values(
@@ -45,7 +45,10 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
 
         # Create the same simulation, but add material in the form of one or many layers, and run again
         grid, transmission_detector, reflection_detector = init_fdtd(
-            cfg, include_object=True, wavelength=w, permittivity=permittivity
+            cfg,
+            include_object=True,
+            wavelength=w,
+            permittivity=permittivity[0, 0, :, 0].real,
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_material, reflection_material = _get_detector_values(
@@ -53,7 +56,6 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
         )
         transmission_signal.append(transmission_material)
         reflection_signal.append(reflection_material)
-        time = [i for i in range(len(transmission_signal[0]))]
         # Calculate transmission and reflection coefficients,
         # by using the signals from the free space simulation and the material simulation
         (

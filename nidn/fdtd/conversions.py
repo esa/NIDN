@@ -1,6 +1,6 @@
 from math import sqrt
 
-from . import constants as const
+from nidn.utils.global_constants import EPS_0, MU_0
 
 """
 Optional reduced unit conversion functions for user use.
@@ -30,16 +30,16 @@ FIXME: DC: find and add md notes on scaling
 
 
 def simE_to_worldE(input):
-    return input / sqrt(const.eps0)
+    return input / sqrt(EPS_0)
 
 
 def worldE_to_simE(input):
-    return sqrt(const.eps0) * input
+    return sqrt(EPS_0) * input
 
 
 def simH_to_worldH(input):
-    return input / sqrt(const.mu0)
+    return input / sqrt(MU_0)
 
 
 def worldH_to_simH(input):
-    return sqrt(const.mu0) * input
+    return sqrt(MU_0) * input

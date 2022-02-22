@@ -69,9 +69,6 @@ except ImportError:
 class Backend:
     """Backend Base Class"""
 
-    # constants
-    pi = numpy.pi
-
     def __repr__(self):
         return self.__class__.__name__
 
@@ -87,104 +84,6 @@ def _replace_float(func):
         return result
 
     return new_func
-
-
-# Numpy Backend
-class NumpyBackend(Backend):
-    """Numpy Backend"""
-
-    # types
-    int = numpy.int64
-    """ integer type for array"""
-
-    float = numpy.float64
-    """ floating type for array """
-
-    # methods
-    asarray = _replace_float(numpy.asarray)
-
-    exp = staticmethod(numpy.exp)
-    """ exponential of all elements in array """
-
-    sin = staticmethod(numpy.sin)
-    """ sine of all elements in array """
-
-    cos = staticmethod(numpy.cos)
-    """ cosine of all elements in array """
-
-    sum = staticmethod(numpy.sum)
-    """ sum elements in array """
-
-    max = staticmethod(numpy.max)
-    """ max element in array """
-
-    stack = staticmethod(numpy.stack)
-    """ stack multiple arrays """
-
-    transpose = staticmethod(numpy.transpose)
-    """ transpose array by flipping two dimensions """
-
-    reshape = staticmethod(numpy.reshape)
-    """ reshape array into given shape """
-
-    squeeze = staticmethod(numpy.squeeze)
-    """ remove dim-1 dimensions """
-
-    broadcast_arrays = staticmethod(numpy.broadcast_arrays)
-    """ broadcast arrays """
-
-    broadcast_to = staticmethod(numpy.broadcast_to)
-    """ broadcast array into shape """
-
-    @staticmethod
-    def bmm(arr1, arr2):
-        """batch matrix multiply two arrays"""
-        return numpy.einsum("ijk,ikl->ijl", arr1, arr2)
-
-    @staticmethod
-    def is_array(arr):
-        """check if an object is an array"""
-        return isinstance(arr, numpy.ndarray)
-
-    # constructors
-    array = _replace_float(numpy.array)
-    """ create an array from an array-like sequence """
-
-    ones = _replace_float(numpy.ones)
-    """ create an array filled with ones """
-
-    zeros = _replace_float(numpy.zeros)
-    """ create an array filled with zeros """
-
-    zeros_like = staticmethod(numpy.zeros_like)
-    """ create an array filled with zeros """
-
-    linspace = _replace_float(numpy.linspace)
-    """ create a linearly spaced array between two points """
-
-    arange = _replace_float(numpy.arange)
-    """ create a range of values """
-
-    pad = staticmethod(numpy.pad)
-
-    fftfreq = staticmethod(numpy.fft.fftfreq)
-
-    fft = staticmethod(numpy.fft.fft)
-
-    exp = staticmethod(numpy.exp)
-
-    divide = staticmethod(numpy.divide)
-
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    # beware to future people:
-    # because this line *redefines numpy*,
-    # you have to add your new staticmethods /above/ this line to avoid mystification.
-    # <3 <3 <3 <3
-    #
-    # could this (and below) perhaps be changed to "to_numpy()"
-    # or maybe "check_numpy" ?
-    numpy = _replace_float(numpy.asarray)
-    """ convert the array to numpy array """
 
 
 # Torch Backend
@@ -342,7 +241,7 @@ if TORCH_AVAILABLE:
 # the backend is changed by changing the class of the backend
 # using the "set_backend" function. This "monkeypatch" will replace all the methods
 # of the backend object by the methods supplied by the new class.
-backend = NumpyBackend()
+backend = TorchBackend()
 
 
 ## Set backend
@@ -354,11 +253,6 @@ def set_backend(name: str):
 
     Args:
         name: name of the backend. Allowed backend names:
-            - ``numpy`` (defaults to float64 arrays)
-            - ``numpy.float16``
-            - ``numpy.float32``
-            - ``numpy.float64``
-            - ``numpy.float128``
             - ``torch`` (defaults to float64 tensors)
             - ``torch.float16``
             - ``torch.float32``
@@ -392,19 +286,7 @@ def set_backend(name: str):
     else:
         raise ValueError(f"Unknown backend '{name}'")
 
-    if name == "numpy":
-        if device == "cpu":
-            backend.__class__ = NumpyBackend
-            backend.float = getattr(numpy, dtype)
-        elif device == "cuda":
-            raise ValueError(
-                "Device 'cuda' not available for numpy backend. Use 'torch' backend in stead."
-            )
-        else:
-            raise ValueError(
-                "Unknown device '{device}'. Available devices: 'cpu', 'cuda'"
-            )
-    elif name == "torch":
+    if name == "torch":
         if device == "cpu":
             backend.__class__ = TorchBackend
             backend.float = getattr(torch, dtype)
@@ -416,6 +298,4 @@ def set_backend(name: str):
                 "Unknown device '{device}'. Available devices: 'cpu', 'cuda'"
             )
     else:
-        raise ValueError(
-            "Unknown backend '{name}'. Available backends: 'numpy', 'torch'"
-        )
+        raise ValueError("Unknown backend '{name}'. Available backends: 'torch'")

@@ -1,8 +1,8 @@
 from dotmap import DotMap
 import fdtd
 
-from ..utils.global_constants import SPEED_OF_LIGHT
-from .constants import FDTD_UNIT_MAGNITUDE, FDTD_GRID_SCALE
+from ..utils.global_constants import SPEED_OF_LIGHT, UNIT_MAGNITUDE
+from .constants import FDTD_GRID_SCALE
 
 
 def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
@@ -17,9 +17,9 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
     Returns:
         fdtd:Grid: Grid with all the added object, ready to be run
     """
-    scaling = FDTD_UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
+    scaling = UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
     x_grid_size = int(
-        scaling * (cfg.FDTD_grid[0] + cfg.N_layers * cfg.FDTD_per_layer_thickness)
+        scaling * (cfg.FDTD_grid[0] + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0])
     )
     y_grid_size = int(cfg.FDTD_grid[1] * scaling)
     fdtd.set_backend("torch")
@@ -36,7 +36,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
             scaling
             * (
                 cfg.FDTD_reflection_detector_x
-                + cfg.N_layers * cfg.FDTD_per_layer_thickness
+                + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0]
             )
         ),
         int(cfg.FDTD_reflection_detector_x * scaling),
@@ -58,7 +58,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                     * (
                         cfg.FDTD_pml_thickness
                         + cfg.FDTD_free_space_distance
-                        + i * cfg.FDTD_per_layer_thickness
+                        + i * cfg.PER_LAYER_THICKNESS[0]
                     )
                 ),
                 int(
@@ -66,7 +66,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                     * (
                         cfg.FDTD_pml_thickness
                         + cfg.FDTD_free_space_distance
-                        + (i + 1) * cfg.FDTD_per_layer_thickness
+                        + (i + 1) * cfg.PER_LAYER_THICKNESS[0]
                     )
                 ),
                 permittivity[i],
@@ -85,10 +85,16 @@ def _add_boundaries(grid, pml_thickness):
         fdtd.Grid: The grid with the added boundaries
     """
 
-    grid[0:pml_thickness, :, :] = fdtd.PML(name="pml_xlow")
-    grid[-pml_thickness:, :, :] = fdtd.PML(name="pml_xhigh")
-    grid[:, 0, :] = fdtd.PeriodicBoundary(name="ybounds")
-    # grid[:, :, 0] = fdtd.PeriodicBoundary(name="zbounds")
+    grid[0:pml_thickness, :, :] = fdtd.PML(
+        name="pml_xlow"
+    )  # Add PML boundary to the left side of the grid
+    grid[-pml_thickness:, :, :] = fdtd.PML(
+        name="pml_xhigh"
+    )  # Add PML boundary to the right side of the grid
+    grid[:, 0, :] = fdtd.PeriodicBoundary(
+        name="ybounds"
+    )  # Add periodic boundaries at both sides in y-direction
+    # grid[:, :, 0] = fdtd.PeriodicBoundary(name="zbounds") # Add periodic boundaries on both sides in z-direction. Only applicable for 3D grids
     return grid
 
 
