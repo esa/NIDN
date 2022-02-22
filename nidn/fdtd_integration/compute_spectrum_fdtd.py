@@ -1,6 +1,7 @@
 from dotmap import DotMap
 from tqdm import tqdm
 from torch import sqrt, tensor
+import matplotlib.pyplot as plt
 
 from ..trcwa.get_frequency_points import get_frequency_points
 from .calculate_transmission_reflection_coefficients import (
@@ -25,7 +26,8 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
 
     # For each wavelength, calculate transmission and reflection coefficents
 
-    for w in tqdm(physical_wavelengths):
+    for i in tqdm(range(len(physical_wavelengths))):
+        print(physical_wavelengths[i])
         transmission_signal = []
         reflection_signal = []
 
@@ -33,8 +35,8 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
         grid, transmission_detector, reflection_detector = init_fdtd(
             cfg,
             include_object=False,
-            wavelength=w,
-            permittivity=permittivity[0, 0, :, 0].real,
+            wavelength=physical_wavelengths[i],
+            permittivity=permittivity[:, i],
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_free_space, reflection_free_space = _get_detector_values(
@@ -47,8 +49,8 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
         grid, transmission_detector, reflection_detector = init_fdtd(
             cfg,
             include_object=True,
-            wavelength=w,
-            permittivity=permittivity[0, 0, :, 0].real,
+            wavelength=physical_wavelengths[i],
+            permittivity=permittivity[:, i],
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_material, reflection_material = _get_detector_values(
@@ -56,6 +58,8 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
         )
         transmission_signal.append(transmission_material)
         reflection_signal.append(reflection_material)
+        time = [i for i in range(len(transmission_signal[0]))]
+
         # Calculate transmission and reflection coefficients,
         # by using the signals from the free space simulation and the material simulation
         (
