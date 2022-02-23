@@ -1,5 +1,6 @@
 from dotmap import DotMap
 import fdtd
+from scipy.fft import set_backend
 
 from ..utils.global_constants import EPS_0, SPEED_OF_LIGHT, UNIT_MAGNITUDE
 from .constants import FDTD_GRID_SCALE
@@ -17,12 +18,12 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
     Returns:
         fdtd:Grid: Grid with all the added object, ready to be run
     """
+    fdtd.set_backend("torch")
     scaling = UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
     x_grid_size = int(
         scaling * (cfg.FDTD_grid[0] + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0])
     )
     y_grid_size = int(cfg.FDTD_grid[1] * scaling)
-    fdtd.set_backend("torch")
     grid = fdtd.Grid(
         (x_grid_size, y_grid_size, 1),
         grid_spacing=cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE,
@@ -87,17 +88,14 @@ def _add_boundaries(grid, pml_thickness):
     Returns:
         fdtd.Grid: The grid with the added boundaries
     """
-
-    grid[0:pml_thickness, :, :] = fdtd.PML(
-        name="pml_xlow"
-    )  # Add PML boundary to the left side of the grid
-    grid[-pml_thickness:, :, :] = fdtd.PML(
-        name="pml_xhigh"
-    )  # Add PML boundary to the right side of the grid
-    grid[:, 0, :] = fdtd.PeriodicBoundary(
-        name="ybounds"
-    )  # Add periodic boundaries at both sides in y-direction
-    # grid[:, :, 0] = fdtd.PeriodicBoundary(name="zbounds") # Add periodic boundaries on both sides in z-direction. Only applicable for 3D grids
+    # Add PML boundary to the left side of the grid
+    grid[0:pml_thickness, :, :] = fdtd.PML(name="pml_xlow")
+    # Add PML boundary to the right side of the grid
+    grid[-pml_thickness:, :, :] = fdtd.PML(name="pml_xhigh")
+    # Add periodic boundaries at both sides in y-direction
+    grid[:, 0, :] = fdtd.PeriodicBoundary(name="ybounds")
+    # Add periodic boundaries on both sides in z-direction. Only applicable for 3D grids
+    # grid[:, :, 0] = fdtd.PeriodicBoundary(name="zbounds")
     return grid
 
 
@@ -161,9 +159,10 @@ def _add_object(grid, object_start_x, object_end_x, permittivity, frequency):
     Returns:
         fdtd.Grid: The grid with the added object
     """
-
+    # Not sure whether the conductivity should be relative or absolute, i.e. if it should be multiplied with EPS_0.
+    # Since the permittivity is set to 1 for the free space grid, I'll leave it at an relative value for now. Also, permittivity for object is relative.
     grid[object_start_x:object_end_x, :, :] = fdtd.AbsorbingObject(
         permittivity=permittivity.real,
-        conductivity=permittivity.imag * frequency * EPS_0,
+        conductivity=permittivity.imag * frequency,
     )
     return grid

@@ -1,7 +1,7 @@
 from dotmap import DotMap
 from tqdm import tqdm
 from torch import sqrt, tensor
-import matplotlib.pyplot as plt
+from loguru import logger
 
 from ..trcwa.get_frequency_points import get_frequency_points
 from .calculate_transmission_reflection_coefficients import (
@@ -23,10 +23,12 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     transmission_spectrum = []
     reflection_spectrum = []
     physical_wavelengths, norm_freq = get_frequency_points(cfg)
+    logger.debug("Wavelenghts in spectrum")
+    logger.debug(physical_wavelengths)
 
     # For each wavelength, calculate transmission and reflection coefficents
-
-    for i in tqdm(range(len(physical_wavelengths))):
+    disable_progress_bar = logger._core.min_level >= 20
+    for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
         transmission_signal = []
         reflection_signal = []
 
@@ -69,6 +71,11 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
         )
         transmission_spectrum.append(transmission_coefficient)
         reflection_spectrum.append(reflection_coefficient)
+
+    logger.debug("Trasmission spectrum")
+    logger.debug(transmission_spectrum)
+    logger.debug("Reflection spectrum")
+    logger.debug(reflection_spectrum)
 
     return transmission_spectrum, reflection_spectrum
 
