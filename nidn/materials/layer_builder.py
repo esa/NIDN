@@ -90,7 +90,7 @@ class LayerBuilder:
         eps[:, :] = self.material_collection[grid_material]
 
         # Define the circle
-        ind = (grid_x - x_center) ** 2 + (grid_y - y_center) ** 2 < radius ** 2
+        ind = (grid_x - x_center) ** 2 + (grid_y - y_center) ** 2 < radius**2
 
         eps[ind] = self.material_collection[circle_material]
 

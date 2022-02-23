@@ -18,7 +18,7 @@ from .constants import X, Y, Z
 
 ## Detector
 class LineDetector:
-    """ A detector along a line in the FDTD grid """
+    """A detector along a line in the FDTD grid"""
 
     def __init__(self, name=None):
         """Create a line detector
@@ -112,13 +112,13 @@ class LineDetector:
         return x, y, z
 
     def detect_E(self):
-        """ detect the electric field at a certain location in the grid """
+        """detect the electric field at a certain location in the grid"""
         # TODO: there is a performance bottleneck here (indexing with lists)
         E = self.grid.E[self.x, self.y, self.z]
         self.E.append(E)
 
     def detect_H(self):
-        """ detect the magnetic field at a certain location in the grid """
+        """detect the magnetic field at a certain location in the grid"""
         # TODO: there is a performance bottleneck here (indexing with lists)
         H = self.grid.H[self.x, self.y, self.z]
         self.H.append(H)
@@ -135,7 +135,7 @@ class LineDetector:
         return s
 
     def detector_values(self):
-        """ outputs what detector detects """
+        """outputs what detector detects"""
         return {"E": self.E, "H": self.H}
 
 
@@ -144,7 +144,7 @@ class LineDetector:
 
 ## BlockDetector
 class BlockDetector:
-    """ A detector along a block in the FDTD grid """
+    """A detector along a block in the FDTD grid"""
 
     """ Basic copy of LineDetector code, changed detect functions """
 
@@ -239,7 +239,7 @@ class BlockDetector:
         return x, y, z
 
     def detect_E(self):
-        """ detect the electric field at a certain location in the grid """
+        """detect the electric field at a certain location in the grid"""
         # TODO: there is a performance bottleneck here (indexing with lists)
         E = []
         for i, row in enumerate(self.x):
@@ -252,7 +252,7 @@ class BlockDetector:
         self.E.append(E)
 
     def detect_H(self):
-        """ detect the magnetic field at a certain location in the grid """
+        """detect the magnetic field at a certain location in the grid"""
         # TODO: there is a performance bottleneck here (indexing with lists)
         H = []
         for i, row in enumerate(self.x):
@@ -276,13 +276,13 @@ class BlockDetector:
         return s
 
     def detector_values(self):
-        """ outputs what detector detects """
+        """outputs what detector detects"""
         return {"E": self.E, "H": self.H}
 
 
 ## CurrentDetector
 class CurrentDetector:
-    """ A current detector. """
+    """A current detector."""
 
     """
 
@@ -399,7 +399,7 @@ class CurrentDetector:
         return x, y, z
 
     def detect_E(self):
-        """ detect the electric field at a certain location in the grid """
+        """detect the electric field at a certain location in the grid"""
 
     def single_point_current(self, px, py, pz):
         """
@@ -492,5 +492,5 @@ class CurrentDetector:
         return s
 
     def detector_values(self):
-        """ outputs what detector detects """
+        """outputs what detector detects"""
         return {"I": self.I}

@@ -116,7 +116,7 @@ def visualize(
     plt.plot([], lw=3, color=detcolor, label="Detectors")
 
     # Grid energy
-    grid_energy = bd.sum(grid.E ** 2 + grid.H ** 2, -1)
+    grid_energy = bd.sum(grid.E**2 + grid.H**2, -1)
     if x is not None:
         assert grid.Ny > 1 and grid.Nz > 1
         xlabel, ylabel = "y", "z"

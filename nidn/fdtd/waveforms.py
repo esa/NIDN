@@ -43,11 +43,11 @@ def normalized_gaussian_pulse(x, fwhm, center=0.0):
     # TODO: flag on input type and use backend?
 
     sigma = fwhm / fwhm_constant
-    return np.exp(-(((x - center) ** 2.0) / (2.0 * (sigma ** 2.0))))
+    return np.exp(-(((x - center) ** 2.0) / (2.0 * (sigma**2.0))))
 
 
 def normalized_gaussian_derivative_pulse(x, fwhm, center=0.0):
     sigma = fwhm / fwhm_constant
     return (
-        exp((1.0 / 2.0) - ((x - center) ** 2.0) / (2.0 * sigma ** 2.0)) * (x - center)
+        exp((1.0 / 2.0) - ((x - center) ** 2.0) / (2.0 * sigma**2.0)) * (x - center)
     ) / sigma

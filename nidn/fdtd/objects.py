@@ -22,7 +22,7 @@ from .backend import backend as bd
 
 ## Object
 class Object:
-    """ An object to place in the grid """
+    """An object to place in the grid"""
 
     def __init__(self, permittivity: Tensorlike, name: str = None):
         """
@@ -155,7 +155,7 @@ class Object:
 
 
 class AbsorbingObject(Object):
-    """ An absorbing object takes conductivity into account """
+    """An absorbing object takes conductivity into account"""
 
     def __init__(
         self, permittivity: Tensorlike, conductivity: Tensorlike, name: str = None
@@ -224,7 +224,7 @@ class AbsorbingObject(Object):
 
 
 class AnisotropicObject(Object):
-    """ An object with anisotropic permittivity tensor """
+    """An object with anisotropic permittivity tensor"""
 
     def _register_grid(
         self, grid: Grid, x: slice = None, y: slice = None, z: slice = None

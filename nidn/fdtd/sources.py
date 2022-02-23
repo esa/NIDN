@@ -200,7 +200,7 @@ class LineSource:
             bd.float,
         )
 
-        self.profile = bd.exp(-(vect ** 2) / (2 * (0.5 * vect.max()) ** 2))
+        self.profile = bd.exp(-(vect**2) / (2 * (0.5 * vect.max()) ** 2))
         self.profile /= self.profile.sum()
         self.profile *= self.amplitude
 
@@ -323,7 +323,7 @@ class PlaneSource:
         amplitude: float = 1.0,
         phase_shift: float = 0.0,
         name: str = None,
-        polarization: str = 'z',
+        polarization: str = "z",
     ):
         """Create a PlaneSource.
 
@@ -455,14 +455,16 @@ class PlaneSource:
                 "Use a LineSource for lower dimensional sources."
             )
 
-        self._Epol = 'xyz'.index(self.polarization)
-        if (x.stop - x.start == 1 and self.polarization == 'x') or \
-           (y.stop - y.start == 1 and self.polarization == 'y') or \
-           (z.stop - z.start == 1 and self.polarization == 'z'):
+        self._Epol = "xyz".index(self.polarization)
+        if (
+            (x.stop - x.start == 1 and self.polarization == "x")
+            or (y.stop - y.start == 1 and self.polarization == "y")
+            or (z.stop - z.start == 1 and self.polarization == "z")
+        ):
             raise ValueError(
                 "PlaneSource cannot be polarized perpendicular to the orientation of the plane."
             )
-        _Hpols = [(z,1,2), (z,0,2), (y,0,1)][self._Epol]
+        _Hpols = [(z, 1, 2), (z, 0, 2), (y, 0, 1)][self._Epol]
         if _Hpols[0].stop - _Hpols[0].start == 1:
             self._Hpol = _Hpols[1]
         else:

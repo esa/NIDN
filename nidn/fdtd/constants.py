@@ -8,5 +8,3 @@ FDTD_Y: int = 1
 
 FDTD_Z: int = 2
 """ z-index (useful for indexing) """
-
-
