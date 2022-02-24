@@ -5,7 +5,7 @@ from loguru import logger
 from .init_trcwa import _init_trcwa
 
 
-def compute_spectrum(eps_grid, run_cfg: DotMap):
+def compute_spectrum_trcwa(eps_grid, run_cfg: DotMap):
     """Evaluates TRCWA for the given epsilon values and run configuration.
 
     Args:

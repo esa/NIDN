@@ -1,5 +1,7 @@
 import torch
 
+from nidn.utils.global_constants import PI
+
 from .constants import *
 
 from .utils.fft_funs import Epsilon_fft, get_ifft
@@ -27,7 +29,7 @@ class TRCWA:
             verbose (int, optional): If verbose > 0, the actual nG is printed. Defaults to 1.
         """
         self.freq = freq
-        self.omega = 2 * TRCWA_PI * freq + 0.0j
+        self.omega = 2 * PI * freq + 0.0j
         self.L1 = L1
         self.L2 = L2
         self.phi = torch.tensor(phi)
@@ -675,12 +677,12 @@ def MakeKPMatrix(omega, layer_type, epinv, kx, ky):
         Jk = torch.vstack((torch.diag(-ky), torch.diag(kx)))
         JkkJT = torch_dot(Jk, torch_transpose(Jk))
 
-        kp = omega ** 2 * torch_eye(2 * nG) - epinv * JkkJT
+        kp = omega**2 * torch_eye(2 * nG) - epinv * JkkJT
     # patterned layer
     else:
         Jk = torch.vstack((torch.diag(-ky), torch.diag(kx)))
         tmp = torch_dot(Jk, epinv)
-        kp = omega ** 2 * torch_eye(2 * nG) - torch_dot(tmp, torch_transpose(Jk))
+        kp = omega**2 * torch_eye(2 * nG) - torch_dot(tmp, torch_transpose(Jk))
 
     return kp
 
@@ -698,7 +700,7 @@ def SolveLayerEigensystem_uniform(omega, kx, ky, epsilon):
         torch.tensor, torch.tensor: q, phi
     """
     nG = len(kx)
-    q = torch.sqrt(epsilon * omega ** 2 - kx ** 2 - ky ** 2)
+    q = torch.sqrt(epsilon * omega**2 - kx**2 - ky**2)
     # branch cut choice
     q = torch.where(torch.imag(q) < 0.0, -q, q)
 

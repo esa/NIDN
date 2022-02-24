@@ -12,7 +12,7 @@ from .losses.likelihood_regularization_loss import _likelihood_regularization_lo
 from ..materials.material_collection import MaterialCollection
 from .model.init_network import init_network
 from .model.model_to_eps_grid import model_to_eps_grid
-from ..trcwa.compute_spectrum import compute_spectrum
+from ..utils.compute_spectrum import compute_spectrum
 from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from ..utils.fix_random_seeds import fix_random_seeds
 from .utils.validate_config import _validate_config

@@ -1,6 +1,7 @@
 from loguru import logger
 
 from .constants import *
+from ..utils.global_constants import *
 from .trcwa import TRCWA
 from ..materials.material_collection import MaterialCollection
 
@@ -50,10 +51,10 @@ def _init_trcwa(eps_grid, target_frequency, run_cfg):
     for layer in range(N_layers):
 
         # Set thickness based on config
-        if len(run_cfg.TRCWA_PER_LAYER_THICKNESS) == 1:
-            thickness = run_cfg.TRCWA_PER_LAYER_THICKNESS[0]
+        if len(run_cfg.PER_LAYER_THICKNESS) == 1:
+            thickness = run_cfg.PER_LAYER_THICKNESS[0]
         else:
-            thickness = run_cfg.TRCWA_PER_LAYER_THICKNESS[layer]
+            thickness = run_cfg.PER_LAYER_THICKNESS[layer]
 
         if Nx > 1 or Ny > 1:
             trcwa.Add_LayerGrid(thickness, Nx, Ny)
