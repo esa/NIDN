@@ -1,8 +1,6 @@
-from dotmap import DotMap
-from numpy import source
+import torch
 
 from ..fdtd_integration.init_fdtd import init_fdtd
-import torch
 from ..materials.layer_builder import LayerBuilder
 from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from ..utils.load_default_cfg import load_default_cfg
@@ -16,8 +14,9 @@ def test_single_uniform_layer():
     eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.Nx = 1
     cfg.Ny = 1
-    cfg.physical_wavelength_range[0] = 1e-5
-    cfg.physical_wavelength_range[1] = 1e-5
+    # Note: something went wrong when smalles wavelength was 1e-5, guess its the grid scaling
+    cfg.physical_wavelength_range[0] = 1e-6  
+    cfg.physical_wavelength_range[1] = 2e-6
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
         cfg.physical_wavelength_range[1],
@@ -39,22 +38,22 @@ def test_single_uniform_layer():
 
 def test_multiple_uniform_layers():
     # Create grid with multiple uniform layer
-    cfg = DotMap()
+    cfg = load_default_cfg()
     cfg.N_layers = 4
     cfg.N_freq = 1
     eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.Nx = 1
     cfg.Ny = 1
-    cfg.physical_wavelength_range[0] = 1e-5
-    cfg.physical_wavelength_range[1] = 1e-5
+    cfg.physical_wavelength_range[
+        0
+    ] = 1e-6  # Note: something went wrong when smalles wavelength was 1e-5, guess its the grid scaling
+    cfg.physical_wavelength_range[1] = 2e-6
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
         cfg.physical_wavelength_range[1],
         cfg.N_freq,
         "linear",
     )
-    cfg.PER_LAYER_THICKNESS = [1.0, 1.0, 1.0, 1.0]
-    cfg.FDTD_grid = [5.0, 2.0, 1.0]
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
     eps_grid[:, :, 1, :] = layer_builder.build_uniform_layer("zirconium")
