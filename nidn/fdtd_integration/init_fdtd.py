@@ -1,6 +1,5 @@
 from dotmap import DotMap
 import fdtd
-from scipy.fft import set_backend
 
 from ..utils.global_constants import EPS_0, SPEED_OF_LIGHT, UNIT_MAGNITUDE
 from .constants import FDTD_GRID_SCALE
