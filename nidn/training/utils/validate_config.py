@@ -43,7 +43,7 @@ def _validate_config(cfg: DotMap):
         "FDTD_use_pointsource",
         "FDTD_use_pulsesource",
         "FDTD_pml_thickness",
-        "FDTD_source",
+        "FDTD_source_position",
         "FDTD_free_space_distance",
         "FDTD_reflection_detector_x",
         "FDTD_niter",
@@ -97,7 +97,7 @@ def _validate_config(cfg: DotMap):
         "PER_LAYER_THICKNESS",
         "TRCWA_L_grid",
         "FDTD_grid",
-        "FDTD_source",
+        "FDTD_source_position",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "physical_wavelength_range",
@@ -180,7 +180,7 @@ def _validate_config(cfg: DotMap):
         "TRCWA_L_grid",
         "PER_LAYER_THICKNESS",
         "FDTD_grid",
-        "FDTD_source",
+        "FDTD_source_position",
     ]
     all_positive_or_zero_list_keys = [
         "target_transmittance_spectrum",
@@ -214,7 +214,7 @@ def _validate_config(cfg: DotMap):
     if not len(cfg.FDTD_grid) == 3:
         raise ValueError(f"FDTD_grid must me 3-dimentional")
 
-    if not (len(cfg.FDTD_source) == 2 or len(cfg.FDTD_source) == 3):
+    if not (len(cfg.FDTD_source_position) == 2 or len(cfg.FDTD_source_position) == 3):
         raise ValueError(
-            f"The FDTD source needs either 2- or 3-dimensional coordinaets"
+            f"The FDTD source needs either 2- or 3-dimensional coordinates"
         )

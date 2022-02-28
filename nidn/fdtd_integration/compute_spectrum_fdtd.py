@@ -23,9 +23,10 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     transmission_spectrum = []
     reflection_spectrum = []
     physical_wavelengths, norm_freq = get_frequency_points(cfg)
-    logger.debug("Wavelenghts in spectrum")
+    logger.debug("Wavelenghts in spectrum : ")
     logger.debug(physical_wavelengths)
-
+    logger.debug("Number of layers: ")
+    logger.debug(len(permittivity[0,0,:,0]))
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
@@ -59,8 +60,6 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
         )
         transmission_signal.append(transmission_material)
         reflection_signal.append(reflection_material)
-        time = [i for i in range(len(transmission_signal[0]))]
-
         # Calculate transmission and reflection coefficients,
         # by using the signals from the free space simulation and the material simulation
         (
@@ -120,7 +119,7 @@ def _get_abs_value_from_3D_signal(signal):
     abs_value = []
     for i in range(len(signal)):
         abs_value.append(
-            sqrt(tensor(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2))
+            sqrt(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2)
         )
     return abs_value
 

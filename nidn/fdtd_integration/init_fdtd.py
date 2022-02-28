@@ -38,13 +38,14 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                 cfg.FDTD_reflection_detector_x
                 + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0]
             )
+            + 2
         ),
         int(cfg.FDTD_reflection_detector_x * scaling),
     )
     grid = _add_source(
         grid,
-        int(cfg.FDTD_source[0] * scaling),
-        int(cfg.FDTD_source[1] * scaling),
+        int(cfg.FDTD_source_position[0] * scaling),
+        int(cfg.FDTD_source_position[1] * scaling),
         wavelength / SPEED_OF_LIGHT,
         cfg.FDTD_use_pulsesource,
         cfg.FDTD_use_pointsource,
@@ -116,7 +117,7 @@ def _add_source(grid, source_x, source_y, period, use_pulse_source, use_point_so
     if use_point_source:
         grid[source_x, source_y, 0] = fdtd.PointSource(
             period=period,
-            name="linesource",
+            name="pointsource",
             pulse=use_pulse_source,
             cycle=1,
             hanning_dt=1e-15,
@@ -158,7 +159,7 @@ def _add_object(grid, object_start_x, object_end_x, permittivity, frequency):
     Returns:
         fdtd.Grid: The grid with the added object
     """
-    # Not sure whether the conductivity should be relative or absolute, i.e. if it should be multiplied with EPS_0.
+    # Not sure whether the conductivity should be relative or absolute, i.e. if it should be multiplied with EPS_0. Multiplied with 2pi to get w(angular frequency)?
     # Since the permittivity is set to 1 for the free space grid, I'll leave it at an relative value for now. Also, permittivity for object is relative.
     grid[object_start_x:object_end_x, :, :] = fdtd.AbsorbingObject(
         permittivity=permittivity.real,
