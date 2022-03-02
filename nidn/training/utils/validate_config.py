@@ -1,4 +1,5 @@
 from dotmap import DotMap
+from ...utils.global_constants import UNIT_MAGNITUDE
 
 
 def _validate_config(cfg: DotMap):
@@ -40,13 +41,14 @@ def _validate_config(cfg: DotMap):
         "TRCWA_L_grid",
         "TRCWA_NG",
         "FDTD_grid",
-        "FDTD_use_pointsource",
-        "FDTD_use_pulsesource",
+        "FDTD_source_type",
+        "FDTD_pulse_type",
         "FDTD_pml_thickness",
         "FDTD_source_position",
         "FDTD_free_space_distance",
         "FDTD_reflection_detector_x",
         "FDTD_niter",
+        "FDTD_min_gridpoints_between_detectors",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "freq_distribution",
@@ -70,6 +72,7 @@ def _validate_config(cfg: DotMap):
         "seed",
         "TRCWA_NG",
         "FDTD_niter",
+        "FDTD_min_gridpoints_between_detectors",
     ]
     float_keys = [
         "L",
@@ -89,10 +92,16 @@ def _validate_config(cfg: DotMap):
         "add_noise",
         "use_gpu",
         "avoid_zero_eps",
-        "FDTD_use_pulsesource",
-        "FDTD_use_pointsource",
     ]
-    string_keys = ["model_type", "type", "name", "freq_distribution", "solver"]
+    string_keys = [
+        "model_type",
+        "type",
+        "name",
+        "freq_distribution",
+        "solver",
+        "FDTD_source_type",
+        "FDTD_pulse_type",
+    ]
     list_keys = [
         "PER_LAYER_THICKNESS",
         "TRCWA_L_grid",
@@ -158,6 +167,7 @@ def _validate_config(cfg: DotMap):
         "FDTD_free_space_distance",
         "FDTD_reflection_detector_x",
         "FDTD_pml_thickness",
+        "FDTD_min_gridpoints_between_detectors",
     ]
     for key in positive_value_keys:
         if not (cfg[key] > 0):
@@ -212,9 +222,15 @@ def _validate_config(cfg: DotMap):
         raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
 
     if not len(cfg.FDTD_grid) == 3:
-        raise ValueError(f"FDTD_grid must me 3-dimentional")
+        raise ValueError(f"FDTD_grid must be 3-dimentional")
 
     if not (len(cfg.FDTD_source_position) == 2 or len(cfg.FDTD_source_position) == 3):
         raise ValueError(
             f"The FDTD source needs either 2- or 3-dimensional coordinates"
+        )
+    if cfg.solver == "FDTD" and cfg.physical_wavelenght_range[0] >= (
+        cfg.FDTD_grid[1] * UNIT_MAGNITUDE / 2
+    ):
+        raise ValueError(
+            f" When using the FDTD solver, the smallest wavelength should be smaller than half the grid width in order for the scaling to work"
         )

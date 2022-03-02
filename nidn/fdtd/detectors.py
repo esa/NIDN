@@ -14,7 +14,7 @@ from .typing_ import ListOrSlice, Tuple, List
 # relative
 from .grid import Grid
 from .backend import backend as bd
-from .constants import X, Y, Z
+from .constants import FDTD_X, FDTD_Y, FDTD_Z
 
 ## Detector
 class LineDetector:
@@ -441,20 +441,22 @@ class CurrentDetector:
         # option for unit factor here? Units will get very complicated otherwise
 
         current_vector_1 = (
-            (self.grid.H[px, py - 1, pz, X]) - (self.grid.H[px, py, pz, X])
+            (self.grid.H[px, py - 1, pz, FDTD_X]) - (self.grid.H[px, py, pz, FDTD_X])
         ) * self.grid.grid_spacing
         current_vector_2 = (
-            (self.grid.H[px, py, pz, Y]) - (self.grid.H[px - 1, py, pz, Y])
+            (self.grid.H[px, py, pz, FDTD_Y]) - (self.grid.H[px - 1, py, pz, FDTD_Y])
         ) * self.grid.grid_spacing
 
         current_1 = current_vector_1 + current_vector_2
         # current_1 = float(current.cpu())
 
         current_vector_1 = (
-            (self.grid.H[px, py - 1, pz - 1, X]) - (self.grid.H[px, py, pz - 1, X])
+            (self.grid.H[px, py - 1, pz - 1, FDTD_X])
+            - (self.grid.H[px, py, pz - 1, FDTD_X])
         ) * self.grid.grid_spacing
         current_vector_2 += (
-            (self.grid.H[px, py, pz - 1, Y]) - (self.grid.H[px - 1, py, pz - 1, Y])
+            (self.grid.H[px, py, pz - 1, FDTD_Y])
+            - (self.grid.H[px - 1, py, pz - 1, FDTD_Y])
         ) * self.grid.grid_spacing
         # current_2 = float(current_2.cpu())
         current_2 = current_vector_1 + current_vector_2

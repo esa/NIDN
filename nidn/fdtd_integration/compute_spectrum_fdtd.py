@@ -1,6 +1,6 @@
 from dotmap import DotMap
 from tqdm import tqdm
-from torch import sqrt, tensor
+import torch
 from loguru import logger
 
 from ..trcwa.get_frequency_points import get_frequency_points
@@ -26,7 +26,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug("Wavelenghts in spectrum : ")
     logger.debug(physical_wavelengths)
     logger.debug("Number of layers: ")
-    logger.debug(len(permittivity[0,0,:,0]))
+    logger.debug(len(permittivity[0, 0, :, 0]))
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
@@ -76,7 +76,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug("Reflection spectrum")
     logger.debug(reflection_spectrum)
 
-    return transmission_spectrum, reflection_spectrum
+    return torch.tensor(transmission_spectrum), torch.tensor(reflection_spectrum)
 
 
 def _get_detector_values(transmission_detector, reflection_detector):
@@ -119,7 +119,7 @@ def _get_abs_value_from_3D_signal(signal):
     abs_value = []
     for i in range(len(signal)):
         abs_value.append(
-            sqrt(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2)
+            torch.sqrt(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2)
         )
     return abs_value
 
@@ -135,7 +135,7 @@ def _average_along_detector(signal):
     """
     avg = []
     for e in signal:
-        s = [tensor(0.0), tensor(0.0), tensor(0.0)]
+        s = [torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)]
         for p in e:
             s[0] += p[0] / len(e)
             s[1] += p[1] / len(e)

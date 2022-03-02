@@ -44,14 +44,14 @@ TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 
 # FDTD parameters
 FDTD_grid = [5.0,2.0,1.0] # Dimensions of the grid used in FDTD simulations, in FDTD unit magnitudes
-FDTD_use_pointsource = false # If the source should be a point source in the FDTD simulaitons, otherwise set as linesource 
-FDTD_use_pulsesource = false # If the source should be a single pulse in the FDTD simulations, otherwise set as continuous wave
+FDTD_source_type = "line" # Geometry of source, either "point" for pointsource or "line" for linesource
+FDTD_pulse_type = "continuous" # If the source should be a single pulse in the FDTD simulations, or continuous wave. "pulse" or "continuous" accepted
 FDTD_pml_thickness = 1.5 # Thickness of PML layerin FDTD simulations, set in FDTD unit magnitudes. Perfectly Matched Layer are boundaries used in the x-direction, design to absorb all radiation
 FDTD_source_position = [1.5,1.0] # Coordinates of the source used in FDTD simulations, in FDTD unit magnitudes
 FDTD_free_space_distance = 1.0 # The thickness of the free space layer before and after the material layers, in FDTD unit magnitudes
 FDTD_reflection_detector_x = 2.4 # X-coordinates of the reflection detector for the FDTD simulation, in FDTD unit magnitudes
 FDTD_niter = 200 # Number of iterations / timesteps to run the FDTD for
-
+FDTD_min_gridpoints_between_detectors = 2
 
 # Target spectra
 # To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)

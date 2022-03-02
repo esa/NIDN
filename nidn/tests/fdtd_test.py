@@ -1,5 +1,4 @@
-from torch import zeros, tensor, cfloat
-from numpy import subtract
+import torch
 
 from nidn.utils.global_constants import SPEED_OF_LIGHT
 
@@ -11,15 +10,14 @@ from ..utils.compute_spectrum import compute_spectrum
 
 
 def test_fdtd_grid_creation():
-    """Test that the simulation is created in the right way, whith the correcto objects and correct realtive placement of them"""
+    """Test that the simulation is created in the right way, with the correct objects and correct relative placement of them"""
     # Create grid with multiple uniform layer
     cfg = load_default_cfg()
     cfg.N_layers = 4
     cfg.N_freq = 1
-    eps_grid = zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=cfloat)
+    eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.Nx = 1
     cfg.Ny = 1
-    # Note: something went wrong when smalles wavelength was 1e-5, guess its the grid scaling
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
         cfg.physical_wavelength_range[1],
@@ -67,8 +65,7 @@ def test_fdtd_simulation_single_layer():
     cfg = load_default_cfg()
     cfg.N_freq = 5
     cfg.N_layers = 1
-    eps_grid = zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=cfloat)
-    # Note: something went wrong when smalles wavelength was 1e-5, guess its the grid scaling
+    eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
         cfg.physical_wavelength_range[1],
@@ -79,24 +76,22 @@ def test_fdtd_simulation_single_layer():
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
     transmission_spectrum, reflection_spectrum = compute_spectrum(eps_grid, cfg)
-    validated_transmission_spectrum = [
-        tensor(0.0),
-        tensor(0.5564),
-        tensor(0.5902),
-        tensor(0.4664),
-        tensor(0.4211),
-    ]
-    validated_reflection_spectrum = [
-        tensor(0.9515),
-        tensor(0.1605),
-        tensor(0.3508),
-        tensor(0.3171),
-        tensor(0.3437),
-    ]
-    assert all(
-        abs(subtract(transmission_spectrum, validated_transmission_spectrum)) < 1e-4
+    validated_transmission_spectrum = torch.tensor(
+        [
+            4.95440515e-176,
+            6.98087684e-01,
+            5.90159230e-01,
+            4.66396898e-01,
+            4.21121637e-01,
+        ]
     )
-    assert all(abs(subtract(reflection_spectrum, validated_reflection_spectrum)) < 1e-4)
+    validated_reflection_spectrum = torch.tensor(
+        [0.95146948, 0.17358959, 0.35082144, 0.31708776, 0.34369091]
+    )
+    assert all(
+        torch.abs(transmission_spectrum - validated_transmission_spectrum) < 1e-4
+    )
+    assert all(torch.abs(reflection_spectrum - validated_reflection_spectrum) < 1e-4)
 
 
 def test_fdtd_simulation_four_layers():
@@ -106,7 +101,7 @@ def test_fdtd_simulation_four_layers():
     cfg.N_layers = 4
     cfg.FDTD_niter = 400
     cfg.N_freq = 5
-    eps_grid = zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=cfloat)
+    eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
         cfg.physical_wavelength_range[1],
@@ -120,24 +115,22 @@ def test_fdtd_simulation_four_layers():
     eps_grid[:, :, 2, :] = layer_builder.build_uniform_layer("gallium_arsenide")
     eps_grid[:, :, 3, :] = layer_builder.build_uniform_layer("silicon_nitride")
     transmission_spectrum, reflection_spectrum = compute_spectrum(eps_grid, cfg)
-    validated_transmission_spectrum = [
-        tensor(0.0),
-        tensor(0.0),
-        tensor(0.0),
-        tensor(0.0),
-        tensor(0.0),
-    ]
-    validated_reflection_spectrum = [
-        tensor(0.9515),
-        tensor(0.4005),
-        tensor(0.4919),
-        tensor(0.6812),
-        tensor(0.2888),
-    ]
-    assert all(
-        abs(subtract(transmission_spectrum, validated_transmission_spectrum)) < 1e-4
+    validated_transmission_spectrum = torch.tensor(
+        [
+            torch.tensor(0.0),
+            torch.tensor(0.0),
+            torch.tensor(0.0),
+            torch.tensor(0.0),
+            torch.tensor(0.0),
+        ]
     )
-    assert all(abs(subtract(reflection_spectrum, validated_reflection_spectrum)) < 1e-4)
+    validated_reflection_spectrum = torch.tensor(
+        [0.95147296, 0.51595957, 0.49191941, 0.68122679, 0.28879608]
+    )
+    assert all(
+        torch.abs(transmission_spectrum - validated_transmission_spectrum) < 1e-4
+    )
+    assert all(torch.abs(reflection_spectrum - validated_reflection_spectrum) < 1e-4)
 
 
 def test_single_patterned_layer():
