@@ -51,7 +51,7 @@ FDTD_source_position = [1.5,1.0] # Coordinates of the source used in FDTD simula
 FDTD_free_space_distance = 1.0 # The thickness of the free space layer before and after the material layers, in FDTD unit magnitudes
 FDTD_reflection_detector_x = 2.4 # X-coordinates of the reflection detector for the FDTD simulation, in FDTD unit magnitudes
 FDTD_niter = 200 # Number of iterations / timesteps to run the FDTD for
-FDTD_min_gridpoints_between_detectors = 2
+FDTD_min_gridpoints_between_detectors = 2 # Minimal grid points between transmission detector and reflection detector in FDTD simulation. The true distance will be this value plus total layer thickness
 
 # Target spectra
 # To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)

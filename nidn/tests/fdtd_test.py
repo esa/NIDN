@@ -92,6 +92,10 @@ def test_fdtd_simulation_single_layer():
         torch.abs(transmission_spectrum - validated_transmission_spectrum) < 1e-8
     )
     assert all(torch.abs(reflection_spectrum - validated_reflection_spectrum) < 1e-8)
+    assert all(transmission_spectrum <= 1)
+    assert all(reflection_spectrum <= 1)
+    assert all(transmission_spectrum >= 0)
+    assert all(reflection_spectrum >= 0)
 
 
 def test_fdtd_simulation_four_layers():
@@ -131,6 +135,10 @@ def test_fdtd_simulation_four_layers():
         torch.abs(transmission_spectrum - validated_transmission_spectrum) < 1e-8
     )
     assert all(torch.abs(reflection_spectrum - validated_reflection_spectrum) < 1e-8)
+    assert all(transmission_spectrum <= 1)
+    assert all(reflection_spectrum <= 1)
+    assert all(transmission_spectrum >= 0)
+    assert all(reflection_spectrum >= 0)
 
 
 def test_single_patterned_layer():

@@ -52,14 +52,14 @@ def calculate_transmission_reflection_coefficients(
             reflection_signals[0], cfg
         )
 
-    if not (transmission_coefficient >= 0 and transmission_coefficient <= 1):
+    if transmission_coefficient < 0 or transmission_coefficient > 1:
         raise ValueError(
-            f"The transmission coefficient is outsied of the possible range between 0 and 1"
+            f"The transmission coefficient is outside of the physical range between 0 and 1"
         )
 
-    if not (reflection_coefficient >= 0 and reflection_coefficient <= 1):
+    if reflection_coefficient < 0 or reflection_coefficient > 1:
         raise ValueError(
-            f"The reflection coefficient is outsied of the possible range between 0 and 1"
+            f"The reflection coefficient is outside of the physical range between 0 and 1"
         )
     if transmission_coefficient + reflection_coefficient > 1:
         logger.warning(
@@ -90,9 +90,11 @@ def _fft(signal, cfg: DotMap):
         tuple[array,array]: fourier frequenices and their corresponding values
     """
     sampling_frequencies = (
-        cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE / (sqrt(2) * SPEED_OF_LIGHT)
+        cfg.physical_wavelength_range[0]
+        * FDTD_GRID_SCALE
+        / (torch.sqrt(2) * SPEED_OF_LIGHT)
     )
-    tensor_signal = tensor(signal)
+    tensor_signal = torch.tensor(signal)
 
     yf = rfft(tensor_signal)
     xf = rfftfreq(cfg.FDTD_niter, sampling_frequencies)

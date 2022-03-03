@@ -234,3 +234,8 @@ def _validate_config(cfg: DotMap):
         raise ValueError(
             f" When using the FDTD solver, the smallest wavelength should be smaller than half the grid width in order for the scaling to work"
         )
+    if not cfg.FDTD_source_type in ["point", "line"]:
+        raise ValueError(f'The FDTD_source_type must either be "line" or "point"')
+
+    if not cfg.FDTD_pulse_type in ["pulse", "continuous"]:
+        raise ValueError(f'The FDTD_pulse_type must either be "pulse" or "continuous"')

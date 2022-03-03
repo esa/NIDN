@@ -135,7 +135,7 @@ def _average_along_detector(signal):
     """
     avg = []
     for e in signal:
-        s = [torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)]
+        s = torch.zeros(3)
         for p in e:
             s[0] += p[0] / len(e)
             s[1] += p[1] / len(e)

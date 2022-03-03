@@ -1,6 +1,15 @@
 from dotmap import DotMap
 
-from ..fdtd import *
+from ..fdtd import (
+    AbsorbingObject,
+    set_backend,
+    Grid,
+    PML,
+    PeriodicBoundary,
+    LineSource,
+    LineDetector,
+    PointSource,
+)
 from ..utils.global_constants import EPS_0, SPEED_OF_LIGHT, UNIT_MAGNITUDE
 from .constants import FDTD_GRID_SCALE
 
@@ -42,13 +51,9 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         ),
         int(cfg.FDTD_reflection_detector_x * scaling),
     )
-    use_pulse = True
-    if cfg.FDTD_pulse_type == "pulse":
-        pass
-    elif cfg.FDTD_pulse_type == "continuous":
-        use_pulse = False
-    else:
-        raise ValueError(f' FDTD_pulse_type must either be "pulse" or "continuous"')
+    assert cfg.FDTD_pulse_type in ["pulse", "continuous"]
+    use_pulse = cfg.FDTD_pulse_type == "pulse"
+
     grid = _add_source(
         grid,
         int(cfg.FDTD_source_position[0] * scaling),
