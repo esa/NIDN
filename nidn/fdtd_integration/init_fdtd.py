@@ -1,6 +1,15 @@
 from dotmap import DotMap
-import fdtd
 
+from ..fdtd import (
+    AbsorbingObject,
+    set_backend,
+    Grid,
+    PML,
+    PeriodicBoundary,
+    LineSource,
+    LineDetector,
+    PointSource,
+)
 from ..utils.global_constants import EPS_0, SPEED_OF_LIGHT, UNIT_MAGNITUDE
 from .constants import FDTD_GRID_SCALE
 
@@ -17,13 +26,13 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
     Returns:
         fdtd:Grid: Grid with all the added object, ready to be run
     """
-    fdtd.set_backend("torch")
+    set_backend("torch")
     scaling = UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
     x_grid_size = int(
         scaling * (cfg.FDTD_grid[0] + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0])
     )
     y_grid_size = int(cfg.FDTD_grid[1] * scaling)
-    grid = fdtd.Grid(
+    grid = Grid(
         (x_grid_size, y_grid_size, 1),
         grid_spacing=cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE,
         permittivity=1.0,
@@ -38,16 +47,20 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                 cfg.FDTD_reflection_detector_x
                 + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0]
             )
+            + cfg.FDTD_min_gridpoints_between_detectors
         ),
         int(cfg.FDTD_reflection_detector_x * scaling),
     )
+    assert cfg.FDTD_pulse_type in ["pulse", "continuous"]
+    use_pulse = cfg.FDTD_pulse_type == "pulse"
+
     grid = _add_source(
         grid,
-        int(cfg.FDTD_source[0] * scaling),
-        int(cfg.FDTD_source[1] * scaling),
+        int(cfg.FDTD_source_position[0] * scaling),
+        int(cfg.FDTD_source_position[1] * scaling),
         wavelength / SPEED_OF_LIGHT,
-        cfg.FDTD_use_pulsesource,
-        cfg.FDTD_use_pointsource,
+        use_pulse,
+        cfg.FDTD_source_type,
     )
     if include_object:
         for i in range(cfg.N_layers):
@@ -88,17 +101,17 @@ def _add_boundaries(grid, pml_thickness):
         fdtd.Grid: The grid with the added boundaries
     """
     # Add PML boundary to the left side of the grid
-    grid[0:pml_thickness, :, :] = fdtd.PML(name="pml_xlow")
+    grid[0:pml_thickness, :, :] = PML(name="pml_xlow")
     # Add PML boundary to the right side of the grid
-    grid[-pml_thickness:, :, :] = fdtd.PML(name="pml_xhigh")
+    grid[-pml_thickness:, :, :] = PML(name="pml_xhigh")
     # Add periodic boundaries at both sides in y-direction
-    grid[:, 0, :] = fdtd.PeriodicBoundary(name="ybounds")
+    grid[:, 0, :] = PeriodicBoundary(name="ybounds")
     # Add periodic boundaries on both sides in z-direction. Only applicable for 3D grids
     # grid[:, :, 0] = fdtd.PeriodicBoundary(name="zbounds")
     return grid
 
 
-def _add_source(grid, source_x, source_y, period, use_pulse_source, use_point_source):
+def _add_source(grid, source_x, source_y, period, use_pulse_source, source_type):
     """Add a specified source to the fdtd grid
 
     Args:
@@ -113,17 +126,18 @@ def _add_source(grid, source_x, source_y, period, use_pulse_source, use_point_so
         fdtd.Grid: The grid with the added source
     """
 
-    if use_point_source:
-        grid[source_x, source_y, 0] = fdtd.PointSource(
+    if source_type == "point":
+        grid[source_x, source_y, 0] = PointSource(
             period=period,
-            name="linesource",
+            name="pointsource",
             pulse=use_pulse_source,
             cycle=1,
             hanning_dt=1e-15,
         )
+    elif source_type == "line":
+        grid[source_x, :, 0] = LineSource(period=period, name="linesource")
     else:
-        grid[source_x, :, 0] = fdtd.LineSource(period=period, name="linesource")
-
+        raise ValueError(f'FDTD_source_type must be either "line" or "point"')
     return grid
 
 
@@ -139,8 +153,8 @@ def _add_detectors(grid, transmission_detector_x, reflection_detector_x):
         fdtd.Grid: The grid with the added detectors
     """
 
-    transmission_detector = fdtd.LineDetector(name="t_detector")
-    reflection_detector = fdtd.LineDetector(name="r_detector")
+    transmission_detector = LineDetector(name="t_detector")
+    reflection_detector = LineDetector(name="r_detector")
     grid[transmission_detector_x, :, 0] = transmission_detector
     grid[reflection_detector_x, :, 0] = reflection_detector
     return grid, transmission_detector, reflection_detector
@@ -158,9 +172,9 @@ def _add_object(grid, object_start_x, object_end_x, permittivity, frequency):
     Returns:
         fdtd.Grid: The grid with the added object
     """
-    # Not sure whether the conductivity should be relative or absolute, i.e. if it should be multiplied with EPS_0.
+    # Not sure whether the conductivity should be relative or absolute, i.e. if it should be multiplied with EPS_0. Multiplied with 2pi to get w(angular frequency)?
     # Since the permittivity is set to 1 for the free space grid, I'll leave it at an relative value for now. Also, permittivity for object is relative.
-    grid[object_start_x:object_end_x, :, :] = fdtd.AbsorbingObject(
+    grid[object_start_x:object_end_x, :, :] = AbsorbingObject(
         permittivity=permittivity.real,
         conductivity=permittivity.imag * frequency,
     )

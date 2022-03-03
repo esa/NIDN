@@ -1,6 +1,8 @@
 from dotmap import DotMap
 from torch.fft import rfft, rfftfreq
-from torch import sqrt, tensor
+import torch
+from loguru import logger
+
 
 from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
 
@@ -49,6 +51,20 @@ def calculate_transmission_reflection_coefficients(
         reflection_coefficient = _fft(true_reflection, cfg) / _fft(
             reflection_signals[0], cfg
         )
+
+    if transmission_coefficient < 0 or transmission_coefficient > 1:
+        raise ValueError(
+            f"The transmission coefficient is outside of the physical range between 0 and 1"
+        )
+
+    if reflection_coefficient < 0 or reflection_coefficient > 1:
+        raise ValueError(
+            f"The reflection coefficient is outside of the physical range between 0 and 1"
+        )
+    if transmission_coefficient + reflection_coefficient > 1:
+        logger.warning(
+            f"The sum of the transmission and reflection coefficient is greater than 1, which is physically impossible"
+        )
     return transmission_coefficient, reflection_coefficient
 
 
@@ -74,9 +90,11 @@ def _fft(signal, cfg: DotMap):
         tuple[array,array]: fourier frequenices and their corresponding values
     """
     sampling_frequencies = (
-        cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE / (sqrt(2) * SPEED_OF_LIGHT)
+        cfg.physical_wavelength_range[0]
+        * FDTD_GRID_SCALE
+        / (torch.sqrt(2) * SPEED_OF_LIGHT)
     )
-    tensor_signal = tensor(signal)
+    tensor_signal = torch.tensor(signal)
 
     yf = rfft(tensor_signal)
     xf = rfftfreq(cfg.FDTD_niter, sampling_frequencies)
