@@ -189,9 +189,7 @@ class LineSource:
                 )
 
         self.x, self.y, self.z = self._handle_slices(x, y, z)
-
         self.period = grid._handle_time(self.period)
-
         L = len(self.x)
         vect = bd.array(
             (bd.array(self.x) - self.x[L // 2]) ** 2

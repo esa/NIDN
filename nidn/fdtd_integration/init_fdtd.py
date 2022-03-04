@@ -1,4 +1,5 @@
 from dotmap import DotMap
+from loguru import logger
 
 from ..fdtd import (
     AbsorbingObject,
@@ -27,14 +28,27 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         fdtd:Grid: Grid with all the added object, ready to be run
     """
     set_backend("torch")
-    scaling = UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
-    x_grid_size = int(
-        scaling * (cfg.FDTD_grid[0] + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0])
+    scaling = max(
+        UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
+        cfg.FDTD_min_gridpoints_per_unit_magnitude,
     )
-    y_grid_size = int(cfg.FDTD_grid[1] * scaling)
+    x_grid_size = int(
+        scaling
+        * (
+            cfg.FDTD_pml_thickness * 2
+            + cfg.FDTD_free_space_distance * 2
+            + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0]
+        )
+    )
+    y_grid_size = int(2 * cfg.FDTD_free_space_distance * scaling)
+    logger.debug(
+        "Initializing FDTD grid with size {} by {} grid points, with a scaling factor of {} grid points per um".format(
+            x_grid_size, y_grid_size, scaling
+        )
+    )
     grid = Grid(
         (x_grid_size, y_grid_size, 1),
-        grid_spacing=cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE,
+        grid_spacing=UNIT_MAGNITUDE / scaling,
         permittivity=1.0,
         permeability=1.0,
     )
