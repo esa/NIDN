@@ -28,6 +28,9 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         fdtd:Grid: Grid with all the added object, ready to be run
     """
     set_backend("torch")
+    # The scaling is the number of grid points per unit magnitude. This is the maximum of the reation between the unit magnitude and 1/10th of the smallest wavelength,
+    # and a constant which is defaulted to 10. If this scaling becomes too low, i.e. below 2, there might be some errors in creating the grid,
+    # as there is too feew grid points for ceartian elements to be placed correctly.
     scaling = max(
         UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
         cfg.FDTD_min_gridpoints_per_unit_magnitude,
