@@ -40,7 +40,7 @@ def _validate_config(cfg: DotMap):
         "solver",
         "TRCWA_L_grid",
         "TRCWA_NG",
-        "FDTD_grid",
+        "FDTD_min_gridpoints_per_unit_magnitude",
         "FDTD_source_type",
         "FDTD_pulse_type",
         "FDTD_pml_thickness",
@@ -73,6 +73,7 @@ def _validate_config(cfg: DotMap):
         "TRCWA_NG",
         "FDTD_niter",
         "FDTD_min_gridpoints_between_detectors",
+        "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     float_keys = [
         "L",
@@ -105,7 +106,6 @@ def _validate_config(cfg: DotMap):
     list_keys = [
         "PER_LAYER_THICKNESS",
         "TRCWA_L_grid",
-        "FDTD_grid",
         "FDTD_source_position",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
@@ -168,6 +168,7 @@ def _validate_config(cfg: DotMap):
         "FDTD_reflection_detector_x",
         "FDTD_pml_thickness",
         "FDTD_min_gridpoints_between_detectors",
+        "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     for key in positive_value_keys:
         if not (cfg[key] > 0):
@@ -220,9 +221,6 @@ def _validate_config(cfg: DotMap):
 
     if not (cfg.freq_distribution == "linear" or cfg.freq_distribution == "log"):
         raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
-
-    if not len(cfg.FDTD_grid) == 3:
-        raise ValueError(f"FDTD_grid must be 3-dimentional")
 
     if not (len(cfg.FDTD_source_position) == 2 or len(cfg.FDTD_source_position) == 3):
         raise ValueError(
