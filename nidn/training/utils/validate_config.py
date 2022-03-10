@@ -226,12 +226,6 @@ def _validate_config(cfg: DotMap):
         raise ValueError(
             f"The FDTD source needs either 2- or 3-dimensional coordinates"
         )
-    if cfg.solver == "FDTD" and cfg.physical_wavelenght_range[0] >= (
-        cfg.FDTD_grid[1] * UNIT_MAGNITUDE / 2
-    ):
-        raise ValueError(
-            f" When using the FDTD solver, the smallest wavelength should be smaller than half the grid width in order for the scaling to work"
-        )
     if not cfg.FDTD_source_type in ["point", "line"]:
         raise ValueError(f'The FDTD_source_type must either be "line" or "point"')
 

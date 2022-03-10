@@ -76,7 +76,7 @@ def _mean_square(arr):
     Returns:
         float: The mean square value
     """
-    return sum([e**2 for e in arr]) / len(arr)
+    return torch.tensor(sum([e**2 for e in arr]) / len(arr))
 
 
 def _fft(signal, cfg: DotMap):

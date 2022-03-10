@@ -30,6 +30,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
+        logger.debug("Simulating for wavelenght: {}".format(physical_wavelengths[i]))
         transmission_signal = []
         reflection_signal = []
 
@@ -76,7 +77,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug("Reflection spectrum")
     logger.debug(reflection_spectrum)
 
-    return torch.tensor(transmission_spectrum), torch.tensor(reflection_spectrum)
+    return transmission_spectrum, reflection_spectrum
 
 
 def _get_detector_values(transmission_detector, reflection_detector):
