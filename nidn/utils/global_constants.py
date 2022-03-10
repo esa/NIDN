@@ -5,7 +5,7 @@ E_CHARGE = 1.602176634 * 10 ** (-19)
 # Mass of electron
 M_E = 9.1093837015 * 10 ** (-31)
 # Vacuum permittivity
-EPS_0 = torch.tensor(8.8541878128 * 10 ** (-12))
+EPS_0 = 8.8541878128 * 10 ** (-12)
 # There is no torch.pi so we define it here
 PI = torch.tensor(3.14159265358979323846264338327950288)
 # Speed of light in vacuum

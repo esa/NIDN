@@ -145,7 +145,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
     # Initialize the epsilon grid
     eps = torch.zeros(
         [run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq],
-        dtype=torch.cfloat,
+        dtype=torch.cfloat,requires_grad=True
     )
 
     # Net out is [0,1] thus we transform to desired real and imaginary ranges
