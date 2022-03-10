@@ -7,8 +7,6 @@ from collections import deque
 from copy import deepcopy
 from loguru import logger
 
-from nidn.trcwa.compute_spectrum_trcwa import compute_spectrum_trcwa
-
 from .losses.spectrum_loss import _spectrum_loss_fn
 from .losses.likelihood_regularization_loss import _likelihood_regularization_loss_fn
 from ..materials.material_collection import MaterialCollection
@@ -110,7 +108,7 @@ def run_training(
 
         # Compute the spectrum using TRCWA for this grid
         try:
-            produced_R_spectrum, produced_T_spectrum = compute_spectrum_trcwa(
+            produced_R_spectrum, produced_T_spectrum = compute_spectrum(
                 eps_grid, run_cfg
             )
         except ValueError:
