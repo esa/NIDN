@@ -7,8 +7,6 @@ from collections import deque
 from copy import deepcopy
 from loguru import logger
 
-from nidn.trcwa.compute_spectrum_trcwa import compute_spectrum_trcwa
-
 from .losses.spectrum_loss import _spectrum_loss_fn
 from .losses.likelihood_regularization_loss import _likelihood_regularization_loss_fn
 from ..materials.material_collection import MaterialCollection
@@ -123,8 +121,6 @@ def run_training(
             )
             optimizer.param_groups[0]["lr"] *= 0.5
             continue
-        print(eps_grid.requires_grad)
-        print(produced_R_spectrum[0].requires_grad)
         # Compute loss between target spectrum and
         # the one from the current network structure
         spectrum_loss, renormalized = _spectrum_loss_fn(
@@ -157,7 +153,6 @@ def run_training(
             loss += run_cfg.reg_loss_weight * _likelihood_regularization_loss_fn(
                 material_ids, run_cfg.L
             )
-        print(loss.requires_grad)
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
         if loss < best_loss:
