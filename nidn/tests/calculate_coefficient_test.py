@@ -1,4 +1,6 @@
-import numpy as np
+import torch
+
+from nidn.utils.global_constants import PI
 from ..fdtd_integration.calculate_transmission_reflection_coefficients import (
     calculate_transmission_reflection_coefficients,
 )
@@ -7,9 +9,9 @@ from ..utils.load_default_cfg import load_default_cfg
 
 def test_calculate_coefficient():
     cfg = load_default_cfg()
-    time_points = [0.002 * np.pi * i for i in range(1000)]
-    signal_a = 2 * np.sin(time_points)
-    signal_b = np.sin(time_points)
+    time_points = torch.tensor([0.002 * PI * i for i in range(1000)])
+    signal_a = 2 * torch.sin(time_points)
+    signal_b = torch.sin(time_points)
     signal_array = [signal_a, signal_b]
     (
         transmission_coefficient_ms,
