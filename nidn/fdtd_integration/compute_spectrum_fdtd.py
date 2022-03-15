@@ -117,11 +117,12 @@ def _get_abs_value_from_3D_signal(signal):
     """
     signal = _average_along_detector(signal)
 
-    abs_value = []
+    abs_value = torch.zeros(len(signal))
     for i in range(len(signal)):
-        abs_value.append(
-            torch.sqrt(signal[i][0] ** 2 + signal[i][1] ** 2 + signal[i][2] ** 2)
-        )
+        squared_value = torch.square(signal[i])
+        summed_squared_value = torch.sum(squared_value)
+        absolute_value = torch.sqrt(summed_squared_value)
+        abs_value[i] = absolute_value
     return abs_value
 
 
@@ -134,12 +135,12 @@ def _average_along_detector(signal):
     Returns:
         Array[timesteps, 3]: averaged signal along detector
     """
-    avg = []
-    for e in signal:
+    avg = torch.zeros([len(signal), 3])
+    for i in range(len(signal)):
         s = torch.zeros(3)
-        for p in e:
-            s[0] += p[0] / len(e)
-            s[1] += p[1] / len(e)
-            s[2] += p[2] / len(e)
-        avg.append(s)
+        for p in signal[i]:
+            s[0] += p[0] / len(signal)
+            s[1] += p[1] / len(signal)
+            s[2] += p[2] / len(signal)
+        avg[i] = s
     return avg

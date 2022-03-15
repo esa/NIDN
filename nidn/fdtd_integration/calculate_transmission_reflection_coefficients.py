@@ -29,10 +29,7 @@ def calculate_transmission_reflection_coefficients(
     # Substract the free_space reflection signal from the material reflection signal, to eliminate unreflected signal from detector
     # The detector detects signal passing through both ways, and is placed between the source and the material.
     # Thus, most of the signal present is the unreflected signal, which must be removed.
-    true_reflection = [
-        reflection_signals[1][i] - reflection_signals[0][i]
-        for i in range(len(reflection_signals[0]))
-    ]
+    true_reflection = reflection_signals[1] - reflection_signals[0]
 
     if time_to_frequency_domain_method.upper() == "MEAN SQUARE":
         transmission_coefficient = _mean_square(transmission_signals[1]) / _mean_square(
@@ -68,7 +65,7 @@ def calculate_transmission_reflection_coefficients(
     return transmission_coefficient, reflection_coefficient
 
 
-def _mean_square(arr):
+def _mean_square(tensor):
     """Calculates the mean of the squared signal
     Args:
         arr (array): signal to perform the calculations on
@@ -76,7 +73,7 @@ def _mean_square(arr):
     Returns:
         float: The mean square value
     """
-    return torch.tensor(sum([e**2 for e in arr]) / len(arr), requires_grad=True)
+    return torch.sum(torch.square(tensor)) / len(tensor)
 
 
 def _fft(signal, cfg: DotMap):
