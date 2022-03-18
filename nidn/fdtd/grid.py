@@ -73,7 +73,6 @@ def curl_H(H: Tensorlike) -> Tensorlike:
 
     curl[1:, :, :, 2] += H[1:, :, :, 1] - H[:-1, :, :, 1]
     curl[:, 1:, :, 2] -= H[:, 1:, :, 0] - H[:, :-1, :, 0]
-
     return curl
 
 
@@ -135,6 +134,7 @@ class Grid:
         # save electric and magnetic field
         self.E = bd.zeros((self.Nx, self.Ny, self.Nz, 3))
         self.H = bd.zeros((self.Nx, self.Ny, self.Nz, 3))
+        self.absorption_factor = bd.zeros(self.Nx, self.Ny, self.Nz, 3)
 
         # save the inverse of the relative permittiviy and the relative permeability
         # these tensors can be anisotropic!
@@ -279,14 +279,14 @@ class Grid:
         # update boundaries: step 1
         for boundary in self.boundaries:
             boundary.update_phi_E()
-
         curl = curl_H(self.H)
-        self.E += self.courant_number * self.inverse_permittivity * curl
-
-        # update objects
-        for obj in self.objects:
-            obj.update_E(curl)
-
+        self.E *= (1 - self.absorption_factor) / (1 + self.absorption_factor)
+        self.E += (
+            self.courant_number
+            * self.inverse_permittivity
+            * curl
+            / (1 + self.absorption_factor)
+        )
         # update boundaries: step 2
         for boundary in self.boundaries:
             boundary.update_E()

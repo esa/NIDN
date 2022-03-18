@@ -197,6 +197,7 @@ class AbsorbingObject(Object):
             * self.grid.grid_spacing
             * ETA_0
         )
+        self.grid.absorption_factor[x, y, z, :] *= self.absorption_factor
 
     def update_E(self, curl_H):
         """custom update equations for inside the absorbing object
@@ -205,14 +206,6 @@ class AbsorbingObject(Object):
             curl_H: the curl of magnetic field in the grid.
 
         """
-        loc = (self.x, self.y, self.z)
-        self.grid.E[loc] *= (1 - self.absorption_factor) / (1 + self.absorption_factor)
-        self.grid.E[loc] += (
-            self.grid.courant_number
-            * self.inverse_permittivity
-            * curl_H[loc]
-            / (1 + self.absorption_factor)
-        )
 
     def update_H(self, curl_E):
         """custom update equations for inside the absorbing object
