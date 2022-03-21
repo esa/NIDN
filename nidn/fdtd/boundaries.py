@@ -279,7 +279,7 @@ class PML(Boundary):
 
     def _sigma(self, vect: Tensorlike):
         """create a cubicly increasing profile for the conductivity"""
-        return 40 * vect**3 / (self.thickness + 1) ** 4
+        return 40 * vect ** 3 / (self.thickness + 1) ** 4
 
     def _register_grid(
         self, grid: Grid, x: ListOrSlice, y: ListOrSlice, z: ListOrSlice
@@ -385,14 +385,14 @@ class PML(Boundary):
         self.cE = (
             (self.bE - 1.0)
             * self.sigmaE  # is defined by _set_sigmaE()
-            / (self.sigmaE * self.k + self.a * self.k**2)
+            / (self.sigmaE * self.k + self.a * self.k ** 2)
         )
 
         self.bH = bd.exp(-(self.sigmaH / self.k + self.a) * self.grid.courant_number)
         self.cH = (
             (self.bH - 1.0)
             * self.sigmaH  # is defined by _set_sigmaH()
-            / (self.sigmaH * self.k + self.a * self.k**2)
+            / (self.sigmaH * self.k + self.a * self.k ** 2)
         )
 
     def update_E(self):
@@ -404,7 +404,7 @@ class PML(Boundary):
         self.grid.E[self.loc] += (
             self.grid.courant_number
             * self.grid.inverse_permittivity[self.loc]
-            * self.phi_E
+            * (self.phi_E + 1e-16)
         )
 
     def update_H(self):

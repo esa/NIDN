@@ -119,7 +119,7 @@ def _get_abs_value_from_3D_signal(signal):
 
     abs_value = torch.zeros(len(signal))
     for i in range(len(signal)):
-        squared_value = torch.square(signal[i])
+        squared_value = torch.square(signal[i] + 1e-16)
         summed_squared_value = torch.sum(squared_value)
         absolute_value = torch.sqrt(summed_squared_value)
         abs_value[i] = absolute_value
