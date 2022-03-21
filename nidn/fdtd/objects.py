@@ -84,7 +84,7 @@ class Object:
                 self.x, self.y, -1, 2
             ]
 
-        self.grid.inverse_permittivity[self.x, self.y, self.z] = 0
+        self.grid.inverse_permittivity[self.x, self.y, self.z] = self.inverse_permittivity
 
     def _handle_slice(self, s: ListOrSlice, max_index: int = None) -> slice:
         if isinstance(s, list):
@@ -197,8 +197,7 @@ class AbsorbingObject(Object):
             * self.grid.grid_spacing
             * ETA_0
         )
-        self.grid.absorption_factor[x, y, z, :] *= self.absorption_factor
-
+        self.grid.absorption_factor[x, y, z, :] = self.absorption_factor
     def update_E(self, curl_H):
         """custom update equations for inside the absorbing object
 

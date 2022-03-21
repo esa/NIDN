@@ -287,6 +287,10 @@ class Grid:
             * curl
             / (1 + self.absorption_factor)
         )
+        # update objects
+        for obj in self.objects:
+            obj.update_H(curl)
+
         # update boundaries: step 2
         for boundary in self.boundaries:
             boundary.update_E()
