@@ -77,7 +77,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug("Reflection spectrum")
     logger.debug(reflection_spectrum)
 
-    return reflection_spectrum, transmission_coefficient
+    return reflection_spectrum, transmission_spectrum
 
 
 def _get_detector_values(transmission_detector, reflection_detector):

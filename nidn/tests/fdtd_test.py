@@ -75,18 +75,12 @@ def test_fdtd_simulation_single_layer():
     cfg.solver = "FDTD"
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
-    transmission_spectrum, reflection_spectrum = compute_spectrum(eps_grid, cfg)
-    validated_transmission_spectrum = torch.tensor(
-        [
-            4.95440515e-176,
-            6.98087684e-01,
-            5.90159230e-01,
-            4.66396898e-01,
-            4.21121637e-01,
-        ]
-    )
+    reflection_spectrum, transmission_spectrum = compute_spectrum(eps_grid, cfg)
     validated_reflection_spectrum = torch.tensor(
         [0.95146948, 0.17358959, 0.35082144, 0.31708776, 0.34369091]
+    )
+    validated_transmission_spectrum = torch.tensor(
+        [5.41920163e-27, 0.69808768, 0.59015923, 0.46639690, 0.42112164]
     )
     assert all(
         torch.abs(torch.tensor(transmission_spectrum) - validated_transmission_spectrum)
@@ -122,18 +116,12 @@ def test_fdtd_simulation_four_layers():
     eps_grid[:, :, 1, :] = layer_builder.build_uniform_layer("zirconium")
     eps_grid[:, :, 2, :] = layer_builder.build_uniform_layer("gallium_arsenide")
     eps_grid[:, :, 3, :] = layer_builder.build_uniform_layer("silicon_nitride")
-    transmission_spectrum, reflection_spectrum = compute_spectrum(eps_grid, cfg)
-    validated_transmission_spectrum = torch.tensor(
-        [
-            torch.tensor(0.0),
-            torch.tensor(0.0),
-            torch.tensor(0.0),
-            torch.tensor(0.0),
-            torch.tensor(0.0),
-        ]
-    )
+    reflection_spectrum, transmission_spectrum = compute_spectrum(eps_grid, cfg)
     validated_reflection_spectrum = torch.tensor(
         [0.95147296, 0.51595957, 0.49191941, 0.68122679, 0.28879608]
+    )
+    validated_transmission_spectrum = torch.tensor(
+        [2.36074779e-26, 2.36916152e-26, 2.32449813e-26, 2.37303826e-26, 2.19350078e-26]
     )
     assert all(
         torch.abs(torch.tensor(transmission_spectrum) - validated_transmission_spectrum)
