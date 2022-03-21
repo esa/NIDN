@@ -2,6 +2,7 @@ from dotmap import DotMap
 from torch.fft import rfft, rfftfreq
 import torch
 from loguru import logger
+import warnings
 
 
 from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
@@ -108,6 +109,6 @@ def _check_for_all_zero_signal(signals):
             "The freen space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detctor."
         )
     if _mean_square(signals[1]) <= 0:
-        raise Warning(
-            "The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space"
+        warnings.warn(
+            "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space "
         )
