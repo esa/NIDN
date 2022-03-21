@@ -68,10 +68,10 @@ def calculate_transmission_reflection_coefficients(
 def _mean_square(tensor):
     """Calculates the mean of the squared signal
     Args:
-        arr (array): signal to perform the calculations on
+        tensor (tensor): signal to perform the calculations on
 
     Returns:
-        float: The mean square value
+        torch.float: The mean square value
     """
     return torch.sum(torch.square(tensor)) / len(tensor)
 

@@ -77,7 +77,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug("Reflection spectrum")
     logger.debug(reflection_spectrum)
 
-    return transmission_spectrum, reflection_spectrum
+    return reflection_spectrum, transmission_coefficient
 
 
 def _get_detector_values(transmission_detector, reflection_detector):
@@ -119,6 +119,7 @@ def _get_abs_value_from_3D_signal(signal):
 
     abs_value = torch.zeros(len(signal))
     for i in range(len(signal)):
+        # Added 1e-16 to prevent gradient flow from breaking, without significantly changing the result
         squared_value = torch.square(signal[i] + 1e-16)
         summed_squared_value = torch.sum(squared_value)
         absolute_value = torch.sqrt(summed_squared_value)
