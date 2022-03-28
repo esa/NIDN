@@ -2,7 +2,6 @@ from dotmap import DotMap
 from torch.fft import rfft, rfftfreq
 import torch
 from loguru import logger
-import warnings
 
 
 from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
