@@ -105,9 +105,9 @@ def _check_for_all_zero_signal(signals):
 
     if _mean_square(signals[0]) <= 1e-15:
         raise ValueError(
-            "The freen space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detctor."
+            "The free space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detctor."
         )
     if _mean_square(signals[1]) <= 1e-15:
         logger.warning(
-            "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space "
+            "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space."
         )
