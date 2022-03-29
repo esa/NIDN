@@ -31,6 +31,9 @@ def calculate_transmission_reflection_coefficients(
     # Thus, most of the signal present is the unreflected signal, which must be removed.
     true_reflection = reflection_signals[1] - reflection_signals[0]
 
+    _check_for_all_zero_signal(transmission_signals)
+    _check_for_all_zero_signal(reflection_signals)
+
     if time_to_frequency_domain_method.upper() == "MEAN SQUARE":
         transmission_coefficient = _mean_square(transmission_signals[1]) / _mean_square(
             transmission_signals[0]
@@ -96,3 +99,15 @@ def _fft(signal, cfg: DotMap):
     yf = rfft(tensor_signal)
     xf = rfftfreq(cfg.FDTD_niter, sampling_frequencies)
     return xf, yf
+
+
+def _check_for_all_zero_signal(signals):
+
+    if _mean_square(signals[0]) <= 1e-15:
+        raise ValueError(
+            "The free space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detctor."
+        )
+    if _mean_square(signals[1]) <= 1e-15:
+        logger.warning(
+            "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space."
+        )
