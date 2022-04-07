@@ -10,16 +10,19 @@ Available sources:
 
 # other
 from math import pi, sin
+from signal import signal
 
 # typing
 from .typing_ import Tuple, Number, ListOrSlice, List
 from numpy import ndarray
+from torch import exp
 
 # relatvie
 from .grid import Grid
 from .backend import backend as bd
 from .waveforms import *
 from .detectors import CurrentDetector
+from ..utils.global_constants import PI, SPEED_OF_LIGHT
 
 ## PointSource class
 class PointSource:
@@ -139,6 +142,7 @@ class LineSource:
         pulse: bool = False,
         cycle: int = 5,
         hanning_dt: float = 10.0,
+        signal_type: str = "continuous",
     ):
         """Create a LineSource with a gaussian profile
 
@@ -161,6 +165,8 @@ class LineSource:
         self.cycle = cycle
         self.frequency = 1.0 / period
         self.hanning_dt = hanning_dt if hanning_dt is not None else 0.5 / self.frequency
+        self.wavelength = SPEED_OF_LIGHT / self.frequency
+        self.signal_type = signal_type
 
     def _register_grid(
         self, grid: Grid, x: ListOrSlice, y: ListOrSlice, z: ListOrSlice
@@ -201,6 +207,8 @@ class LineSource:
         self.profile = bd.exp(-(vect**2) / (2 * (0.5 * vect.max()) ** 2))
         self.profile /= self.profile.sum()
         self.profile *= self.amplitude
+        self.courant = self.grid.courant_number
+        self.grid_points_per_wavelength = self.wavelength / self.grid.grid_spacing
 
     def _handle_slices(
         self, x: ListOrSlice, y: ListOrSlice, z: ListOrSlice
@@ -275,7 +283,7 @@ class LineSource:
         """Add the source to the electric field"""
         q = self.grid.time_steps_passed
         # if pulse
-        if self.pulse:
+        if self.signal_type == "hanning":
             t1 = int(2 * pi / (self.frequency * self.hanning_dt / self.cycle))
             if q < t1:
                 vect = self.profile * hanning(
@@ -285,6 +293,14 @@ class LineSource:
                 # src = - self.grid.E[self.x, self.y, self.z, 2]
                 vect = self.profile * 0
         # if not pulse
+        elif self.signal_type == "ricker":
+            t1 = self.grid_points_per_wavelength * 6
+            if q < t1:
+                vect = self.profile * _ricker(
+                    q, self.grid_points_per_wavelength, 1, self.courant
+                )
+            else:
+                vect = self.profile * 0
         else:
             vect = self.profile * sin(2 * pi * q / self.period + self.phase_shift)
         # do not use list indexing here, as this is much slower especially for torch backend
@@ -638,3 +654,8 @@ class SoftArbitraryPointSource:
         z = f"{self.z}"
         s += f"        @ x={x}, y={y}, z={z}\n"
         return s
+
+
+def _ricker(q, N_P, M_d, courant):
+    var = (PI * (q * courant / N_P - M_d)) ** 2
+    return (1 - 2 * var) * exp(-var)

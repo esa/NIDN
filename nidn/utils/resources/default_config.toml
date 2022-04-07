@@ -44,7 +44,7 @@ TRCWA_NG = 11 # Truncation order (actual number might be smaller)
 
 # FDTD parameters
 FDTD_source_type = "line" # Geometry of source, either "point" for pointsource or "line" for linesource
-FDTD_pulse_type = "continuous" # If the source should be a single pulse in the FDTD simulations, or continuous wave. "pulse" or "continuous" accepted
+FDTD_pulse_type = "continuous" # If the source should be a single pulse in the FDTD simulations, or continuous wave. "hanning", "ricker" or "continuous" accepted
 FDTD_pml_thickness = 1.5 # Thickness of PML layerin FDTD simulations, set in FDTD unit magnitudes. Perfectly Matched Layer are boundaries used in the x-direction, design to absorb all radiation
 FDTD_source_position = [1.5,1.0] # Coordinates of the source used in FDTD simulations, in FDTD unit magnitudes
 FDTD_free_space_distance = 1.0 # The thickness of the free space layer before and after the material layers, in FDTD unit magnitudes

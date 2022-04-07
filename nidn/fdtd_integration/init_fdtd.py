@@ -68,15 +68,13 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         ),
         int(cfg.FDTD_reflection_detector_x * scaling),
     )
-    assert cfg.FDTD_pulse_type in ["pulse", "continuous"]
-    use_pulse = cfg.FDTD_pulse_type == "pulse"
 
     grid = _add_source(
         grid,
         int(cfg.FDTD_source_position[0] * scaling),
         int(cfg.FDTD_source_position[1] * scaling),
         wavelength / SPEED_OF_LIGHT,
-        use_pulse,
+        cfg.FDTD_pulse_type,
         cfg.FDTD_source_type,
     )
     if include_object:
@@ -128,7 +126,7 @@ def _add_boundaries(grid, pml_thickness):
     return grid
 
 
-def _add_source(grid, source_x, source_y, period, use_pulse_source, source_type):
+def _add_source(grid, source_x, source_y, period, signal_type, source_type):
     """Add a specified source to the fdtd grid
 
     Args:
@@ -142,17 +140,22 @@ def _add_source(grid, source_x, source_y, period, use_pulse_source, source_type)
     Returns:
         fdtd.Grid: The grid with the added source
     """
-
+    assert signal_type in ["continuous", "hanning", "ricker"]
     if source_type == "point":
         grid[source_x, source_y, 0] = PointSource(
             period=period,
             name="pointsource",
-            pulse=use_pulse_source,
-            cycle=1,
-            hanning_dt=1e-15,
+            signal_type=signal_type,
+            cycle=3,
         )
     elif source_type == "line":
-        grid[source_x, :, 0] = LineSource(period=period, name="linesource")
+        grid[source_x, :, 0] = LineSource(
+            period=period,
+            name="linesource",
+            signal_type=signal_type,
+            cycle=5,
+            hanning_dt=2e-15,
+        )
     else:
         raise ValueError(f'FDTD_source_type must be either "line" or "point"')
     return grid
@@ -193,6 +196,6 @@ def _add_object(grid, object_start_x, object_end_x, permittivity, frequency):
     # Since the permittivity is set to 1 for the free space grid, I'll leave it at an relative value for now. Also, permittivity for object is relative.
     grid[object_start_x:object_end_x, :, :] = AbsorbingObject(
         permittivity=permittivity.real,
-        conductivity=permittivity.imag * frequency,
+        conductivity=permittivity.imag * frequency * EPS_0,
     )
     return grid
