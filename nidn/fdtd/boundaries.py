@@ -401,10 +401,11 @@ class PML(Boundary):
         Note:
             this method is called *after* the electric field is updated
         """
+        # Added 1e-16 to phi in order to keep gradient flow
         self.grid.E[self.loc] += (
             self.grid.courant_number
             * self.grid.inverse_permittivity[self.loc]
-            * self.phi_E
+            * (self.phi_E + 1e-16)
         )
 
     def update_H(self):

@@ -84,7 +84,9 @@ class Object:
                 self.x, self.y, -1, 2
             ]
 
-        self.grid.inverse_permittivity[self.x, self.y, self.z] = 0
+        self.grid.inverse_permittivity[
+            self.x, self.y, self.z
+        ] = self.inverse_permittivity
 
     def _handle_slice(self, s: ListOrSlice, max_index: int = None) -> slice:
         if isinstance(s, list):
@@ -197,6 +199,7 @@ class AbsorbingObject(Object):
             * self.grid.grid_spacing
             * ETA_0
         )
+        self.grid.absorption_factor[x, y, z, :] = self.absorption_factor
 
     def update_E(self, curl_H):
         """custom update equations for inside the absorbing object
@@ -205,14 +208,6 @@ class AbsorbingObject(Object):
             curl_H: the curl of magnetic field in the grid.
 
         """
-        loc = (self.x, self.y, self.z)
-        self.grid.E[loc] *= (1 - self.absorption_factor) / (1 + self.absorption_factor)
-        self.grid.E[loc] += (
-            self.grid.courant_number
-            * self.inverse_permittivity
-            * curl_H[loc]
-            / (1 + self.absorption_factor)
-        )
 
     def update_H(self, curl_E):
         """custom update equations for inside the absorbing object
@@ -237,6 +232,9 @@ class AnisotropicObject(Object):
             y: the y-location of the object in the grid
             z: the z-location of the object in the grid
         """
+        raise NotImplementedError(
+            "Currently not possible due to the chanegs in the FDTD. update_E() in the grid module does only consider absorbing objects"
+        )
         super()._register_grid(grid=grid, x=x, y=y, z=z)
         eye = bd.zeros((self.Nx * self.Ny * self.Nz, 3, 3))
         eye[:, range(3), range(3)] = 1.0

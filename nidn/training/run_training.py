@@ -121,7 +121,6 @@ def run_training(
             )
             optimizer.param_groups[0]["lr"] *= 0.5
             continue
-
         # Compute loss between target spectrum and
         # the one from the current network structure
         spectrum_loss, renormalized = _spectrum_loss_fn(
@@ -154,7 +153,6 @@ def run_training(
             loss += run_cfg.reg_loss_weight * _likelihood_regularization_loss_fn(
                 material_ids, run_cfg.L
             )
-
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
         if loss < best_loss:
