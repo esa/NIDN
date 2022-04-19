@@ -46,9 +46,8 @@ def _validate_config(cfg: DotMap):
         "FDTD_pml_thickness",
         "FDTD_source_position",
         "FDTD_free_space_distance",
-        "FDTD_reflection_detector_x",
         "FDTD_niter",
-        "FDTD_min_gridpoints_between_detectors",
+        "FDTD_gridpoints_from_material_to_detector",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "freq_distribution",
@@ -72,7 +71,7 @@ def _validate_config(cfg: DotMap):
         "seed",
         "TRCWA_NG",
         "FDTD_niter",
-        "FDTD_min_gridpoints_between_detectors",
+        "FDTD_gridpoints_from_material_to_detector",
         "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     float_keys = [
@@ -85,7 +84,6 @@ def _validate_config(cfg: DotMap):
         "noise_scale",
         "reg_loss_weight",
         "FDTD_free_space_distance",
-        "FDTD_reflection_detector_x",
         "FDTD_pml_thickness",
     ]
     boolean_keys = [
@@ -165,9 +163,8 @@ def _validate_config(cfg: DotMap):
         "reg_loss_weight",
         "FDTD_niter",
         "FDTD_free_space_distance",
-        "FDTD_reflection_detector_x",
         "FDTD_pml_thickness",
-        "FDTD_min_gridpoints_between_detectors",
+        "FDTD_gridpoints_from_material_to_detector",
         "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     for key in positive_value_keys:

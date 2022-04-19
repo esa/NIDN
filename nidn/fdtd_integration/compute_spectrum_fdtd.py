@@ -124,6 +124,8 @@ def _get_abs_value_from_3D_signal(signal):
         absolute_value = torch.sqrt(summed_squared_value)
         abs_value[i] = absolute_value
     # return abs_value
+    # For now only returning z-component of electric field, because the signal is only in the z-direction.
+    # The absoulte value of the three directions might be neccesary later if the electric field is present in other directions.
     return signal[:, 2]
 
 

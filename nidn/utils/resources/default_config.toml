@@ -48,9 +48,8 @@ FDTD_pulse_type = "continuous" # If the source should be a single pulse in the F
 FDTD_pml_thickness = 1.5 # Thickness of PML layerin FDTD simulations, set in FDTD unit magnitudes. Perfectly Matched Layer are boundaries used in the x-direction, design to absorb all radiation
 FDTD_source_position = [1.5,1.0] # Coordinates of the source used in FDTD simulations, in FDTD unit magnitudes
 FDTD_free_space_distance = 1.0 # The thickness of the free space layer before and after the material layers, in FDTD unit magnitudes
-FDTD_reflection_detector_x = 2.3 # X-coordinates of the reflection detector for the FDTD simulation, in FDTD unit magnitudes
 FDTD_niter = 200 # Number of iterations / timesteps to run the FDTD for
-FDTD_min_gridpoints_between_detectors = 2 # Minimal grid points between transmission detector and reflection detector in FDTD simulation. The true distance will be this value plus total layer thickness
+FDTD_gridpoints_from_material_to_detector = 2 # Distance between material and detectors in grid points. Distance to reflection detector from start of the material, and to from the end of the material to the transmission detector. 
 FDTD_min_gridpoints_per_unit_magnitude= 10 # Minimum number of gridpoints per unit_magnitude, ensuring enough gridpoints for proper functionallity
 # Target spectra
 # To find out which frequencies below points correspond to use nidn.get_frequency_points(cfg)

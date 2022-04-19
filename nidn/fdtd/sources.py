@@ -10,7 +10,6 @@ Available sources:
 
 # other
 from math import pi, sin
-from signal import signal
 
 # typing
 from .typing_ import Tuple, Number, ListOrSlice, List
@@ -154,6 +153,7 @@ class LineSource:
             pulse: Set True to use a Hanning window pulse instead of continuous wavefunction.
             cycle: cycles for Hanning window pulse.
             hanning_dt: timestep used for Hanning window pulse width (optional).
+            signal_type: What kimd of singnal to use. "continuous", "ricker" and "hanning" are the accepted options.
 
         """
         self.grid = None
@@ -294,6 +294,7 @@ class LineSource:
                 vect = self.profile * 0
         # if not pulse
         elif self.signal_type == "ricker":
+            # By experimental value, the ricker wavelet signal converges to zero after 6 times the grid points per wavelength, so just set the source-signal to zero after this
             t1 = self.grid_points_per_wavelength * 6
             if q < t1:
                 vect = self.profile * _ricker(
@@ -656,6 +657,17 @@ class SoftArbitraryPointSource:
         return s
 
 
-def _ricker(q, N_P, M_d, courant):
-    var = (PI * (q * courant / N_P - M_d)) ** 2
+def _ricker(q, grid_points_per_wavelength, offset, courant):
+    """Function to create ricker wavelet signal for fdtd.
+
+    Args:
+        q (int): timestep
+        grid_points_per_wavelength (float): number of grid points per wavelength
+        offset (int): offset, if 0 the function loses its right half
+        courant (float): courant number in fdtd simulation
+
+    Returns:
+        float: signal value for the given timestep
+    """
+    var = (PI * (q * courant / grid_points_per_wavelength - offset)) ** 2
     return (1 - 2 * var) * exp(-var)

@@ -35,11 +35,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
         cfg.FDTD_min_gridpoints_per_unit_magnitude,
     )
-    # Test to see if scaling with each wavelength makes a difference in terms of spectrum
-    """scaling = max(
-        UNIT_MAGNITUDE / (wavelength * FDTD_GRID_SCALE),
-        cfg.FDTD_min_gridpoints_per_unit_magnitude,
-    )"""
+
     x_grid_size = int(
         scaling
         * (
@@ -70,12 +66,11 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
                 + cfg.FDTD_free_space_distance
                 + sum(cfg.PER_LAYER_THICKNESS)
             )
-            + cfg.FDTD_min_gridpoints_between_detectors
+            + cfg.FDTD_gridpoints_from_material_to_detector
         ),
         int(
             scaling * (cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
-            - cfg.FDTD_min_gridpoints_between_detectors
-            - cfg.FDTD_min_gridpoints_between_detectors
+            - cfg.FDTD_gridpoints_from_material_to_detector
         ),
     )
 
@@ -148,19 +143,20 @@ def _add_source(grid, source_x, source_y, period, signal_type, source_type):
     """
     assert signal_type in ["continuous", "hanning", "ricker"]
     if source_type == "point":
-        grid[source_x, 0, 0] = PointSource(
+        grid[source_x, source_y, 0] = PointSource(
             period=period,
             name="pointsource",
             signal_type=signal_type,
-            cycle=3,
+            cycle=1,
+            hanning_dt=1e-15,
         )
     elif source_type == "line":
         grid[source_x, :, 0] = LineSource(
             period=period,
             name="linesource",
             signal_type=signal_type,
-            cycle=5,
-            hanning_dt=2e-15,
+            cycle=1,
+            hanning_dt=1e-15,
         )
     else:
         raise ValueError(f'FDTD_source_type must be either "line" or "point"')
