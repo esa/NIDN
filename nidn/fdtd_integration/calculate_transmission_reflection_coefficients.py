@@ -2,6 +2,7 @@ import torch
 from loguru import logger
 import warnings
 from scipy.signal import find_peaks
+import matplotlib.pyplot as plt
 
 
 def calculate_transmission_reflection_coefficients(
@@ -21,6 +22,12 @@ def calculate_transmission_reflection_coefficients(
     # The detector detects signal passing through both ways, and is placed between the source and the material.
     # Thus, most of the signal present is the unreflected signal, which must be removed.
     true_reflection = reflection_signals[1] - reflection_signals[0]
+    """plt.plot([i for i in range(len(true_reflection))], reflection_signals[0])
+    plt.plot([i for i in range(len(true_reflection))], true_reflection)
+    plt.show()
+    plt.plot([i for i in range(len(true_reflection))], transmission_signals[0])
+    plt.plot([i for i in range(len(true_reflection))], transmission_signals[1])
+    plt.show()"""
 
     _check_for_all_zero_signal(transmission_signals)
     _check_for_all_zero_signal(reflection_signals)
@@ -30,16 +37,25 @@ def calculate_transmission_reflection_coefficients(
     peaks_transmission_material = find_peaks(transmission_signals[1])[0]
     peaks_reflection_freespace = find_peaks(reflection_signals[0])[0]
     peaks_reflection_material = find_peaks(true_reflection)[0]
-
-    transmission_coefficient = _mean_square(
-        transmission_signals[1][
-            peaks_transmission_material[0] : peaks_transmission_material[-1]
-        ]
-    ) / _mean_square(
-        transmission_signals[0][
-            peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
-        ]
-    )
+    transmission_coefficient = torch.tensor(0.0)
+    if len(peaks_transmission_material) > 1:
+        transmission_coefficient = _mean_square(
+            transmission_signals[1][
+                peaks_transmission_material[0] : peaks_transmission_material[-1]
+            ]
+        ) / _mean_square(
+            transmission_signals[0][
+                peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
+            ]
+        )
+    else:
+        transmission_coefficient = (
+            max(transmission_signals[1]) ** 2 / 2
+        ) / _mean_square(
+            transmission_signals[0][
+                peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
+            ]
+        )
     reflection_coefficient = _mean_square(
         true_reflection[peaks_reflection_material[0] : peaks_reflection_material[-1]]
     ) / _mean_square(
