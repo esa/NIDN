@@ -21,22 +21,23 @@ def calculate_transmission_reflection_coefficients(
     # The detector detects signal passing through both ways, and is placed between the source and the material.
     # Thus, most of the signal present is the unreflected signal, which must be removed.
     true_reflection = reflection_signals[1] - reflection_signals[0]
-    """plt.plot([i for i in range(len(true_reflection))], reflection_signals[0])
+    plt.plot([i for i in range(len(true_reflection))], reflection_signals[0])
     plt.plot([i for i in range(len(true_reflection))], true_reflection)
     plt.show()
     plt.plot([i for i in range(len(true_reflection))], transmission_signals[0])
     plt.plot([i for i in range(len(true_reflection))], transmission_signals[1])
-    plt.show()"""
+    plt.show()
 
     _check_for_all_zero_signal(transmission_signals)
     _check_for_all_zero_signal(reflection_signals)
 
     # find peaks for all signals
-    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])[0]
-    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])[0]
-    peaks_reflection_freespace = _torch_find_peaks(reflection_signals[0])[0]
-    peaks_reflection_material = _torch_find_peaks(true_reflection)[0]
+    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
+    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])
+    peaks_reflection_freespace = _torch_find_peaks(reflection_signals[0])
+    peaks_reflection_material = _torch_find_peaks(true_reflection)
     transmission_coefficient = torch.tensor(0.0)
+    logger.debug(peaks_transmission_material)
     if len(peaks_transmission_material) > 1:
         transmission_coefficient = _mean_square(
             transmission_signals[1][
@@ -112,3 +113,6 @@ def _torch_find_peaks(signal):
 
     # argrelmax containing all peaks
     return torch.nonzero(out2, out=None) + 1
+
+
+signal = [0, 1, 0]
