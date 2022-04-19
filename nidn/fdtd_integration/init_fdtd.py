@@ -11,7 +11,7 @@ from ..fdtd import (
     LineDetector,
     PointSource,
 )
-from ..utils.global_constants import EPS_0, SPEED_OF_LIGHT, UNIT_MAGNITUDE
+from ..utils.global_constants import EPS_0, PI, SPEED_OF_LIGHT, UNIT_MAGNITUDE
 from .constants import FDTD_GRID_SCALE
 
 
@@ -35,15 +35,20 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
         cfg.FDTD_min_gridpoints_per_unit_magnitude,
     )
+    # Test to see if scaling with each wavelength makes a difference in terms of spectrum
+    """scaling = max(
+        UNIT_MAGNITUDE / (wavelength * FDTD_GRID_SCALE),
+        cfg.FDTD_min_gridpoints_per_unit_magnitude,
+    )"""
     x_grid_size = int(
         scaling
         * (
             cfg.FDTD_pml_thickness * 2
             + cfg.FDTD_free_space_distance * 2
-            + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0]
+            + sum(cfg.PER_LAYER_THICKNESS)
         )
     )
-    y_grid_size = int(2 * cfg.FDTD_free_space_distance * scaling)
+    y_grid_size = 3
     logger.debug(
         "Initializing FDTD grid with size {} by {} grid points, with a scaling factor of {} grid points per um".format(
             x_grid_size, y_grid_size, scaling
@@ -61,44 +66,43 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         int(
             scaling
             * (
-                cfg.FDTD_reflection_detector_x
-                + cfg.N_layers * cfg.PER_LAYER_THICKNESS[0]
+                cfg.FDTD_pml_thickness
+                + cfg.FDTD_free_space_distance
+                + sum(cfg.PER_LAYER_THICKNESS)
             )
             + cfg.FDTD_min_gridpoints_between_detectors
         ),
-        int(cfg.FDTD_reflection_detector_x * scaling),
+        int(
+            scaling * (cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
+            - cfg.FDTD_min_gridpoints_between_detectors
+            - cfg.FDTD_min_gridpoints_between_detectors
+        ),
     )
-    assert cfg.FDTD_pulse_type in ["pulse", "continuous"]
-    use_pulse = cfg.FDTD_pulse_type == "pulse"
 
     grid = _add_source(
         grid,
         int(cfg.FDTD_source_position[0] * scaling),
         int(cfg.FDTD_source_position[1] * scaling),
         wavelength / SPEED_OF_LIGHT,
-        use_pulse,
+        cfg.FDTD_pulse_type,
         cfg.FDTD_source_type,
     )
     if include_object:
         for i in range(cfg.N_layers):
+            x_start = cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance
+            x_end = x_start
+            if i == 0:
+                x_end += cfg.PER_LAYER_THICKNESS[0]
+            elif i == cfg.N_layers - 1:
+                x_start += sum(cfg.PER_LAYER_THICKNESS[:i])
+                x_end += sum(cfg.PER_LAYER_THICKNESS)
+            else:
+                x_start += sum(cfg.PER_LAYER_THICKNESS[:i])
+                x_end += sum(cfg.PER_LAYER_THICKNESS[: i + 1])
             grid = _add_object(
                 grid,
-                int(
-                    scaling
-                    * (
-                        cfg.FDTD_pml_thickness
-                        + cfg.FDTD_free_space_distance
-                        + i * cfg.PER_LAYER_THICKNESS[0]
-                    )
-                ),
-                int(
-                    scaling
-                    * (
-                        cfg.FDTD_pml_thickness
-                        + cfg.FDTD_free_space_distance
-                        + (i + 1) * cfg.PER_LAYER_THICKNESS[0]
-                    )
-                ),
+                int(scaling * x_start),
+                int(scaling * x_end),
                 permittivity[0][0][
                     i
                 ],  # TODO: Implement possibility for patterned grid, currently uniform layer is used
@@ -128,7 +132,7 @@ def _add_boundaries(grid, pml_thickness):
     return grid
 
 
-def _add_source(grid, source_x, source_y, period, use_pulse_source, source_type):
+def _add_source(grid, source_x, source_y, period, signal_type, source_type):
     """Add a specified source to the fdtd grid
 
     Args:
@@ -142,17 +146,22 @@ def _add_source(grid, source_x, source_y, period, use_pulse_source, source_type)
     Returns:
         fdtd.Grid: The grid with the added source
     """
-
+    assert signal_type in ["continuous", "hanning", "ricker"]
     if source_type == "point":
-        grid[source_x, source_y, 0] = PointSource(
+        grid[source_x, 0, 0] = PointSource(
             period=period,
             name="pointsource",
-            pulse=use_pulse_source,
-            cycle=1,
-            hanning_dt=1e-15,
+            signal_type=signal_type,
+            cycle=3,
         )
     elif source_type == "line":
-        grid[source_x, :, 0] = LineSource(period=period, name="linesource")
+        grid[source_x, :, 0] = LineSource(
+            period=period,
+            name="linesource",
+            signal_type=signal_type,
+            cycle=5,
+            hanning_dt=2e-15,
+        )
     else:
         raise ValueError(f'FDTD_source_type must be either "line" or "point"')
     return grid
@@ -193,6 +202,6 @@ def _add_object(grid, object_start_x, object_end_x, permittivity, frequency):
     # Since the permittivity is set to 1 for the free space grid, I'll leave it at an relative value for now. Also, permittivity for object is relative.
     grid[object_start_x:object_end_x, :, :] = AbsorbingObject(
         permittivity=permittivity.real,
-        conductivity=permittivity.imag * frequency,
+        conductivity=permittivity.imag * frequency * 2 * PI * EPS_0,
     )
     return grid
