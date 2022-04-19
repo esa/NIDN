@@ -1,7 +1,6 @@
 import torch
 from loguru import logger
 import warnings
-from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
 
@@ -33,10 +32,10 @@ def calculate_transmission_reflection_coefficients(
     _check_for_all_zero_signal(reflection_signals)
 
     # find peaks for all signals
-    peaks_transmission_freespace = find_peaks(transmission_signals[0])[0]
-    peaks_transmission_material = find_peaks(transmission_signals[1])[0]
-    peaks_reflection_freespace = find_peaks(reflection_signals[0])[0]
-    peaks_reflection_material = find_peaks(true_reflection)[0]
+    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])[0]
+    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])[0]
+    peaks_reflection_freespace = _torch_find_peaks(reflection_signals[0])[0]
+    peaks_reflection_material = _torch_find_peaks(true_reflection)[0]
     transmission_coefficient = torch.tensor(0.0)
     if len(peaks_transmission_material) > 1:
         transmission_coefficient = _mean_square(
@@ -101,3 +100,15 @@ def _check_for_all_zero_signal(signals):
         warnings.warn(
             "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space "
         )
+
+
+def _torch_find_peaks(signal):
+    signaltemp1 = signal[1:-1] - signal[:-2]
+    signaltemp2 = signal[1:-1] - signal[2:]
+
+    # and checking where both shifts are positive;
+    out1 = torch.where(signaltemp1 > 0, signaltemp1 * 0 + 1, signaltemp1 * 0)
+    out2 = torch.where(signaltemp2 > 0, out1, signaltemp2 * 0)
+
+    # argrelmax containing all peaks
+    return torch.nonzero(out2, out=None) + 1
