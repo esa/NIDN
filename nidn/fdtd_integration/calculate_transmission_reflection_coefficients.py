@@ -1,8 +1,5 @@
 import torch
 from loguru import logger
-import warnings
-from scipy.signal import find_peaks
-import matplotlib.pyplot as plt
 
 
 def calculate_transmission_reflection_coefficients(
@@ -22,49 +19,76 @@ def calculate_transmission_reflection_coefficients(
     # The detector detects signal passing through both ways, and is placed between the source and the material.
     # Thus, most of the signal present is the unreflected signal, which must be removed.
     true_reflection = reflection_signals[1] - reflection_signals[0]
-    """plt.plot([i for i in range(len(true_reflection))], reflection_signals[0])
-    plt.plot([i for i in range(len(true_reflection))], true_reflection)
-    plt.show()
-    plt.plot([i for i in range(len(true_reflection))], transmission_signals[0])
-    plt.plot([i for i in range(len(true_reflection))], transmission_signals[1])
-    plt.show()"""
 
     _check_for_all_zero_signal(transmission_signals)
     _check_for_all_zero_signal(reflection_signals)
 
     # find peaks for all signals
-    peaks_transmission_freespace = find_peaks(transmission_signals[0])[0]
-    peaks_transmission_material = find_peaks(transmission_signals[1])[0]
-    peaks_reflection_freespace = find_peaks(reflection_signals[0])[0]
-    peaks_reflection_material = find_peaks(true_reflection)[0]
+    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
+    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])
+    peaks_reflection_freespace = _torch_find_peaks(reflection_signals[0])
+    peaks_reflection_material = _torch_find_peaks(true_reflection)
     transmission_coefficient = torch.tensor(0.0)
+
     if len(peaks_transmission_material) > 1:
-        transmission_coefficient = _mean_square(
+        mean_squared_transmission_material = _mean_square(
             transmission_signals[1][
                 peaks_transmission_material[0] : peaks_transmission_material[-1]
             ]
-        ) / _mean_square(
+        )
+    else:
+        mean_squared_transmission_material = max(transmission_signals[1]) ** 2 / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+        )
+    mean_squared_transmission_free_space = 1
+    if len(peaks_transmission_freespace) > 1:
+        mean_squared_transmission_free_space = _mean_square(
             transmission_signals[0][
                 peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
             ]
         )
     else:
-        transmission_coefficient = (
-            max(transmission_signals[1]) ** 2 / 2
-        ) / _mean_square(
-            transmission_signals[0][
-                peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
-            ]
+        mean_squared_transmission_free_space = max(transmission_signals[0]) ** 2 / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
-    reflection_coefficient = _mean_square(
-        true_reflection[peaks_reflection_material[0] : peaks_reflection_material[-1]]
-    ) / _mean_square(
-        reflection_signals[0][
-            peaks_reflection_freespace[0] : peaks_reflection_freespace[-1]
-        ]
+
+    transmission_coefficient = (
+        mean_squared_transmission_material / mean_squared_transmission_free_space
     )
 
-    """if transmission_coefficient < 0 or transmission_coefficient > 1:
+    reflection_coefficient = torch.tensor(0.0)
+
+    if len(peaks_reflection_material) > 1:
+        mean_squared_reflection_material = _mean_square(
+            true_reflection[
+                peaks_reflection_material[0] : peaks_reflection_material[-1]
+            ]
+        )
+    else:
+        mean_squared_reflection_material = max(true_reflection) ** 2 / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+        )
+    mean_squared_reflection_free_space = 1
+    if len(peaks_reflection_freespace) > 1:
+        mean_squared_reflection_free_space = _mean_square(
+            reflection_signals[0][
+                peaks_reflection_freespace[0] : peaks_reflection_freespace[-1]
+            ]
+        )
+    else:
+        mean_squared_reflection_free_space = max(reflection_signals[0]) ** 2 / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+        )
+
+    reflection_coefficient = (
+        mean_squared_reflection_material / mean_squared_reflection_free_space
+    )
+
+    if transmission_coefficient < 0 or transmission_coefficient > 1:
         raise ValueError(
             f"The transmission coefficient is outside of the physical range between 0 and 1"
         )
@@ -72,7 +96,7 @@ def calculate_transmission_reflection_coefficients(
     if reflection_coefficient < 0 or reflection_coefficient > 1:
         raise ValueError(
             f"The reflection coefficient is outside of the physical range between 0 and 1"
-        )"""
+        )
     if transmission_coefficient + reflection_coefficient > 1:
         logger.warning(
             f"The sum of the transmission and reflection coefficient is greater than 1, which is physically impossible"
@@ -93,11 +117,23 @@ def _mean_square(tensor):
 
 def _check_for_all_zero_signal(signals):
 
-    if _mean_square(signals[0]) <= 0:
+    if _mean_square(signals[0]) <= 1e-15:
         raise ValueError(
             "The freen space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detctor."
         )
-    if _mean_square(signals[1]) <= 0:
-        warnings.warn(
+    if _mean_square(signals[1]) <= 1e-15:
+        logger.warning(
             "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space "
         )
+
+
+def _torch_find_peaks(signal):
+    signaltemp1 = signal[1:-1] - signal[:-2]
+    signaltemp2 = signal[1:-1] - signal[2:]
+
+    # and checking where both shifts are positive;
+    out1 = torch.where(signaltemp1 > 0, signaltemp1 * 0 + 1, signaltemp1 * 0)
+    out2 = torch.where(signaltemp2 > 0, out1, signaltemp2 * 0)
+
+    # argrelmax containing all peaks
+    return torch.nonzero(out2, out=None) + 1

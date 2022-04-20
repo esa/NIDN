@@ -16,12 +16,10 @@ def test_calculate_coefficient():
     (
         transmission_coefficient_ms,
         reflection_coefficient_ms,
-    ) = calculate_transmission_reflection_coefficients(
-        signal_array, signal_array, "mean square", cfg
-    )
+    ) = calculate_transmission_reflection_coefficients(signal_array, signal_array)
     # TODO: Add test for fft, when the method is complete
-    assert transmission_coefficient_ms - 0.25 == 0
-    assert reflection_coefficient_ms - 0.25 == 0
+    assert transmission_coefficient_ms.item() - 0.25 < 1e-7
+    assert reflection_coefficient_ms.item() - 0.25 < 1e-7
 
 
 if __name__ == "__main__":
