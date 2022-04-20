@@ -388,7 +388,7 @@ About Finite-Difference Time-Domain (FDTD)
 .. image:: FDTD_setup_illustration_white_background.png
 
 
-FDTD is a simulation technique which updates the E and H field for each gridpoint sequentially for each time step, by the use of Maxwell's equation
+FDTD is a numerical simulation method based on finite differences, which updates the E and H field on a regular point during each time step based on Maxwell's equations
 
 The transmission and reflection coefficients are calculated by simulation twice for each frequency, one time with the material and one time in vacuum/free space.
 The transmission coefficient is the rms value of the signal from the material simulation divided by the rms of the signal from the free space simulation.
