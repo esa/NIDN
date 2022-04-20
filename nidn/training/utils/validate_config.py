@@ -1,4 +1,6 @@
 from dotmap import DotMap
+
+from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
 from ...utils.global_constants import UNIT_MAGNITUDE
 
 
@@ -46,9 +48,8 @@ def _validate_config(cfg: DotMap):
         "FDTD_pml_thickness",
         "FDTD_source_position",
         "FDTD_free_space_distance",
-        "FDTD_reflection_detector_x",
         "FDTD_niter",
-        "FDTD_min_gridpoints_between_detectors",
+        "FDTD_gridpoints_from_material_to_detector",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "freq_distribution",
@@ -72,7 +73,7 @@ def _validate_config(cfg: DotMap):
         "seed",
         "TRCWA_NG",
         "FDTD_niter",
-        "FDTD_min_gridpoints_between_detectors",
+        "FDTD_gridpoints_from_material_to_detector",
         "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     float_keys = [
@@ -85,7 +86,6 @@ def _validate_config(cfg: DotMap):
         "noise_scale",
         "reg_loss_weight",
         "FDTD_free_space_distance",
-        "FDTD_reflection_detector_x",
         "FDTD_pml_thickness",
     ]
     boolean_keys = [
@@ -142,12 +142,18 @@ def _validate_config(cfg: DotMap):
     if not (cfg.physical_wavelength_range[0] < cfg.physical_wavelength_range[1]):
         raise ValueError(f"physical_wavelength_range must be ordered from low to high")
 
+    scaling = max(
+        UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
+        cfg.FDTD_min_gridpoints_per_unit_magnitude,
+    )
     if (
-        cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance
-        < cfg.FDTD_reflection_detector_x
-    ) or (cfg.FDTD_reflection_detector_x < cfg.FDTD_pml_thickness):
+        int(scaling * cfg.FDTD_free_space_distance)
+        < cfg.FDTD_gridpoints_from_material_to_detector
+    ):
         raise ValueError(
-            f"Reflection detector must be placed in the free space before an eventual object, and after the pml layer"
+            "Reflection detector must be placed in the free space before an eventual object, and after the pml layer. Decrease FDTD_gridpoints_from_material_to_detector to a value smaller than {value} fix this.".format(
+                value=int(scaling * cfg.FDTD_free_space_distance)
+            )
         )
 
     positive_value_keys = [
@@ -165,9 +171,8 @@ def _validate_config(cfg: DotMap):
         "reg_loss_weight",
         "FDTD_niter",
         "FDTD_free_space_distance",
-        "FDTD_reflection_detector_x",
         "FDTD_pml_thickness",
-        "FDTD_min_gridpoints_between_detectors",
+        "FDTD_gridpoints_from_material_to_detector",
         "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     for key in positive_value_keys:
@@ -218,6 +223,11 @@ def _validate_config(cfg: DotMap):
         or len(cfg.PER_LAYER_THICKNESS) == 1
     ):
         raise ValueError(f"PER_LAYER_THICKNESS must have length 1 or N_layers")
+
+    if cfg.solver == "FDTD" and (not len(cfg.PER_LAYER_THICKNESS) == cfg.N_layers):
+        raise ValueError(
+            f"PER_LAYER_THICKNESS must have length N_layers when using FDTD"
+        )
 
     if not (cfg.freq_distribution == "linear" or cfg.freq_distribution == "log"):
         raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
