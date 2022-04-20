@@ -382,7 +382,7 @@ the results folder with a current timestamp.
     # You can save all available plots to a single folder using this function
     nidn.save_all_plots(cfg,save_path="/results/example/")
 
-About FDTD
+About Finite-Difference Time-Domain (FDTD)
 ----------
 
 .. image:: FDTD_setup_illustration_white_background.png
