@@ -403,7 +403,7 @@ The image shows how the FDTD simulations are set up. The source is placed at the
 There is some vacumm/free space before the material, and a detector for the reflection just before the material. Then the material follows, and a new detector is placed after the material to measure the transmission.
 After the material, there is a layer of vacuum before a PML layer at the end to avoid reflection from the back. 
 
-The transmission signal can be used as is, but the reflection signal contains both the forward-going signal, and the reflected signal. Thus, the free space reflection signal (which is just a forward going wave)
+The transmission signal can be used as is, but the reflection signal contains both the forward-going signal, and the reflected signal. Thus, the free-space reflection signal (which is just a forward going wave)
 is substracted from the material reflection signal, to obtain the true reflection signal. This is based on the assumption that the forward-going signal is the same for the free-space simulation and the material simulation.
 
 Parameters to configure
