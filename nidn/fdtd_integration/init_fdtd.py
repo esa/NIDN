@@ -147,7 +147,7 @@ def _add_source(grid, source_x, source_y, period, signal_type, source_type):
             period=period,
             name="pointsource",
             signal_type=signal_type,
-            cycle=1,
+            cycle=5,
             hanning_dt=1e-15,
         )
     elif source_type == "line":
@@ -155,7 +155,7 @@ def _add_source(grid, source_x, source_y, period, signal_type, source_type):
             period=period,
             name="linesource",
             signal_type=signal_type,
-            cycle=1,
+            cycle=5,
             hanning_dt=1e-15,
         )
     else:

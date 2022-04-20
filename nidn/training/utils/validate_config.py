@@ -224,8 +224,11 @@ def _validate_config(cfg: DotMap):
     ):
         raise ValueError(f"PER_LAYER_THICKNESS must have length 1 or N_layers")
 
-    if cfg.solver =="FDTD" and (not len(cfg.PER_LAYER_THICKNESS) == cfg.N_layers):
-        raise ValueError(f"PER_LAYER_THICKNESS must have length N_layers when using FDTD")
+    if cfg.solver == "FDTD" and (not len(cfg.PER_LAYER_THICKNESS) == cfg.N_layers):
+        raise ValueError(
+            f"PER_LAYER_THICKNESS must have length N_layers when using FDTD"
+        )
+
     if not (cfg.freq_distribution == "linear" or cfg.freq_distribution == "log"):
         raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
 

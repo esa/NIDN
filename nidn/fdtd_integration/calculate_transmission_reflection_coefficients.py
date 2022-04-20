@@ -37,7 +37,7 @@ def calculate_transmission_reflection_coefficients(
             ]
         )
     else:
-        mean_squared_transmission_material = max(transmission_signals[1]) ** 2 / 2
+        mean_squared_transmission_material = (max(transmission_signals[1]) ** 2) / 2
         logger.warning(
             "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
@@ -49,7 +49,7 @@ def calculate_transmission_reflection_coefficients(
             ]
         )
     else:
-        mean_squared_transmission_free_space = max(transmission_signals[0]) ** 2 / 2
+        mean_squared_transmission_free_space = (max(transmission_signals[0]) ** 2) / 2
         logger.warning(
             "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
@@ -67,7 +67,7 @@ def calculate_transmission_reflection_coefficients(
             ]
         )
     else:
-        mean_squared_reflection_material = max(true_reflection) ** 2 / 2
+        mean_squared_reflection_material = (max(true_reflection) ** 2) / 2
         logger.warning(
             "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
@@ -79,7 +79,7 @@ def calculate_transmission_reflection_coefficients(
             ]
         )
     else:
-        mean_squared_reflection_free_space = max(reflection_signals[0]) ** 2 / 2
+        mean_squared_reflection_free_space = (max(reflection_signals[0]) ** 2) / 2
         logger.warning(
             "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
@@ -127,6 +127,7 @@ def _check_for_all_zero_signal(signals):
         )
 
 
+# From : https://stackoverflow.com/questions/54498775/pytorch-argrelmax-function-or-c
 def _torch_find_peaks(signal):
     signaltemp1 = signal[1:-1] - signal[:-2]
     signaltemp2 = signal[1:-1] - signal[2:]
