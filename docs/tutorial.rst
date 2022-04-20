@@ -392,7 +392,7 @@ FDTD is a numerical simulation method based on finite differences, which updates
 
 To get a spectrum in NIDN, the transmission and reflection coefficients are calculated by simulating twice for each frequency, one time with the material and one time in vacuum/free space.
 The transmission coefficient is the rms value of the signal from the material simulation divided by the rms of the signal from the free space simulation.
-The reflection coefficent is calculated in a similar way, but the free space reflection signal is substracted from the material reflection signal, in remove the unreflected signal from the detector.
+The reflection coefficient is calculated in a similar way; the free-space reflection signal is subtracted from the material reflection signal.
 
 The boundaries are periodic in both y and z dimension, in order to simulate an infinte plane, i.e. no wierd boundary effects. The boundaries in the x direction is a PML layer, which serves to absorb the entire wave and thus prevent wierd reflectiosn at the edges of teh grid.
 
