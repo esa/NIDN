@@ -125,6 +125,29 @@ constant as a function of frequency of the light. We are in the process
 of collecting more materials. If you know any good sources of materials
 over large spectra, feel free to let us know.
 
+About Finite-Difference Time-Domain (FDTD)
+------------------------------------------
+
+.. image:: FDTD_setup_illustration_white_background.png
+
+
+FDTD is a numerical simulation method based on finite differences, which updates the E and H field on a regular point during each time step based on Maxwell's equations
+
+To get a spectrum in NIDN, the transmission and reflection coefficients are calculated by simulating twice for each frequency, one time with the material and one time in vacuum/free space.
+The transmission coefficient is computed as the mean square (MS) value of the signal from the material simulation divided by the MS of the signal from the free space simulation.
+
+The boundaries are periodic in both y and z dimension, in order to simulate an infinite plane, i.e. avoid boundary effects. The boundaries in the x direction is a perfectly matched layer (PML), which serves to absorb the entire wave and thus prevent artifacts at the edges of the grid.
+
+The permittivity of the material is given for each frequency bu the real part of the permittivity function, and the imaginary part of the permittivity is used to get the correct conductivity of teh material, 
+which is how FDTD introduce loss in the material. The conductivity is given by: $$ sigma(omega) = 2*pi*f*epsilon``*epsilon_0 $$
+
+The image shows how the FDTD simulations are set up. The source is placed at the top, whith a PML layer just above to absorb all upward signal and avoid reflections. 
+There is some vacumm/free space before the material, and a detector for the reflection just before the material. Then the material follows, and a new detector is placed after the material to measure the transmission.
+After the material, there is a layer of vacuum before a PML layer at the end to avoid reflection from the back. 
+
+The transmission signal can be used as is, but the reflection signal contains both the forward-going signal, and the reflected signal. Thus, the free-space reflection signal (which is just a forward going wave)
+is substracted from the material reflection signal, to obtain the true reflection signal. This is based on the assumption that the forward-going signal is the same for the free-space simulation and the material simulation.
+
 Running NIDN
 ------------
 
@@ -382,59 +405,35 @@ the results folder with a current timestamp.
     # You can save all available plots to a single folder using this function
     nidn.save_all_plots(cfg,save_path="/results/example/")
 
-About Finite-Difference Time-Domain (FDTD)
-----------
-
-.. image:: FDTD_setup_illustration_white_background.png
-
-
-FDTD is a numerical simulation method based on finite differences, which updates the E and H field on a regular point during each time step based on Maxwell's equations
-
-To get a spectrum in NIDN, the transmission and reflection coefficients are calculated by simulating twice for each frequency, one time with the material and one time in vacuum/free space.
-The transmission coefficient is the rms value of the signal from the material simulation divided by the rms of the signal from the free space simulation.
-The reflection coefficient is calculated in a similar way; the free-space reflection signal is subtracted from the material reflection signal.
-
-The boundaries are periodic in both y and z dimension, in order to simulate an infinite plane, i.e. avoid boundary effects. The boundaries in the x direction is a perfectly matched layer (PML), which serves to absorb the entire wave and thus prevent artifacts at the edges of the grid.
-
-The permittivity of the material is given for each frequency bu the real part of the permittivity function, and the imaginary part of the permittivity is used to get the correct conductivity of teh material, 
-which is how FDTD introduce loss in the material. The conductivity is given by: $$ sigma(omega) = 2*pi*f*epsilon``*epsilon_0
-
-The image shows how the FDTD simulations are set up. The source is placed at the top, whith a PML layer just above to absorb all upward signal and avoid reflections. 
-There is some vacumm/free space before the material, and a detector for the reflection just before the material. Then the material follows, and a new detector is placed after the material to measure the transmission.
-After the material, there is a layer of vacuum before a PML layer at the end to avoid reflection from the back. 
-
-The transmission signal can be used as is, but the reflection signal contains both the forward-going signal, and the reflected signal. Thus, the free-space reflection signal (which is just a forward going wave)
-is substracted from the material reflection signal, to obtain the true reflection signal. This is based on the assumption that the forward-going signal is the same for the free-space simulation and the material simulation.
-
 Parameters to configure
------------------------
+=======================
 
 
 Neural Network parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# Training Properties
+ Training Properties
 - name (str): The name you choose to call the model
 - use_gpu (bool) : true or false. Whether to use gpu for calculations (true) or cpu (false)
 - seed (int) = 100
 - model_type (str) = "siren"
-- iterations : number of iterations in training the neural network
-- learning_rate (float) = 8e-5
+- iterations (int) : number of iterations in training the neural network
+- learning_rate (float) = 8e-5 : The learning rate weigths the gradient in the neural network, a higher value leads to larger steps along the gradient.
 - type (str) = "regression" # "classification" or "regression"
 - reg_loss_weight (float) = 0.05 # weighting of the regularization loss
 - use_regularization_loss (bool) = true # only relevant for classification
 
-# Loss
+ Loss
 - L (float) = 1.0
 - absorption_loss (bool) = false
 
-# Model Parameters
+ Model Parameters
 - n_neurons (int): number of neurons in the neural network
 - hidden_layers (int) = 9
 - encoding_dim (int) = 4
 - siren_omega (float) = 1.0
 
-# Epsilon Properties
+ Epsilon Properties
 - add_noise (bool) = false
 - noise_scale (float) = 0.001
 - eps_oversampling (int) = 1
@@ -445,10 +444,10 @@ Neural Network parameters
 
 General parameters
 ^^^^^^^^^^^^^^^^^^
-# Simulation type
+  Simulation type
 - solver (str) = "TRCWA" # Options: FDTD, TRCWA
 
-# Grid dimensions
+  Grid dimensions
 - Nx (int)
 - Ny (int)= 1
 - N_layers (int) : Number of material layers
