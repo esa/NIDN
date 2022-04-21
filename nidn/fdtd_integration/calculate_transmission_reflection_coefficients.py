@@ -121,11 +121,6 @@ def _check_for_all_zero_signal(signals):
         raise ValueError(
             "The free-space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detector."
         )
-    if _mean_square(signals[1]) <= 1e-15:
-        logger.warning(
-            "WARNING:The signal through the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space."
-        )
-
 
 # From : https://stackoverflow.com/questions/54498775/pytorch-argrelmax-function-or-c
 def _torch_find_peaks(signal):
