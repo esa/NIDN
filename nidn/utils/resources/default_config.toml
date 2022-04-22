@@ -41,6 +41,8 @@ PER_LAYER_THICKNESS = [1.0] # len 1 for uniform thickness
 # TRCWA parameters
 TRCWA_L_grid = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
 TRCWA_NG = 11 # Truncation order (actual number might be smaller)
+TRCWA_TOP_LAYER_EPS = 1.0 # epsilon for top layer, 1.0 for vacuum
+TRCWA_BOTTOM_LAYER_EPS = 1.0 # epsilon for top layer, 1.0 for vacuum
 
 # FDTD parameters
 FDTD_source_type = "line" # Geometry of source, either "point" for pointsource or "line" for linesource

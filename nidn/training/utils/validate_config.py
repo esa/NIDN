@@ -42,6 +42,8 @@ def _validate_config(cfg: DotMap):
         "solver",
         "TRCWA_L_grid",
         "TRCWA_NG",
+        "TRCWA_TOP_LAYER_EPS",
+        "TRCWA_BOTTOM_LAYER_EPS",
         "FDTD_min_gridpoints_per_unit_magnitude",
         "FDTD_source_type",
         "FDTD_pulse_type",
@@ -85,6 +87,8 @@ def _validate_config(cfg: DotMap):
         "siren_omega",
         "noise_scale",
         "reg_loss_weight",
+        "TRCWA_TOP_LAYER_EPS",
+        "TRCWA_BOTTOM_LAYER_EPS",
         "FDTD_free_space_distance",
         "FDTD_pml_thickness",
     ]

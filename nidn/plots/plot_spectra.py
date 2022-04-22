@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import AutoLocator
 from ..utils.convert_units import freq_to_wl, wl_to_phys_wl
 from ..utils.compute_spectrum import compute_spectrum
 from ..training.model.model_to_eps_grid import model_to_eps_grid
@@ -25,7 +25,10 @@ def _add_plot(
     ax.set_ylabel(f"{type_name}", fontsize=fontsize)
     ax.set_xscale("log")
     ax.tick_params(axis="both", which="major", labelsize=fontsize - 2)
-    ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
+    ax.xaxis.set_major_locator(AutoLocator())
+
     # ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
