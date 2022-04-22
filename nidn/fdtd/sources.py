@@ -36,6 +36,7 @@ class PointSource:
         pulse: bool = False,
         cycle: int = 5,
         hanning_dt: float = 10.0,
+        signal_type: str = "continuous",
     ):
         """Create a LineSource with a gaussian profile
 
@@ -59,6 +60,8 @@ class PointSource:
         self.cycle = cycle
         self.frequency = 1.0 / period
         self.hanning_dt = hanning_dt if hanning_dt is not None else 0.5 / self.frequency
+        self.wavelength = SPEED_OF_LIGHT / self.frequency
+        self.signal_type = signal_type
 
     def _register_grid(self, grid: Grid, x: Number, y: Number, z: Number):
         """Register a grid for the source.
@@ -90,12 +93,13 @@ class PointSource:
             raise ValueError("a point source should be placed on a single grid cell.")
         self.x, self.y, self.z = grid._handle_tuple((x, y, z))
         self.period = grid._handle_time(self.period)
+        self.courant = self.grid.courant_number
+        self.grid_points_per_wavelength = self.wavelength / self.grid.grid_spacing
 
     def update_E(self):
         """Add the source to the electric field"""
         q = self.grid.time_steps_passed
-        # if pulse
-        if self.pulse:
+        if self.signal_type == "hanning":
             t1 = int(2 * pi / (self.frequency * self.hanning_dt / self.cycle))
             if q < t1:
                 src = self.amplitude * hanning(
@@ -104,7 +108,15 @@ class PointSource:
             else:
                 # src = - self.grid.E[self.x, self.y, self.z, 2]
                 src = 0
-        # if not pulse
+        elif self.signal_type == "ricker":
+            # By experimental value, the ricker wavelet signal converges to zero after 6 times the grid points per wavelength, so just set the source-signal to zero after this
+            t1 = self.grid_points_per_wavelength * 6
+            if q < t1:
+                vsrcect = self.amplitude * _ricker(
+                    q, self.grid_points_per_wavelength, 1, self.courant
+                )
+            else:
+                src = self.amplitude * 0
         else:
             src = self.amplitude * sin(2 * pi * q / self.period + self.phase_shift)
         self.grid.E[self.x, self.y, self.z, 2] += src
