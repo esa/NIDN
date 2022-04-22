@@ -140,7 +140,7 @@ The transmission coefficient is computed as the mean square (MS) value of the si
 The boundaries are periodic in both y and z dimension, in order to simulate an infinite plane, i.e. avoid boundary effects. The boundaries in the x direction is a perfectly matched layer (PML), which serves to absorb the entire wave and thus prevent artifacts at the edges of the grid.
 
 The permittivity of the material is given for each frequency by the real part of the permittivity function, and the imaginary part of the permittivity is used to get the correct conductivity of teh material, 
-which is how FDTD introduce loss in the material. The conductivity is given by:
+which is how FDTD introduces losses in the material. The conductivity is given by:
 .. math::
     {\sigma}({\omega}) = 2*{\pi}*f*{\epsilon}^{''}*{\epsilon_0}
 
