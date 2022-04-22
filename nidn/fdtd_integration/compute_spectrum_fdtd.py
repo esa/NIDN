@@ -67,11 +67,10 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
             transmission_coefficient,
             reflection_coefficient,
         ) = calculate_transmission_reflection_coefficients(
-            transmission_signal, reflection_signal, "MEAN SQUARE", cfg
+            transmission_signal, reflection_signal
         )
         transmission_spectrum.append(transmission_coefficient)
         reflection_spectrum.append(reflection_coefficient)
-
     logger.debug("Trasmission spectrum")
     logger.debug(transmission_spectrum)
     logger.debug("Reflection spectrum")
@@ -124,7 +123,9 @@ def _get_abs_value_from_3D_signal(signal):
         summed_squared_value = torch.sum(squared_value)
         absolute_value = torch.sqrt(summed_squared_value)
         abs_value[i] = absolute_value
-    return abs_value
+    # For now only returning z-component of electric field, because the signal is only in the z-direction.
+    # The absoulte value of the three directions might be neccesary later if the electric field is present in other directions.
+    return signal[:, 2]
 
 
 def _average_along_detector(signal):

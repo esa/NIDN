@@ -1,27 +1,16 @@
-from dotmap import DotMap
-from torch.fft import rfft, rfftfreq
 import torch
 from loguru import logger
-
-
-from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
-
-from ..utils.global_constants import SPEED_OF_LIGHT
 
 
 def calculate_transmission_reflection_coefficients(
     transmission_signals,
     reflection_signals,
-    time_to_frequency_domain_method,
-    cfg: DotMap,
 ):
     """Calculates the transmission coefficient and reflection coefficient for the signals presented.
 
     Args:
         transmission_signals (tuple[array,array]): Transmission signal from a free-space fdtd simulaiton, and transmission signal from a fdtd simulation with an added object
         reflection_signals (_type_): Reflection signal from a free-space fdtd simulaiton, and reflection signal from a fdtd simulation with an added object
-        time_to_frequency_domain_method (string): "MEAN SQUARE" if the mean square is to be used to calculate the coefficients. "FOURIER TRANSFORM" if the fft spectrums should be compared to calculate the coefficients
-        cfg (DotMap): configuration used in the simulations which generated the signals.
 
     Returns:
         tuple[float, float]: Transmission coefficient and reflection coefficient
@@ -34,23 +23,70 @@ def calculate_transmission_reflection_coefficients(
     _check_for_all_zero_signal(transmission_signals)
     _check_for_all_zero_signal(reflection_signals)
 
-    if time_to_frequency_domain_method.upper() == "MEAN SQUARE":
-        transmission_coefficient = _mean_square(transmission_signals[1]) / _mean_square(
-            transmission_signals[0]
+    # find peaks for all signals
+    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
+    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])
+    peaks_reflection_freespace = _torch_find_peaks(reflection_signals[0])
+    peaks_reflection_material = _torch_find_peaks(true_reflection)
+    transmission_coefficient = torch.tensor(0.0)
+
+    if len(peaks_transmission_material) > 1:
+        mean_squared_transmission_material = _mean_square(
+            transmission_signals[1][
+                peaks_transmission_material[0] : peaks_transmission_material[-1]
+            ]
         )
-        reflection_coefficient = _mean_square(true_reflection) / _mean_square(
-            reflection_signals[0]
+    else:
+        mean_squared_transmission_material = (max(transmission_signals[1]) ** 2) / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+        )
+    mean_squared_transmission_free_space = 1
+    if len(peaks_transmission_freespace) > 1:
+        mean_squared_transmission_free_space = _mean_square(
+            transmission_signals[0][
+                peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
+            ]
+        )
+    else:
+        mean_squared_transmission_free_space = (max(transmission_signals[0]) ** 2) / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
 
-    # TODO: Finish the FFT version. Not sure if this can be done with a single dirac pulse as signal, or repeated for every frequency. The formula is:
-    # t(w) = F(transmission signal with layers)/F(transmission signal free space)*exp(j*x_position*some coefficient)
-    elif time_to_frequency_domain_method.upper() == "FOURIER TRANSFORM":
-        transmission_coefficient = _fft(transmission_signals[1], cfg) / _fft(
-            transmission_signals[0], cfg
+    transmission_coefficient = (
+        mean_squared_transmission_material / mean_squared_transmission_free_space
+    )
+
+    reflection_coefficient = torch.tensor(0.0)
+
+    if len(peaks_reflection_material) > 1:
+        mean_squared_reflection_material = _mean_square(
+            true_reflection[
+                peaks_reflection_material[0] : peaks_reflection_material[-1]
+            ]
         )
-        reflection_coefficient = _fft(true_reflection, cfg) / _fft(
-            reflection_signals[0], cfg
+    else:
+        mean_squared_reflection_material = (max(true_reflection) ** 2) / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
+    mean_squared_reflection_free_space = 1
+    if len(peaks_reflection_freespace) > 1:
+        mean_squared_reflection_free_space = _mean_square(
+            reflection_signals[0][
+                peaks_reflection_freespace[0] : peaks_reflection_freespace[-1]
+            ]
+        )
+    else:
+        mean_squared_reflection_free_space = (max(reflection_signals[0]) ** 2) / 2
+        logger.warning(
+            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+        )
+
+    reflection_coefficient = (
+        mean_squared_reflection_material / mean_squared_reflection_free_space
+    )
 
     if transmission_coefficient < 0 or transmission_coefficient > 1:
         raise ValueError(
@@ -79,35 +115,26 @@ def _mean_square(tensor):
     return torch.sum(torch.square(tensor)) / len(tensor)
 
 
-def _fft(signal, cfg: DotMap):
-    """Calculates the fast fourier transform of the signal using torch
-
-    Args:
-        signal (array): signal to perform the fft on
-        cfg (DotMap): configurations used in the simulation which produced the signal
-
-    Returns:
-        tuple[array,array]: fourier frequenices and their corresponding values
-    """
-    sampling_frequencies = (
-        cfg.physical_wavelength_range[0]
-        * FDTD_GRID_SCALE
-        / (torch.sqrt(2) * SPEED_OF_LIGHT)
-    )
-    tensor_signal = torch.tensor(signal)
-
-    yf = rfft(tensor_signal)
-    xf = rfftfreq(cfg.FDTD_niter, sampling_frequencies)
-    return xf, yf
-
-
 def _check_for_all_zero_signal(signals):
 
     if _mean_square(signals[0]) <= 1e-15:
         raise ValueError(
-            "The free space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detctor."
+            "The free-space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detector."
         )
     if _mean_square(signals[1]) <= 1e-15:
         logger.warning(
-            "WARNING:The signal trough the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space."
+            "WARNING:The signal through the material layer(s) never reaches the detector. Increase FDTD_niter to ensure that the signal reaches the detector. The signal usually travels slower in a material than in free space."
         )
+
+
+# From : https://stackoverflow.com/questions/54498775/pytorch-argrelmax-function-or-c
+def _torch_find_peaks(signal):
+    signaltemp1 = signal[1:-1] - signal[:-2]
+    signaltemp2 = signal[1:-1] - signal[2:]
+
+    # and checking where both shifts are positive;
+    out1 = torch.where(signaltemp1 > 0, signaltemp1 * 0 + 1, signaltemp1 * 0)
+    out2 = torch.where(signaltemp2 > 0, out1, signaltemp2 * 0)
+
+    # argrelmax containing all peaks
+    return torch.nonzero(out2, out=None) + 1
