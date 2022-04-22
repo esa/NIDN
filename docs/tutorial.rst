@@ -66,16 +66,16 @@ FDTD is a numerical simulation method based on finite differences, which updates
 Contrary to the RCWA, which is a frequency domain solver, the FDTD is a time domain solver.
 
 To get a spectrum in NIDN, the transmission and reflection coefficients are calculated by simulating twice for each frequency, one time with the material and one time in vacuum/free space.
-The transmission coefficient is computed as the mean square (MS) value of the signal from the material simulation divided by the MS of the signal from the free space simulation.
+The transmission coefficient is computed as the mean square (MS) value of the signal from the material simulation divided by the MS of the signal from the free-space simulation.
 
-The boundaries are periodic in both y and z dimension, in order to simulate an infinite plane, i.e. avoid boundary effects. The boundaries in the x direction is a perfectly matched layer (PML), which serves to absorb the entire wave and thus prevent artifacts at the edges of the grid.
+The boundaries are periodic in both y and z dimension, in order to simulate an infinite plane, i.e. avoid boundary effects. The boundary in the x direction is a perfectly matched layer (PML), which serves to absorb the entire wave and thus prevent artifacts at the edges of the grid.
 
-The permittivity of the material is given for each frequency by the real part of the permittivity function, and the imaginary part of the permittivity is used to get the correct conductivity of teh material, 
+The permittivity of the material is given for each frequency by the real part of the permittivity function, and the imaginary part of the permittivity is used to get the correct conductivity of the material, 
 which is how FDTD introduces losses in the material. The conductivity is given by:
 .. math::
     {\sigma}({\omega}) = 2*{\pi}*f*{\epsilon}^{''}*{\epsilon_0}
 
-The image shows how the FDTD simulations are set up. The source is placed at the top, whith a PML layer just above to absorb all upward signal and avoid reflections. 
+The image shows how the FDTD simulations are set up. The source is placed at the top, with a PML layer just above to absorb all upward signal and avoid reflections. 
 There is some vacumm/free space before the material, and a detector for the reflection just before the material. Then the material follows, and a new detector is placed after the material to measure the transmission.
 After the material, there is a layer of vacuum before a PML layer at the end to avoid reflection from the back. 
 
@@ -414,7 +414,7 @@ the results folder with a current timestamp.
 Parameters to configure
 ======================
 
-The following is the parameters in the default_config.toml file, with a short explanation with datatype and teh function of the variable
+The following are the parameters in the default_config.toml file, with a short explanation with datatype and the function of the variable
 
 Neural Network parameters
 -------------------------
@@ -475,7 +475,7 @@ Grid dimensions
 
 TRCWA parameters
 ----------------
-- TRCWA_L_grid [[float,float],[float,float]]) : phyiscal grid dimension for TRCWA in UNIT_MAGNITUDE (defaults to µm), e.g [[0.1,0.0],[0.0,0.1]]
+- TRCWA_L_grid [[float,float],[float,float]]) : physical grid dimension for TRCWA in UNIT_MAGNITUDE (defaults to µm), e.g [[0.1,0.0],[0.0,0.1]]
 - TRCWA_NG (int) : Truncation order, see TRCWA documentation
 
 FDTD parameters
