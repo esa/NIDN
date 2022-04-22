@@ -406,68 +406,74 @@ the results folder with a current timestamp.
     nidn.save_all_plots(cfg,save_path="/results/example/")
 
 Parameters to configure
-=======================
+======================
 
+The following is the parameters in the default_config.toml file, with a short explanation with datatype and teh function of the variable
 
 Neural Network parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
- Training Properties
+Training Properties
+~~~~~~~~~~~~~~~~~~
 - name (str): The name you choose to call the model
 - use_gpu (bool) : true or false. Whether to use gpu for calculations (true) or cpu (false)
-- seed (int) = 100
-- model_type (str) = "siren"
+- seed (int) : 
+- model_type (str) : "siren" or "". What type of activation function in the model
 - iterations (int) : number of iterations in training the neural network
-- learning_rate (float) = 8e-5 : The learning rate weigths the gradient in the neural network, a higher value leads to larger steps along the gradient.
-- type (str) = "regression" # "classification" or "regression"
-- reg_loss_weight (float) = 0.05 # weighting of the regularization loss
-- use_regularization_loss (bool) = true # only relevant for classification
+- learning_rate (float) : The learning rate weigths the gradient in the neural network, a higher value leads to larger steps along the gradient.
+- type (str) : "classification" or "regression"
+- reg_loss_weight (float) :  weighting of the regularization loss
+- use_regularization_loss (bool) : Only relevant for classification
 
- Loss
-- L (float) = 1.0
-- absorption_loss (bool) = false
+Loss
+----
+- L (float) :
+- absorption_loss (bool) : Whether to include the absorption spectrum in the loss function. 
 
- Model Parameters
+Model Parameters
+----------------
 - n_neurons (int): number of neurons in the neural network
-- hidden_layers (int) = 9
-- encoding_dim (int) = 4
-- siren_omega (float) = 1.0
+- hidden_layers (int) : Number of hidden layers in the model
+- encoding_dim (int) :
+- siren_omega (float) :
 
- Epsilon Properties
-- add_noise (bool) = false
-- noise_scale (float) = 0.001
-- eps_oversampling (int) = 1
-- real_min_eps (float) = -100.0
-- real_max_eps (float) = 100.0
-- imag_min_eps (float) = 0.0
-- imag_max_eps (float) = 3.0
+Epsilon Properties
+-------------------
+- add_noise (bool) :
+- noise_scale (float) :
+- eps_oversampling (int) :
+- real_min_eps (float) : The minimum real part of epsilon the model may use
+- real_max_eps (float) : The maximum real part of epsilon the model may use
+- imag_min_eps (float) : The maximum imaginary part of epsilon the model may use
+- imag_max_eps (float) : The maximum imaginary part of epsilon the model may use
 
 General parameters
 ^^^^^^^^^^^^^^^^^^
-  Simulation type
+Simulation type
+---------------
 - solver (str) = "TRCWA" # Options: FDTD, TRCWA
 
-  Grid dimensions
-- Nx (int)
-- Ny (int)= 1
-- N_layers (int) : Number of material layers
-- PER_LAYER_THICKNESS (array[float]) : Array of thickness for each material layer. Should be the same length as N_layers
-- avoid_zero_eps (bool) = true
-- target_reflectance_spectrum (array[float]) = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0] : The reflection spectrum to try to match. Should be the same length as N_freq
-- target_transmittance_spectrum (array[float])= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] : The transmission spectrum to try to match. Should be the same length as N_freq
-- physical_wavelength_range (tuple[float, float])= [1e-6,30e-6] : Minimum and maximum wavelength to simulate
+Grid dimensions
+---------------
+- Nx (int) : Number of grid-points in x-direction (wave propagating in z-direction). Should only be different than one for patterned layers.
+- Ny (int) : Number of grid-points in x-direction (wave propagating in z-direction). Should only be different than one for patterned layers.
+- N_layers (int) : Number of layers of material in simulation
+- PER_LAYER_THICKNESS (array[float]) : Array of thickness for each material layer. Should be the same length as N_layers, or length one iff all layers are of same size
+- avoid_zero_eps (bool) : Whether the epsilon value is allowed to be zero (Move to Epsilon properties?)(Would break FDTD)
+- target_reflectance_spectrum (array[float]) : The reflection spectrum to try to match. Should be of length N_freq
+- target_transmittance_spectrum (array[float]) : The transmission spectrum to try to match. Should be of length N_freq
+- physical_wavelength_range (tuple[float, float]): Minimum and maximum wavelength to simulate
 - freq_distribution (str): "linear" or "log". How the frequencies should be distributed between min and max frequency
-- N_freq (int) = 20 : Number of frequencies to use in the simulation
+- N_freq (int) : Number of frequencies to use in the simulation
 
 
 TRCWA parameters
-^^^^^^^^^^^^^^^^
-- TRCWA_L_grid (tuple[tuple[float,float],tuple[float,float]]) = [[0.1,0.0],[0.0,0.1]] # grid dimension for TRCWA
-- TRCWA_NG (int) = 11 # Truncation order (actual number might be smaller)
+----------------
+- TRCWA_L_grid (tuple[tuple[float,float],tuple[float,float]]) : grid dimension for TRCWA
+- TRCWA_NG (int) : Truncation order (actual number might be smaller)
 
 FDTD parameters
-^^^^^^^^^^^^^^^
-
+---------------
 These are parameters that decides how the FDTD simulation is set up. 
 
 - FDTD_source_type (str) : The geometry of source, either "point" for pointsource or "line" for linesource. Experiments suggest unexpected reflfctions when using a point source with periodic boundaries.
