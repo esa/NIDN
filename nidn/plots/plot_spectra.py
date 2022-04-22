@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoLocator
 from ..utils.convert_units import freq_to_wl, wl_to_phys_wl
-from ..trcwa.compute_spectrum import compute_spectrum
+from ..utils.compute_spectrum import compute_spectrum
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 

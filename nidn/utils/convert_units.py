@@ -1,4 +1,4 @@
-from nidn.trcwa.constants import TRCWA_UNIT_MAGNITUDE, TRCWA_SPEED_OF_LIGHT
+from .global_constants import UNIT_MAGNITUDE, SPEED_OF_LIGHT
 
 
 def freq_to_wl(freq):
@@ -23,7 +23,7 @@ def phys_wl_to_wl(phys_wl):
     Returns:
         float: The wavelength in units of TRCWA_UNIT_MAGNITUDE.
     """
-    return phys_wl / TRCWA_UNIT_MAGNITUDE
+    return phys_wl / UNIT_MAGNITUDE
 
 
 def wl_to_phys_wl(wl):
@@ -35,7 +35,7 @@ def wl_to_phys_wl(wl):
     Returns:
         float: The physical wavelength in metres.
     """
-    return wl * TRCWA_UNIT_MAGNITUDE
+    return wl * UNIT_MAGNITUDE
 
 
 def phys_freq_to_phys_wl(freq):
@@ -47,5 +47,5 @@ def phys_freq_to_phys_wl(freq):
     Returns:
         float: The physical frequency or the physical wavelength.
     """
-    c = TRCWA_SPEED_OF_LIGHT
+    c = SPEED_OF_LIGHT
     return c / freq

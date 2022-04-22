@@ -20,7 +20,7 @@ from .training.run_training import run_training
 from .training.save_run import save_run
 from .trcwa.compute_target_frequencies import compute_target_frequencies
 from .trcwa.get_frequency_points import get_frequency_points
-from .trcwa.compute_spectrum import compute_spectrum
+from .utils.compute_spectrum import compute_spectrum
 from .utils.convert_units import freq_to_wl, wl_to_phys_wl, phys_freq_to_phys_wl
 from .utils.fix_random_seeds import fix_random_seeds
 from .utils.load_default_cfg import load_default_cfg
