@@ -56,6 +56,35 @@ Heterogeneous Layers
 Heterogeneous (patterned) layers are divided into a grid, where each
 grid point can have individual dielectric constants.
 
+About Finite-Difference Time-Domain (FDTD)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: FDTD_setup_illustration_white_background.png
+
+
+FDTD is a numerical simulation method based on finite differences, which updates the E and H field on a regular point during each time step based on Maxwell's equations. For a deep dive in how FDTD works, this is a recommended resource: Understanding the Finite-Difference Time-Domain Method, John B. Schneider, www.eecs.wsu.edu/~schneidj/ufdtd, 2010.
+Contrary to the RCWA, which is a frequency domain solver, the FDTD is a time domain solver.
+
+To get a spectrum in NIDN, the transmission and reflection coefficients are calculated by simulating twice for each frequency, one time with the material and one time in vacuum/free space.
+The transmission coefficient is computed as the mean square (MS) value of the signal from the material simulation divided by the MS of the signal from the free-space simulation.
+
+The boundaries are periodic in both y and z dimension, in order to simulate an infinite plane, i.e. avoid boundary effects. The boundary in the x direction is a perfectly matched layer (PML), which serves to absorb the entire wave and thus prevent artifacts at the edges of the grid.
+
+The permittivity of the material is given for each frequency by the real part of the permittivity function, and the imaginary part of the permittivity is used to get the correct conductivity of the material, 
+which is how FDTD introduces losses in the material. The conductivity is given by:
+.. math::
+    {\sigma}({\omega}) = 2*{\pi}*f*{\epsilon}^{''}*{\epsilon_0}
+
+The image shows how the FDTD simulations are set up. The source is placed at the top, with a PML layer just above to absorb all upward signal and avoid reflections. 
+There is some vacumm/free space before the material, and a detector for the reflection just before the material. Then the material follows, and a new detector is placed after the material to measure the transmission.
+After the material, there is a layer of vacuum before a PML layer at the end to avoid reflection from the back. 
+
+The transmission signal can be used as is, but the reflection signal contains both the forward-going signal, and the reflected signal. Thus, the free-space reflection signal (which is just a forward going wave)
+is substracted from the material reflection signal, to obtain the true reflection signal. This is based on the assumption that the forward-going signal is the same for the free-space simulation and the material simulation.
+
+The FDTD backend code is a modified version of this: https://fdtd.readthedocs.io/en/latest/index.html. Examples of how to use the FDTD simulations can be found in the Running_FDTD.ipynb notebook.
+
+
 Neural Inverse Design
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -381,3 +410,83 @@ the results folder with a current timestamp.
     
     # You can save all available plots to a single folder using this function
     nidn.save_all_plots(cfg,save_path="/results/example/")
+
+Parameters to configure
+======================
+
+The following are the parameters in the default_config.toml file, with a short explanation with datatype and the function of the variable
+
+Neural Network parameters
+-------------------------
+
+Training Properties
+~~~~~~~~~~~~~~~~~~
+- name (str): The name you choose to call the model
+- use_gpu (bool) : true or false. Whether to use gpu for calculations (true) or cpu (false)
+- seed (int) : Random seed for the training, in order to be able to reproduce result
+- model_type (str) : "siren" or "nerf". What type of model architecture to use
+- iterations (int) : number of iterations in training the neural network
+- learning_rate (float) : The learning rate for the training of the neural network, a higher value leads to larger steps along the gradient. Reduce if problems occur.
+- type (str) : "classification" or "regression". For more details see Example_Notebook.ipynb
+- reg_loss_weight (float) :  weighting of the regularization loss, only used in classification to force the network to pick one material.
+- use_regularization_loss (bool) : Only relevant for classification, activates the regularization.
+
+Loss
+----
+- L (float) : The exponent of the loss, e.g. L=2 leads to a L2 loss, L=1 leads to mean absolute error (L1 loss)
+- absorption_loss (bool) : Whether to include the absorption spectrum in the loss function. 
+
+Model Parameters
+----------------
+- n_neurons (int): Number of neurons in the neural network
+- hidden_layers (int) : Number of hidden layers in the model
+- encoding_dim (int) : Dimension of the encoding of the model.
+- siren_omega (float) : Omega value for the siren model, see paper.
+
+Epsilon Properties
+-------------------
+- add_noise (bool) : Whether to add small noise to output of the network, to avoid getting stuck in local minima.
+- noise_scale (float) : Scale of the added noise
+- eps_oversampling (int) : Oversampling of the network output (e.g. network produces 3x3 grid with eps_oversampling = 3, solver uses 9x9)
+- real_min_eps (float) : The minimum real part of epsilon the model may use
+- real_max_eps (float) : The maximum real part of epsilon the model may use
+- imag_min_eps (float) : The maximum imaginary part of epsilon the model may use
+- imag_max_eps (float) : The maximum imaginary part of epsilon the model may use
+- avoid_zero_eps (bool) : Whether the epsilon value is allowed to be zero (Would break FDTD to have a epsilon value of 0)
+
+General parameters
+^^^^^^^^^^^^^^^^^^
+Simulation type
+---------------
+- solver (str) : Options are "TRCWA" and "FDTD"
+
+Grid dimensions
+---------------
+- Nx (int) : Number of grid-points in x-direction (wave propagating in z-direction). Should only be different than one for patterned layers.
+- Ny (int) : Number of grid-points in y-direction (wave propagating in z-direction). Should only be different than one for patterned layers.
+- N_layers (int) : Number of layers of material in simulation
+- PER_LAYER_THICKNESS (array[float]) : Array of thickness for each material layer. Should be the same length as N_layers, or length one iff all layers are of same size
+- physical_wavelength_range (tuple[float, float]): Minimum and maximum wavelength to simulate
+- freq_distribution (str): "linear" or "log". How the frequencies should be distributed between min and max frequency
+- N_freq (int) : Number of frequencies to use in the simulation
+
+- target_reflectance_spectrum (array[float]) : The reflection spectrum to try to match. Should be of length N_freq
+- target_transmittance_spectrum (array[float]) : The transmission spectrum to try to match. Should be of length N_freq
+
+TRCWA parameters
+----------------
+- TRCWA_L_grid [[float,float],[float,float]]) : physical grid dimension for TRCWA in UNIT_MAGNITUDE (defaults to µm), e.g [[0.1,0.0],[0.0,0.1]]
+- TRCWA_NG (int) : Truncation order, see TRCWA documentation
+
+FDTD parameters
+---------------
+These are parameters that decides how the FDTD simulation is set up. 
+
+- FDTD_source_type (str) : The geometry of source, either "point" for pointsource or "line" for linesource. Experiments suggest unexpected reflfctions when using a point source with periodic boundaries.
+- FDTD_pulse_type (str) :   What type of signal is sent out by the source, either a pulse or continuous wave. "hanning", "ricker" or "continuous" accepted. Hanning is a pulse which windows a continuous wave, while ricker is a pulse with the form ogf the second derivative of a guassian, giving a mean value of zero.
+- FDTD_pml_thickness (float): Thickness of PML layer in FDTD simulations, set in FDTD unit magnitudes. Perfectly Matched Layer are boundaries used in the x-direction, design to absorb all radiation. (Heard someone say that this should be minimum the largest wavelength)
+- FDTD_source_position (tuple[float,float]): Coordinates of the source used in FDTD simulations, in FDTD unit magnitudes. Given as a tuple, [x,y]
+- FDTD_free_space_distance (float): The thickness of the free space layer before and after the material layers, in FDTD unit magnitudes
+- FDTD_niter (int): Number of timesteps used in FDTD simulation. 
+- FDTD_gridpoints_from_material_to_detector (int) : Distance between material and detectors in grid points. Distance to reflection detector from start of the material, and to from the end of the material to the transmission detector. 
+- FDTD_min_gridpoints_per_unit_magnitude (int) : Minimum number of gridpoints per unit_magnitude, ensuring enough gridpoints for proper functionallity
