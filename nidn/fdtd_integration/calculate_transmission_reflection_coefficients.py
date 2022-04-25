@@ -33,7 +33,9 @@ def calculate_transmission_reflection_coefficients(
     if len(peaks_transmission_material) > 1:
         mean_squared_transmission_material = _mean_square(
             transmission_signals[1][
-                peaks_transmission_material[0] : peaks_transmission_material[-1]
+                peaks_transmission_material[0]
+                .item() : peaks_transmission_material[-1]
+                .item()
             ]
         )
     else:
@@ -45,7 +47,9 @@ def calculate_transmission_reflection_coefficients(
     if len(peaks_transmission_freespace) > 1:
         mean_squared_transmission_free_space = _mean_square(
             transmission_signals[0][
-                peaks_transmission_freespace[0] : peaks_transmission_freespace[-1]
+                peaks_transmission_freespace[0]
+                .item() : peaks_transmission_freespace[-1]
+                .item()
             ]
         )
     else:
@@ -63,7 +67,9 @@ def calculate_transmission_reflection_coefficients(
     if len(peaks_reflection_material) > 1:
         mean_squared_reflection_material = _mean_square(
             true_reflection[
-                peaks_reflection_material[0] : peaks_reflection_material[-1]
+                peaks_reflection_material[0]
+                .item() : peaks_reflection_material[-1]
+                .item()
             ]
         )
     else:
@@ -75,7 +81,9 @@ def calculate_transmission_reflection_coefficients(
     if len(peaks_reflection_freespace) > 1:
         mean_squared_reflection_free_space = _mean_square(
             reflection_signals[0][
-                peaks_reflection_freespace[0] : peaks_reflection_freespace[-1]
+                peaks_reflection_freespace[0]
+                .item() : peaks_reflection_freespace[-1]
+                .item()
             ]
         )
     else:
@@ -121,6 +129,7 @@ def _check_for_all_zero_signal(signals):
         raise ValueError(
             "The free-space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detector."
         )
+
 
 # From : https://stackoverflow.com/questions/54498775/pytorch-argrelmax-function-or-c
 def _torch_find_peaks(signal):
