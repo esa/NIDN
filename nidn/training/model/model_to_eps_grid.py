@@ -82,6 +82,10 @@ def _eval_model(
     # Scales sampling domain of frequencies
     freq_scaling = 32.0
 
+    # Layers should be independent, so we scale the sampling in that dimension
+    z_scaling = 1000.0
+    z *= z_scaling
+
     if freq_distribution == "linear":
         # Linearly spaced frequency points
         freq = torch.linspace(-freq_scaling, freq_scaling, len(target_frequencies))
@@ -129,7 +133,7 @@ def _regression_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.N_layers,
         run_cfg.target_frequencies,
         run_cfg.freq_distribution,
-        run_cfg.TRCWA_PER_LAYER_THICKNESS,
+        run_cfg.PER_LAYER_THICKNESS,
     )
 
     # Reshape the output to have a 4D tensor again
@@ -211,7 +215,7 @@ def _classification_model_to_eps_grid(model, run_cfg: DotMap):
         run_cfg.N_layers,
         run_cfg.target_frequencies,
         run_cfg.freq_distribution,
-        run_cfg.TRCWA_PER_LAYER_THICKNESS,
+        run_cfg.PER_LAYER_THICKNESS,
     )
 
     # Reshape the output to have a 4D tensor again

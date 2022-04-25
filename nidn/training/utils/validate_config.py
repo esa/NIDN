@@ -1,5 +1,8 @@
 from dotmap import DotMap
 
+from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
+from ...utils.global_constants import UNIT_MAGNITUDE
+
 
 def _validate_config(cfg: DotMap):
     """This function validates that all required entries are in the config.
@@ -36,8 +39,19 @@ def _validate_config(cfg: DotMap):
         "reg_loss_weight",
         "add_noise",
         "noise_scale",
+        "solver",
         "TRCWA_L_grid",
         "TRCWA_NG",
+        "TRCWA_TOP_LAYER_EPS",
+        "TRCWA_BOTTOM_LAYER_EPS",
+        "FDTD_min_gridpoints_per_unit_magnitude",
+        "FDTD_source_type",
+        "FDTD_pulse_type",
+        "FDTD_pml_thickness",
+        "FDTD_source_position",
+        "FDTD_free_space_distance",
+        "FDTD_niter",
+        "FDTD_gridpoints_from_material_to_detector",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "freq_distribution",
@@ -60,6 +74,9 @@ def _validate_config(cfg: DotMap):
         "eps_oversampling",
         "seed",
         "TRCWA_NG",
+        "FDTD_niter",
+        "FDTD_gridpoints_from_material_to_detector",
+        "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     float_keys = [
         "L",
@@ -70,12 +87,30 @@ def _validate_config(cfg: DotMap):
         "siren_omega",
         "noise_scale",
         "reg_loss_weight",
+        "TRCWA_TOP_LAYER_EPS",
+        "TRCWA_BOTTOM_LAYER_EPS",
+        "FDTD_free_space_distance",
+        "FDTD_pml_thickness",
     ]
-    boolean_keys = ["use_regularization_loss", "add_noise", "use_gpu", "avoid_zero_eps"]
-    string_keys = ["model_type", "type", "name", "freq_distribution"]
+    boolean_keys = [
+        "use_regularization_loss",
+        "add_noise",
+        "use_gpu",
+        "avoid_zero_eps",
+    ]
+    string_keys = [
+        "model_type",
+        "type",
+        "name",
+        "freq_distribution",
+        "solver",
+        "FDTD_source_type",
+        "FDTD_pulse_type",
+    ]
     list_keys = [
-        "TRCWA_PER_LAYER_THICKNESS",
+        "PER_LAYER_THICKNESS",
         "TRCWA_L_grid",
+        "FDTD_source_position",
         "target_reflectance_spectrum",
         "target_transmittance_spectrum",
         "physical_wavelength_range",
@@ -111,6 +146,20 @@ def _validate_config(cfg: DotMap):
     if not (cfg.physical_wavelength_range[0] < cfg.physical_wavelength_range[1]):
         raise ValueError(f"physical_wavelength_range must be ordered from low to high")
 
+    scaling = max(
+        UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
+        cfg.FDTD_min_gridpoints_per_unit_magnitude,
+    )
+    if (
+        int(scaling * cfg.FDTD_free_space_distance)
+        < cfg.FDTD_gridpoints_from_material_to_detector
+    ):
+        raise ValueError(
+            "Reflection detector must be placed in the free space before an eventual object, and after the pml layer. Decrease FDTD_gridpoints_from_material_to_detector to a value smaller than {value} fix this.".format(
+                value=int(scaling * cfg.FDTD_free_space_distance)
+            )
+        )
+
     positive_value_keys = [
         "L",
         "n_neurons",
@@ -124,6 +173,11 @@ def _validate_config(cfg: DotMap):
         "noise_scale",
         "TRCWA_NG",
         "reg_loss_weight",
+        "FDTD_niter",
+        "FDTD_free_space_distance",
+        "FDTD_pml_thickness",
+        "FDTD_gridpoints_from_material_to_detector",
+        "FDTD_min_gridpoints_per_unit_magnitude",
     ]
     for key in positive_value_keys:
         if not (cfg[key] > 0):
@@ -142,14 +196,25 @@ def _validate_config(cfg: DotMap):
     if not cfg.TRCWA_L_grid[0][0] > cfg.TRCWA_L_grid[0][1]:
         raise ValueError(f"TRCWA_L_grid dim0 must be ordered from high to low")
 
-    if not all(cfg.TRCWA_L_grid) >= 0:
-        raise ValueError(f"TRCWA_L_grid must be positive")
+    all_positive_list_keys = [
+        "TRCWA_L_grid",
+        "PER_LAYER_THICKNESS",
+        "FDTD_grid",
+        "FDTD_source_position",
+    ]
+    all_positive_or_zero_list_keys = [
+        "target_transmittance_spectrum",
+        "target_reflectance_spectrum",
+    ]
 
-    if not all(cfg.target_transmittance_spectrum) >= 0:
-        raise ValueError(f"target_transmittance_spectrum must be positive")
-
-    if not all(cfg.target_reflectance_spectrum) >= 0:
-        raise ValueError(f"target_reflectance_spectrum must be positive")
+    for key in all_positive_list_keys:
+        if not (all(cfg[key]) > 0.0):
+            raise ValueError(f"All elements in {key} must be a positive integer")
+    for key in all_positive_or_zero_list_keys:
+        if not (all(cfg[key]) >= 0.0):
+            raise ValueError(
+                f"All elements in {key} must be a positive integer or zero"
+            )
 
     if not len(cfg.target_transmittance_spectrum) == cfg.N_freq:
         raise ValueError(f"target_transmittance_spectrum must have length N_freq")
@@ -157,14 +222,21 @@ def _validate_config(cfg: DotMap):
     if not len(cfg.target_reflectance_spectrum) == cfg.N_freq:
         raise ValueError(f"target_reflectance_spectrum must have length N_freq")
 
-    if not (all(cfg.TRCWA_PER_LAYER_THICKNESS) > 0.0):
-        raise ValueError(f"thickness must a positive number.")
-
     if not (
-        len(cfg.TRCWA_PER_LAYER_THICKNESS) == cfg.N_layers
-        or len(cfg.TRCWA_PER_LAYER_THICKNESS) == 1
+        len(cfg.PER_LAYER_THICKNESS) == cfg.N_layers
+        or len(cfg.PER_LAYER_THICKNESS) == 1
     ):
-        raise ValueError(f"TRCWA_PER_LAYER_THICKNESS must have length 1 or N_layers")
+        raise ValueError(f"PER_LAYER_THICKNESS must have length 1 or N_layers")
 
     if not (cfg.freq_distribution == "linear" or cfg.freq_distribution == "log"):
         raise ValueError(f"freq_distribution must be either 'linear' or 'log'")
+
+    if not (len(cfg.FDTD_source_position) == 2 or len(cfg.FDTD_source_position) == 3):
+        raise ValueError(
+            f"The FDTD source needs either 2- or 3-dimensional coordinates"
+        )
+    if not cfg.FDTD_source_type in ["point", "line"]:
+        raise ValueError(f'The FDTD_source_type must either be "line" or "point"')
+
+    if not cfg.FDTD_pulse_type in ["pulse", "continuous"]:
+        raise ValueError(f'The FDTD_pulse_type must either be "pulse" or "continuous"')

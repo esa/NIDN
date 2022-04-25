@@ -12,7 +12,7 @@ from .losses.likelihood_regularization_loss import _likelihood_regularization_lo
 from ..materials.material_collection import MaterialCollection
 from .model.init_network import init_network
 from .model.model_to_eps_grid import model_to_eps_grid
-from ..trcwa.compute_spectrum import compute_spectrum
+from ..utils.compute_spectrum import compute_spectrum
 from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from ..utils.fix_random_seeds import fix_random_seeds
 from .utils.validate_config import _validate_config
@@ -121,7 +121,6 @@ def run_training(
             )
             optimizer.param_groups[0]["lr"] *= 0.5
             continue
-
         # Compute loss between target spectrum and
         # the one from the current network structure
         spectrum_loss, renormalized = _spectrum_loss_fn(
@@ -154,7 +153,6 @@ def run_training(
             loss += run_cfg.reg_loss_weight * _likelihood_regularization_loss_fn(
                 material_ids, run_cfg.L
             )
-
         # We store the model if it has the lowest loss yet
         # (this is to avoid losing good results during a run that goes wild)
         if loss < best_loss:

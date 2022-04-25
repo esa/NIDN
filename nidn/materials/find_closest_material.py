@@ -6,11 +6,11 @@ import torch
 def _find_closest_material(eps, run_cfg):
     """Finds the closest matching material and distance to that (in epsilon)
     from a given epsilon grid.
-    
+
     Args:
         eps (torch.tensor): A tensor of epsilon values (Nx,Ny,N_layers,N_freq).
         run_cfg (DotMap): Run configuration.
-    
+
     Returns:
         tuple: The closest materials and distances to that.
     """
@@ -20,7 +20,13 @@ def _find_closest_material(eps, run_cfg):
     material_collection = MaterialCollection(run_cfg.target_frequencies)
 
     comparisons = torch.zeros(
-        [Nx, Ny, N_layers, N_freq, material_collection.N_materials,]
+        [
+            Nx,
+            Ny,
+            N_layers,
+            N_freq,
+            material_collection.N_materials,
+        ]
     )
 
     # Compute differences for all materials
