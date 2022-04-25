@@ -141,8 +141,8 @@ def _average_along_detector(signal):
     for i in range(len(signal)):
         s = torch.zeros(3)
         for p in signal[i]:
-            s[0] += p[0] / len(signal)
-            s[1] += p[1] / len(signal)
-            s[2] += p[2] / len(signal)
+            s[0] += p[0] / len(signal[0])
+            s[1] += p[1] / len(signal[0])
+            s[2] += p[2] / len(signal[0])
         avg[i] = s
     return avg
