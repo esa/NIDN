@@ -13,6 +13,6 @@ SPEED_OF_LIGHT = 299792458.0
 # Unit size in simulations
 UNIT_MAGNITUDE = 10 ** (-6)
 # Vacuum permeability
-MU_0: float = 4e-7 * PI
+MU_0 = 4e-7 * PI
 # Vacuum impedance
-ETA_0: float = MU_0 * SPEED_OF_LIGHT
+ETA_0 = MU_0 * SPEED_OF_LIGHT

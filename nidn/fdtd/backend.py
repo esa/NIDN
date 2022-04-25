@@ -1,24 +1,6 @@
-""" Selects the backend for the fdtd-package.
+""" The original fdtd module supports several backends. In NIDN, however, we only support torch.
 
-The `fdtd` library allows to choose a backend. The ``numpy`` backend is the
-default one, but there are also several additional PyTorch backends:
 
-    - ``numpy`` (defaults to float64 arrays)
-    - ``torch`` (defaults to float64 tensors)
-    - ``torch.float32``
-    - ``torch.float64``
-    - ``torch.cuda`` (defaults to float64 tensors)
-    - ``torch.cuda.float32``
-    - ``torch.cuda.float64``
-
-For example, this is how to choose the `"torch"` backend: ::
-
-    fdtd.set_backend("torch")
-
-In general, the ``numpy`` backend is preferred for standard CPU calculations
-with `"float64"` precision. In general, ``float64`` precision is always
-preferred over ``float32`` for FDTD simulations, however, ``float32`` might
-give a significant performance boost.
 
 The ``cuda`` backends are only available for computers with a GPU.
 
