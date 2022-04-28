@@ -1,8 +1,11 @@
+from re import T
+from numpy import NaN, require
 import torch
 
 from nidn.utils.global_constants import EPS_0, PI, SPEED_OF_LIGHT
 
 from ..fdtd_integration.init_fdtd import init_fdtd
+from ..fdtd_integration.compute_spectrum_fdtd import _get_detector_values
 from ..materials.layer_builder import LayerBuilder
 from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from ..utils.load_default_cfg import load_default_cfg
@@ -177,8 +180,113 @@ def test_single_patterned_layer():
     pass
 
 
+def test_deviation_from_original_fdtd():
+    # Set settings
+    cfg = load_default_cfg()
+    cfg.N_freq = 1
+    cfg.N_layers = 1
+    cfg.PER_LAYER_THICKNESS = [0.3]
+    cfg.physical_wavelength_range[0] = 10e-7
+    cfg.physical_wavelength_range[1] = 10e-7
+    cfg.solver = "FDTD"
+    cfg.FDTD_niter = 400
+    cfg.FDTD_pulse_type = "continuous"
+    cfg.FDTD_source_type = "line"
+    cfg.target_frequencies = compute_target_frequencies(
+        cfg.physical_wavelength_range[0],
+        cfg.physical_wavelength_range[1],
+        cfg.N_freq,
+        cfg.freq_distribution,
+    )
+    eps_grid = torch.zeros(cfg.Nx, cfg.Ny, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
+    layer_builder = LayerBuilder(cfg)
+    eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
+    # NIDN FDTD
+    grid, t_detector_material, _ = init_fdtd(
+        cfg,
+        include_object=True,
+        wavelength=cfg.physical_wavelength_range[0],
+        permittivity=eps_grid[:, :, 0, :],
+    )
+    grid.run(cfg.FDTD_niter)
+    t_signal_material, r_ = _get_detector_values(t_detector_material, _)
+    # Original fdtd
+    import fdtd
+
+    fdtd.set_backend("torch")
+    grid_spacing = 0.1 * cfg.physical_wavelength_range[0]
+    grid = fdtd.Grid(
+        (5.3e-6, 3, 1),  # 2D grid
+        grid_spacing=grid_spacing,
+        permittivity=1.0,  # Relative permittivity of 1  vacuum
+    )
+    grid[int(1.5e-6 / grid_spacing), :] = fdtd.LineSource(
+        period=cfg.physical_wavelength_range[0] / SPEED_OF_LIGHT, name="source"
+    )
+    t_detector_material = fdtd.LineDetector(name="detector")
+    grid[int(2.8e-6 / grid_spacing) + 2, :, 0] = t_detector_material
+    grid[0 : int(1.5e-6 / grid_spacing), :, :] = fdtd.PML(name="pml_xlow")
+    grid[-int(1.5e-6 / grid_spacing) :, :, :] = fdtd.PML(name="pml_xhigh")
+    grid[:, 0, :] = fdtd.PeriodicBoundary(name="ybounds")
+    grid[
+        int(2.5e-6 / grid_spacing) : int(2.8e-6 / grid_spacing), :, :
+    ] = fdtd.AbsorbingObject(
+        permittivity=eps_grid[:, :, 0, 0].real,
+        conductivity=eps_grid[:, :, 0, 0].imag
+        * SPEED_OF_LIGHT
+        / cfg.physical_wavelength_range[0]
+        * 2
+        * PI
+        * EPS_0,
+        name="absorbin_object",
+    )
+    grid.run(cfg.FDTD_niter, progress_bar=False)
+    raw_signal = []
+    t = []
+    for i in range(cfg.FDTD_niter):
+        # Add only the z component of the E field from the center point of the detector, as there is only z polarized waves
+        raw_signal.append(t_detector_material.detector_values()["E"][i][1][2])
+        t.append(i)
+    # Compare signals
+
+    diff = t_signal_material - torch.tensor(raw_signal)
+
+    assert max(diff[30:]) < 1e-4
+
+
+def test_gradient_flow():
+    # Set settings
+    cfg = load_default_cfg()
+    cfg.N_freq = 3
+    cfg.N_layers = 1
+    cfg.PER_LAYER_THICKNESS = [0.3]
+    cfg.physical_wavelength_range[0] = 8e-7
+    cfg.physical_wavelength_range[1] = 10e-7
+    cfg.solver = "FDTD"
+    cfg.FDTD_niter = 400
+    cfg.FDTD_pulse_type = "continuous"
+    cfg.FDTD_source_type = "line"
+    cfg.target_frequencies = compute_target_frequencies(
+        cfg.physical_wavelength_range[0],
+        cfg.physical_wavelength_range[1],
+        cfg.N_freq,
+        cfg.freq_distribution,
+    )
+    eps_grid = torch.ones(
+        cfg.Nx, cfg.Ny, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat, requires_grad=True
+    )
+    # NIDN FDTD
+    R, T = compute_spectrum(eps_grid, cfg)
+    loss = sum(T)
+    loss.retain_grad()
+    loss.backward()
+    assert type(loss.grad.item()) == float
+
+
 if __name__ == "__main__":
     test_fdtd_grid_creation()
     test_fdtd_simulation_single_layer()
     test_fdtd_simulation_four_layers()
     test_single_patterned_layer()
+    test_deviation_from_original_fdtd()
+    test_gradient_flow()
