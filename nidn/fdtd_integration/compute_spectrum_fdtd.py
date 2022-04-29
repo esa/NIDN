@@ -3,6 +3,9 @@ from tqdm import tqdm
 import torch
 from loguru import logger
 
+from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
+from nidn.utils.global_constants import UNIT_MAGNITUDE
+
 from ..trcwa.get_frequency_points import get_frequency_points
 from .calculate_transmission_reflection_coefficients import (
     calculate_transmission_reflection_coefficients,
@@ -27,6 +30,29 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug(physical_wavelengths)
     logger.debug("Number of layers: ")
     logger.debug(len(permittivity[0, 0, :, 0]))
+
+    scaling = max(
+        UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
+        cfg.FDTD_min_gridpoints_per_unit_magnitude,
+    )
+    for i in range(len(cfg.PER_LAYER_THICKNESS)):
+        if (
+            cfg.PER_LAYER_THICKNESS[i]
+            % (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
+            != 0
+        ):
+            logger.warning(
+                "Due to the grid resultion, the thickness of layer {} is set to {:.3f} µm instead of the specified {} µm".format(
+                    i + 1,
+                    int(
+                        cfg.PER_LAYER_THICKNESS[i]
+                        * UNIT_MAGNITUDE
+                        / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
+                    )
+                    / scaling,
+                    cfg.PER_LAYER_THICKNESS[i],
+                )
+            )
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
