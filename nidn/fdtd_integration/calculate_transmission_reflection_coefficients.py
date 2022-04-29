@@ -41,7 +41,7 @@ def calculate_transmission_reflection_coefficients(
     else:
         mean_squared_transmission_material = (max(transmission_signals[1]) ** 2) / 2
         logger.warning(
-            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+            "There is not enough timesteps for the transmission signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
     mean_squared_transmission_free_space = 1
     if len(peaks_transmission_freespace) > 1:
@@ -54,9 +54,6 @@ def calculate_transmission_reflection_coefficients(
         )
     else:
         mean_squared_transmission_free_space = (max(transmission_signals[0]) ** 2) / 2
-        logger.warning(
-            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
-        )
 
     transmission_coefficient = (
         mean_squared_transmission_material / mean_squared_transmission_free_space
@@ -75,7 +72,7 @@ def calculate_transmission_reflection_coefficients(
     else:
         mean_squared_reflection_material = (max(true_reflection) ** 2) / 2
         logger.warning(
-            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
+            "There is not enough timesteps for the reflected signal to have the proper lenght. The FDTD_niter should be increased, to be sure that the resutls are valid."
         )
     mean_squared_reflection_free_space = 1
     if len(peaks_reflection_freespace) > 1:
@@ -88,9 +85,6 @@ def calculate_transmission_reflection_coefficients(
         )
     else:
         mean_squared_reflection_free_space = (max(reflection_signals[0]) ** 2) / 2
-        logger.warning(
-            "There is not enough timesteps for this signal to have the proper lenght/ or no signal is transmited. The FDTD_niter should be increased, to be sure that the resutls are valid."
-        )
 
     reflection_coefficient = (
         mean_squared_reflection_material / mean_squared_reflection_free_space
