@@ -1,7 +1,7 @@
 from dotmap import DotMap
 from tqdm import tqdm
-import torch
 from loguru import logger
+import torch
 
 from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
 from nidn.utils.global_constants import UNIT_MAGNITUDE
@@ -11,6 +11,7 @@ from .calculate_transmission_reflection_coefficients import (
     calculate_transmission_reflection_coefficients,
 )
 from .init_fdtd import init_fdtd
+from ..fdtd.backend import backend as bd
 
 
 def compute_spectrum_fdtd(permittivity, cfg: DotMap):
@@ -142,7 +143,7 @@ def _get_abs_value_from_3D_signal(signal):
     """
     signal = _average_along_detector(signal)
 
-    abs_value = torch.zeros(len(signal))
+    abs_value = bd.zeros(len(signal))
     for i in range(len(signal)):
         # Added 1e-16 to prevent gradient flow from breaking, without significantly changing the result
         squared_value = torch.square(signal[i] + 1e-16)
@@ -163,9 +164,9 @@ def _average_along_detector(signal):
     Returns:
         Array[timesteps, 3]: averaged signal along detector
     """
-    avg = torch.zeros([len(signal), 3])
+    avg = bd.zeros([len(signal), 3])
     for i in range(len(signal)):
-        s = torch.zeros(3)
+        s = bd.zeros(3)
         for p in signal[i]:
             s[0] += p[0] / len(signal[i])
             s[1] += p[1] / len(signal[i])
