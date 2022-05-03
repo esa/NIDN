@@ -17,6 +17,7 @@ def _add_plot(fig, target_frequencies, spectrum, ylimits, nr, type_name):
     ax.xaxis.set_minor_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
 
     ax.xaxis.set_major_locator(AutoLocator())
+    plt.minorticks_off()
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)
     ax.set_ylim(ylimits)

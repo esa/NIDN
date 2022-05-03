@@ -123,7 +123,7 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
                 fontsize=7,
             )
     else:
-        _, indices = _find_closest_material(eps, run_cfg)
+        _, indices = _find_closest_material(eps, run_cfg, material_collection)
         unique_indices = torch.unique(indices)
         names = [material_collection.material_names[i] for i in unique_indices]
         for name in names:
