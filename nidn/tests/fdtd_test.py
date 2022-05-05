@@ -30,7 +30,7 @@ def test_fdtd_grid_creation():
     )
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
-    eps_grid[:, :, 1, :] = layer_builder.build_uniform_layer("zirconium")
+    eps_grid[:, :, 1, :] = layer_builder.build_uniform_layer("germanium")
     eps_grid[:, :, 2, :] = layer_builder.build_uniform_layer("gallium_arsenide")
     eps_grid[:, :, 3, :] = layer_builder.build_uniform_layer("silicon_nitride")
     grid, transmission_detector, reflection_detetctor = init_fdtd(

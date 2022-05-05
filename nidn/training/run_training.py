@@ -57,7 +57,7 @@ def _init_training(run_cfg: DotMap):
     fix_random_seeds(run_cfg.seed)
 
     # Init model
-    if not "model" in run_cfg.keys():
+    if not "model" in run_cfg.keys() or run_cfg.model is None:
         run_cfg.model = init_network(run_cfg)
 
     # Initialize some utility
@@ -106,7 +106,7 @@ def run_training(
         # Compute the epsilon values from the model
         eps_grid, material_ids = model_to_eps_grid(run_cfg.model, run_cfg)
 
-        # Compute the spectrum using TRCWA for this grid
+        # Compute the spectrum for this material
         try:
             produced_R_spectrum, produced_T_spectrum = compute_spectrum(
                 eps_grid, run_cfg

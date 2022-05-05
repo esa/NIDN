@@ -26,10 +26,13 @@ def _get_transformed_grid(Nx_undersampled, Ny_undersampled, N_layers, thicknesse
         z = torch.linspace(-1, 1, N_layers)
     else:
         total_thickness = sum(thicknesses)
-        # normalize to 0 to 1
-        z = torch.tensor(thicknesses) / total_thickness
-        # Transform to -1 to 1
-        z = (z * 2) - 1
+
+        # create weighted z
+        z = torch.cumsum(torch.tensor(thicknesses) / total_thickness, dim=0)
+        z -= thicknesses[0] / total_thickness
+
+        z = z / z.max() - 0.5
+        z *= 2
 
     return x, y, z
 

@@ -14,23 +14,12 @@ from .init_fdtd import init_fdtd
 from ..fdtd.backend import backend as bd
 
 
-def compute_spectrum_fdtd(permittivity, cfg: DotMap):
-    """Generates a spectrum of transmission and reflection coefficients for the specified wavelengths in the cfg, by using FDTD simulations.
+def _check_grid_scale(cfg):
+    """Checks whether grid scale allows specified sizes.
 
     Args:
-        permitivity (torch.tensor): Array of permittivity for each layer
-        cfg (DotMap): Configurations needed to perform the simulations
-
-    Returns:
-        tuple[array, array]: Transmission spectrum and reflection spectrum
+        cfg (DotMap): Configurations for the simulation
     """
-    transmission_spectrum = []
-    reflection_spectrum = []
-    physical_wavelengths, norm_freq = get_frequency_points(cfg)
-    logger.debug("Wavelenghts in spectrum : ")
-    logger.debug(physical_wavelengths)
-    logger.debug("Number of layers: ")
-    logger.debug(len(permittivity[0, 0, :, 0]))
 
     scaling = max(
         UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
@@ -54,6 +43,26 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
                     cfg.PER_LAYER_THICKNESS[i],
                 )
             )
+
+
+def compute_spectrum_fdtd(permittivity, cfg: DotMap):
+    """Generates a spectrum of transmission and reflection coefficients for the specified wavelengths in the cfg, by using FDTD simulations.
+
+    Args:
+        permitivity (torch.tensor): Array of permittivity for each layer
+        cfg (DotMap): Configurations needed to perform the simulations
+
+    Returns:
+        tuple[array, array]: Transmission spectrum and reflection spectrum
+    """
+    transmission_spectrum = []
+    reflection_spectrum = []
+    physical_wavelengths, _ = get_frequency_points(cfg)
+    logger.debug("Wavelenghts in spectrum : ")
+    logger.debug(physical_wavelengths)
+    logger.debug("Number of layers: " + str(len(permittivity[0, 0, :, 0])))
+    _check_grid_scale(cfg)
+
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
@@ -66,7 +75,7 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
             cfg,
             include_object=False,
             wavelength=physical_wavelengths[i],
-            permittivity=permittivity[:, :, :, i],
+            permittivity=None,
         )
         grid.run(cfg.FDTD_niter, progress_bar=False)
         transmission_free_space, reflection_free_space = _get_detector_values(
