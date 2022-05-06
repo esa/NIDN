@@ -77,7 +77,7 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
     detector_y -= cfg.FDTD_gridpoints_from_material_to_detector
 
     logger.trace(
-        "Placing detector at "
+        "Placing detectors at "
         + str(detector_x.int().item())
         + ","
         + str(detector_y.int().item())
