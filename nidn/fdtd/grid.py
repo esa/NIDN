@@ -134,7 +134,7 @@ class Grid:
         # save electric and magnetic field
         self.E = bd.zeros((self.Nx, self.Ny, self.Nz, 3))
         self.H = bd.zeros((self.Nx, self.Ny, self.Nz, 3))
-        self.absorption_factor = bd.zeros(self.Nx, self.Ny, self.Nz, 3)
+        self.absorption_factor = bd.zeros((self.Nx, self.Ny, self.Nz, 3))
 
         # save the inverse of the relative permittiviy and the relative permeability
         # these tensors can be anisotropic!

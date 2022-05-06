@@ -1,5 +1,6 @@
 from dotmap import DotMap
 from loguru import logger
+import torch
 
 from ..fdtd import (
     AbsorbingObject,
@@ -30,22 +31,26 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
     set_backend("torch")
     if (len(cfg.PER_LAYER_THICKNESS) == 1) and (cfg.N_layers > 1):
         cfg.PER_LAYER_THICKNESS = cfg.PER_LAYER_THICKNESS * cfg.N_layers
-    # The scaling is the number of grid points per unit magnitude. This is the maximum of the reation between the unit magnitude and 1/10th of the smallest wavelength,
+    thicknesses = torch.tensor(cfg.PER_LAYER_THICKNESS)
+    # The scaling is the number of grid points per unit magnitude. This is the maximum of the relation between the unit magnitude and 1/10th of the smallest wavelength,
     # and a constant which is defaulted to 10. If this scaling becomes too low, i.e. below 2, there might be some errors in creating the grid,
-    # as there is too feew grid points for ceartian elements to be placed correctly.
-    scaling = max(
-        UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
-        cfg.FDTD_min_gridpoints_per_unit_magnitude,
+    # as there are too few grid points for certain elements to be placed correctly.
+    scaling = torch.maximum(
+        torch.tensor(
+            UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
+        ),
+        torch.tensor(cfg.FDTD_min_gridpoints_per_unit_magnitude),
     )
 
-    x_grid_size = int(
+    x_grid_size = (
         scaling
         * (
             cfg.FDTD_pml_thickness * 2
             + cfg.FDTD_free_space_distance * 2
-            + sum(cfg.PER_LAYER_THICKNESS)
+            + torch.sum(thicknesses)
         )
-    )
+    ).int()
+
     y_grid_size = 3
     logger.debug(
         "Initializing FDTD grid with size {} by {} grid points, with a scaling factor of {} grid points per um".format(
@@ -53,58 +58,75 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         )
     )
     grid = Grid(
-        (x_grid_size, y_grid_size, 1),
+        (x_grid_size.item(), y_grid_size, 1),
         grid_spacing=UNIT_MAGNITUDE / scaling,
         permittivity=1.0,
         permeability=1.0,
     )
     grid = _add_boundaries(grid, int(cfg.FDTD_pml_thickness * scaling))
+
+    # Determine detector positions
+    detector_x = (
+        cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance + torch.sum(thicknesses)
+    )
+
+    detector_y = torch.tensor(cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
+    detector_x *= scaling
+    detector_y *= scaling
+    detector_x += cfg.FDTD_gridpoints_from_material_to_detector
+    detector_y -= cfg.FDTD_gridpoints_from_material_to_detector
+
+    logger.trace(
+        "Placing detectors at "
+        + str(detector_x.int().item())
+        + ","
+        + str(detector_y.int().item())
+    )
+
     grid, t_detector, r_detector = _add_detectors(
         grid,
-        int(
-            scaling
-            * (
-                cfg.FDTD_pml_thickness
-                + cfg.FDTD_free_space_distance
-                + sum(cfg.PER_LAYER_THICKNESS)
-            )
-            + cfg.FDTD_gridpoints_from_material_to_detector
-        ),
-        int(
-            scaling * (cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
-            - cfg.FDTD_gridpoints_from_material_to_detector
-        ),
+        detector_x.int().item(),
+        detector_y.int().item(),
+    )
+
+    source_x = (cfg.FDTD_source_position[0] * scaling).int()
+    source_y = (cfg.FDTD_source_position[1] * scaling).int()
+
+    logger.trace(
+        "Placing source at "
+        + str(source_x.int().item())
+        + ","
+        + str(source_y.int().item())
     )
 
     grid = _add_source(
         grid,
-        int(cfg.FDTD_source_position[0] * scaling),
-        int(cfg.FDTD_source_position[1] * scaling),
+        source_x.item(),
+        source_y.item(),
         wavelength / SPEED_OF_LIGHT,
         cfg.FDTD_pulse_type,
         cfg.FDTD_source_type,
     )
+
     if include_object:
-        for i in range(cfg.N_layers):
-            x_start = cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance
-            x_end = x_start
-            if i == 0:
-                x_end += cfg.PER_LAYER_THICKNESS[0]
-            elif i == cfg.N_layers - 1:
-                x_start += sum(cfg.PER_LAYER_THICKNESS[:i])
-                x_end += sum(cfg.PER_LAYER_THICKNESS)
-            else:
-                x_start += sum(cfg.PER_LAYER_THICKNESS[:i])
-                x_end += sum(cfg.PER_LAYER_THICKNESS[: i + 1])
+        x_start = torch.tensor(cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
+        x_end = x_start + thicknesses[0]
+        for i in range(permittivity.shape[2]):
+            # TODO: Implement possibility for patterned grid, currently uniform layer is used
             grid = _add_object(
                 grid,
-                int(scaling * x_start),
-                int(scaling * x_end),
-                permittivity[0][0][
-                    i
-                ],  # TODO: Implement possibility for patterned grid, currently uniform layer is used
+                (scaling * x_start).int(),
+                (scaling * x_end).int(),
+                permittivity[0][0][i],
                 frequency=SPEED_OF_LIGHT / wavelength,
             )
+
+            if i < permittivity.shape[2] - 1:
+                x_start += thicknesses[i]
+                x_end += thicknesses[i + 1]
+            else:
+                break
+
     return grid, t_detector, r_detector
 
 

@@ -28,7 +28,7 @@ def _add_plot(
 
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
     ax.xaxis.set_major_locator(AutoLocator())
-
+    plt.minorticks_off()
     # ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
     ax.axhspan(-6, 0, facecolor="gray", alpha=0.3)
     ax.axhspan(1, 5, facecolor="gray", alpha=0.3)

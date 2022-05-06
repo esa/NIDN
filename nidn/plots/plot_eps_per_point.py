@@ -66,7 +66,9 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
                 eps_point_real = eps_np[x, y, N_layer].real
                 eps_point_imag = eps_np[x, y, N_layer].imag
                 ax.plot(wl, eps_point_real, linewidth=1)
+                ax.minorticks_off()
                 ax2.plot(wl, eps_point_imag, linewidth=1)
+                ax2.minorticks_off()
 
                 # if not legend:
                 #     ax.text(
@@ -103,7 +105,9 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
         for mat_data, mat_name in zip(material_data, compare_to_material):
 
             ax.plot(wl, mat_data.real, "--", color="black", linewidth=1.5)
+            ax.minorticks_off()
             ax2.plot(wl, mat_data.imag, "--", color="black", linewidth=1.5)
+            ax2.minorticks_off()
             ax.text(
                 wl.max(),
                 mat_data.real[0],
@@ -119,7 +123,7 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
                 fontsize=7,
             )
     else:
-        _, indices = _find_closest_material(eps, run_cfg)
+        _, indices = _find_closest_material(eps, run_cfg, material_collection)
         unique_indices = torch.unique(indices)
         names = [material_collection.material_names[i] for i in unique_indices]
         for name in names:
@@ -132,6 +136,8 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
             ax2.text(
                 wl.max(), material_data.imag[0], " " + name, va="center", fontsize=7
             )
+
+    fig.autofmt_xdate()
 
     if save_path is not None:
         plt.savefig(save_path + "/eps_per_points.png", dpi=150)

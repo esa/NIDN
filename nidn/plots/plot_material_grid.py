@@ -7,7 +7,9 @@ from ..materials.find_closest_material import _find_closest_material
 from ..training.model.model_to_eps_grid import model_to_eps_grid
 
 
-def plot_material_grid(run_cfg, save_path=None, eps=None, plot_error=False):
+def plot_material_grid(
+    run_cfg, save_path=None, eps=None, plot_error=False, to_skip=None
+):
     """Plots the materials closest to the used ones for each grid point. Optionally saves it.
 
     Args:
@@ -15,6 +17,7 @@ def plot_material_grid(run_cfg, save_path=None, eps=None, plot_error=False):
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
         eps (torch.tensor, optional): The epsilon tensor. Defaults to None, then the epsilon tensor will be computed from the run_cfg.
         plot_error (bool, optional): If True, the error will be plotted. Defaults to False.
+        to_skip (int, optional): Material to skip. Defaults to None.
     """
     Nx, Ny, N_layers = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers
 
@@ -29,10 +32,12 @@ def plot_material_grid(run_cfg, save_path=None, eps=None, plot_error=False):
     X, Y, Z = torch.meshgrid((x, y, z))
 
     # Load material data
-    material_collection = MaterialCollection(run_cfg.target_frequencies)
+    material_collection = MaterialCollection(
+        run_cfg.target_frequencies, to_skip=to_skip
+    )
 
     # Get closest materials
-    errors, material_id = _find_closest_material(eps, run_cfg)
+    errors, material_id = _find_closest_material(eps, run_cfg,material_collection)
 
     cmap = plt.get_cmap("tab20", material_collection.N_materials)
 

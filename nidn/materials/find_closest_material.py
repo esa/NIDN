@@ -3,21 +3,19 @@ from .material_collection import MaterialCollection
 import torch
 
 
-def _find_closest_material(eps, run_cfg):
+def _find_closest_material(eps, run_cfg, material_collection):
     """Finds the closest matching material and distance to that (in epsilon)
     from a given epsilon grid.
 
     Args:
         eps (torch.tensor): A tensor of epsilon values (Nx,Ny,N_layers,N_freq).
         run_cfg (DotMap): Run configuration.
+        material_collection (MaterialCollection): The material collection.
 
     Returns:
         tuple: The closest materials and distances to that.
     """
     Nx, Ny, N_layers, N_freq = run_cfg.Nx, run_cfg.Ny, run_cfg.N_layers, run_cfg.N_freq
-
-    # Initiate material collection
-    material_collection = MaterialCollection(run_cfg.target_frequencies)
 
     comparisons = torch.zeros(
         [

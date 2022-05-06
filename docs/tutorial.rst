@@ -427,7 +427,7 @@ Training Properties
 - model_type (str) : "siren" or "nerf". What type of model architecture to use
 - iterations (int) : number of iterations in training the neural network
 - learning_rate (float) : The learning rate for the training of the neural network, a higher value leads to larger steps along the gradient. Reduce if problems occur.
-- type (str) : "classification" or "regression". For more details see Example_Notebook.ipynb
+- type (str) : "classification" or "regression". For more details see notebooks in the repository.
 - reg_loss_weight (float) :  weighting of the regularization loss, only used in classification to force the network to pick one material.
 - use_regularization_loss (bool) : Only relevant for classification, activates the regularization.
 

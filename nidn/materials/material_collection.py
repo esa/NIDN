@@ -13,11 +13,12 @@ class MaterialCollection:
     material_names = []
     N_materials = 0
 
-    def __init__(self, target_frequencies):
+    def __init__(self, target_frequencies, to_skip=None):
         """Initalizes the MaterialCollection. Loads all materials from the data folder.
 
         Args:
             target_frequencies (list): Frequencies we are targeting. Closest ones in the data will be used.
+            to_skip (list): List of materials to skip.
         """
         logger.trace("Initializing material collection")
         self.epsilon_matrix = None
@@ -28,7 +29,7 @@ class MaterialCollection:
 
         self.target_frequencies = target_frequencies
         self.materials_folder = os.path.dirname(__file__) + "/data/"
-        self._load_materials_folder()
+        self._load_materials_folder(to_skip)
 
     def __getitem__(self, key):
         """Given the name of a material will return the corresponding epsilon tensor.
@@ -42,11 +43,16 @@ class MaterialCollection:
         if key in self.material_names:
             return self.epsilon_matrix[self.material_names.index(key)]
         else:
-            raise KeyError(f"Material '{key}' not found in the material collection.")
+            raise KeyError(
+                f"Material '{key}' not found in the material collection. Available are: {self.material_names}"
+            )
 
-    def _load_materials_folder(self):
+    def _load_materials_folder(self, to_skip=None):
         """Loads all csv files from folder "data"
         and sets up the EPS_MATRIX and MATERIAL_NAMES
+
+        Args:
+            to_skip (list): List of materials to skip.
         """
         logger.trace(f"Loading materials from folder: {self.materials_folder}")
 
@@ -57,12 +63,19 @@ class MaterialCollection:
 
         eps_list = []
         for file in files:
+            file = file.replace("\\", "/")
+            name = file.split("/")[-1].split(".csv")[0]
+
+            # Skip materials we don't want
+            if to_skip is not None and name in to_skip:
+                logger.debug(f"Skipping material {name}")
+                continue
+
             # Load material epsilon (permittivity)
             eps_list.append(self._load_material_data(file))
 
             # Remember file name as material name
-            file = file.replace("\\", "/")
-            self.material_names.append(file.split("/")[-1].split(".csv")[0])
+            self.material_names.append(name)
 
         # Create a single tensor of all materials
         logger.trace("Creating material tensor")
@@ -78,7 +91,7 @@ class MaterialCollection:
         Returns:
             torch.tensor: Epsilon for the material (permittivity)
         """
-        logger.trace(f"Loading material {name}")
+        logger.debug(f"Loading material {name}")
         csv_data = pandas.read_csv(name, delimiter="\t")
 
         eps = []
@@ -94,5 +107,5 @@ class MaterialCollection:
             eps.append([real + imag * 1.0j])
 
         eps = torch.tensor(eps)
-        logger.debug(f"Epsilon for material {name} is: {eps}")
+        logger.trace(f"Epsilon for material {name} is: {eps}")
         return eps
