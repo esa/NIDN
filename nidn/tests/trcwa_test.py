@@ -1,8 +1,6 @@
 import torch
 from loguru import logger
-from dotmap import DotMap
-import sys
-
+from ..utils.load_default_cfg import load_default_cfg
 from ..utils.compute_spectrum import compute_spectrum
 
 _TRCWA_TEST_TOLERANCE = 1e-7
@@ -13,7 +11,7 @@ torch.set_default_tensor_type(torch.DoubleTensor)
 def test_single_layer():
     """Tests a single patterned layer with a single frequency. TRCWA vs. GRCWA"""
     logger.info("Running single layer test...")
-    run_cfg = DotMap()
+    run_cfg = load_default_cfg()
     run_cfg.Nx = 5
     run_cfg.Ny = 5
     run_cfg.N_layers = 1
@@ -35,10 +33,13 @@ def test_single_layer():
     ]
 
     # Get a grid of 1 + 1j
-    eps_grid = torch.ones(
-        shape,
-        dtype=torch.cfloat,
-    ) * (1.0 + 1j)
+    eps_grid = (
+        torch.ones(
+            shape,
+            dtype=torch.cfloat,
+        )
+        * (1.0 + 1j)
+    )
 
     logger.debug("Computing spectrum...")
 
@@ -58,7 +59,7 @@ def test_single_layer():
 def test_uniform_layer():
     """Tests a single uniform layer at two frequencies. TRCWA vs. GRCWA"""
     logger.info("Running uniform layer test...")
-    run_cfg = DotMap()
+    run_cfg = load_default_cfg()
     run_cfg.Nx = 1
     run_cfg.Ny = 1
     run_cfg.N_layers = 1
@@ -108,7 +109,7 @@ def test_uniform_layer():
 def test_three_layer():
     """Tests a three stacked patterned layer with a single frequency. TRCWA vs. GRCWA"""
     logger.info("Running three layer test...")
-    run_cfg = DotMap()
+    run_cfg = load_default_cfg()
     run_cfg.Nx = 9
     run_cfg.Ny = 9
     run_cfg.N_layers = 3
@@ -130,10 +131,13 @@ def test_three_layer():
     ]
 
     # Get a somewhat interesting grid
-    eps_grid = torch.ones(
-        shape,
-        dtype=torch.cfloat,
-    ) * (-4.2 + 0.42j)
+    eps_grid = (
+        torch.ones(
+            shape,
+            dtype=torch.cfloat,
+        )
+        * (-4.2 + 0.42j)
+    )
 
     eps_grid[0:3, 0:3, 0, :] = eps_grid[0:3, 0:3, 0, :] * 1.0
     eps_grid[0:3, 0:3, 1, :] = eps_grid[0:3, 0:3, 1, :] * 2.0

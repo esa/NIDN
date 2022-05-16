@@ -2,7 +2,6 @@ from dotmap import DotMap
 
 import torch
 import numpy as np
-import numpy.typing as npt
 from collections import deque
 from copy import deepcopy
 from loguru import logger
@@ -15,7 +14,7 @@ from .model.model_to_eps_grid import model_to_eps_grid
 from ..utils.compute_spectrum import compute_spectrum
 from ..trcwa.compute_target_frequencies import compute_target_frequencies
 from ..utils.fix_random_seeds import fix_random_seeds
-from .utils.validate_config import _validate_config
+from ..utils.validate_config import _validate_config
 
 
 def _init_training(run_cfg: DotMap):
@@ -108,8 +107,9 @@ def run_training(
 
         # Compute the spectrum for this material
         try:
+            # Not validating because this already happened in _init_training
             produced_R_spectrum, produced_T_spectrum = compute_spectrum(
-                eps_grid, run_cfg
+                eps_grid, run_cfg, validate_cfg=False
             )
         except ValueError:
             logger.warning(

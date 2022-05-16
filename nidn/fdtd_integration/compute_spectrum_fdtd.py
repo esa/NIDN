@@ -14,37 +14,6 @@ from .init_fdtd import init_fdtd
 from ..fdtd.backend import backend as bd
 
 
-def _check_grid_scale(cfg):
-    """Checks whether grid scale allows specified sizes.
-
-    Args:
-        cfg (DotMap): Configurations for the simulation
-    """
-
-    scaling = max(
-        UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE),
-        cfg.FDTD_min_gridpoints_per_unit_magnitude,
-    )
-    for i in range(len(cfg.PER_LAYER_THICKNESS)):
-        if (
-            cfg.PER_LAYER_THICKNESS[i]
-            % (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
-            != 0
-        ):
-            logger.warning(
-                "Due to the grid resultion, the thickness of layer {} is set to {:.3f} µm instead of the specified {} µm".format(
-                    i + 1,
-                    int(
-                        cfg.PER_LAYER_THICKNESS[i]
-                        * UNIT_MAGNITUDE
-                        / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
-                    )
-                    / scaling,
-                    cfg.PER_LAYER_THICKNESS[i],
-                )
-            )
-
-
 def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     """Generates a spectrum of transmission and reflection coefficients for the specified wavelengths in the cfg, by using FDTD simulations.
 
@@ -61,7 +30,6 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug("Wavelenghts in spectrum : ")
     logger.debug(physical_wavelengths)
     logger.debug("Number of layers: " + str(len(permittivity[0, 0, :, 0])))
-    _check_grid_scale(cfg)
 
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
