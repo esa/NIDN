@@ -20,7 +20,7 @@ def save_run(run_cfg, subfolder=""):
     # Create subfolder if it does not exist
     Path("../results/" + subfolder + "/").mkdir(parents=True, exist_ok=True)
 
-    filename = "../results/" + subfolder + "/" + dt_string + "_run.pk"
+    filename = "../results/" + subfolder + "/" + run_cfg.name + "_" + dt_string + "_run.pk"
 
     logger.info("Saving run to file: {}".format(filename))
     with open(filename, "wb") as handle:
