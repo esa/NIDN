@@ -1,5 +1,5 @@
 from ..utils.load_default_cfg import load_default_cfg
-from ..training.utils.validate_config import _validate_config
+from ..utils.validate_config import _validate_config
 
 
 def test_default_config():
