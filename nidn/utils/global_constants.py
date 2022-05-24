@@ -16,3 +16,9 @@ UNIT_MAGNITUDE = 10 ** (-6)
 MU_0 = 4e-7 * PI
 # Vacuum impedance
 ETA_0 = MU_0 * SPEED_OF_LIGHT
+
+
+##### PLOTTING
+NIDN_FONTSIZE = 16
+NIDN_PLOT_COLOR_1 = "#0173b2"
+NIDN_PLOT_COLOR_2 = "#de8f05"

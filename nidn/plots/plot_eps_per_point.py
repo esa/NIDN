@@ -7,6 +7,7 @@ from ..training.model.model_to_eps_grid import model_to_eps_grid
 from ..trcwa.load_material_data import _load_material_data
 from ..materials.material_collection import MaterialCollection
 from ..materials.find_closest_material import _find_closest_material
+from ..utils.global_constants import NIDN_FONTSIZE, NIDN_PLOT_COLOR_1
 
 
 def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend=True):
@@ -33,7 +34,7 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
                 material_data.append(material_collection[mat])
 
     # Create figure
-    fig = plt.figure(figsize=(10, 6), dpi=150)
+    fig = plt.figure(figsize=(10, 3), dpi=300)
     fig.patch.set_facecolor("white")
 
     # Plot epsilon
@@ -46,12 +47,12 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
     ax2.set_xlim(wl.min(), wl.max() + (0.3 * (wl.max() - wl.min())))
 
     ax.set_xlabel("Wavelength [µm]")
-    ax.set_ylabel("Epsilon real part")
-    ax.set_xscale("log")
+    ax.set_ylabel("Permittivity - Real Part")
+    # ax.set_xscale("log")
 
     ax2.set_xlabel("Wavelength [µm]")
-    ax2.set_ylabel("Epsilon imaginary part")
-    ax2.set_xscale("log")
+    ax2.set_ylabel("Permittivity - Imaginary Part")
+    # ax2.set_xscale("log")
 
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
     ax2.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: "{:.1f}".format(x)))
@@ -65,9 +66,9 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
             for N_layer in range(eps.shape[2]):
                 eps_point_real = eps_np[x, y, N_layer].real
                 eps_point_imag = eps_np[x, y, N_layer].imag
-                ax.plot(wl, eps_point_real, linewidth=1)
+                ax.plot(wl, eps_point_real, linewidth=2, c=NIDN_PLOT_COLOR_1)
                 ax.minorticks_off()
-                ax2.plot(wl, eps_point_imag, linewidth=1)
+                ax2.plot(wl, eps_point_imag, linewidth=2, c=NIDN_PLOT_COLOR_1)
                 ax2.minorticks_off()
 
                 # if not legend:
@@ -89,13 +90,19 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
     if legend:
         # Add legend
         names = [
-            f"{N_layer},{x},{y}"
+            f"Layer {N_layer} - (x,y)=({x},{y})"
             for x in range(eps.shape[0])
             for y in range(eps.shape[1])
             for N_layer in range(eps.shape[2])
         ]
-        ax.legend(names)
-        ax2.legend(names)
+        ax.legend(
+            names,
+            fontsize=NIDN_FONTSIZE - 6,
+            bbox_to_anchor=(1.05, 1.2),
+            ncol=10,
+            loc="upper center",
+        )
+        # ax2.legend(names, fontsize=NIDN_FONTSIZE - 6)
 
     # Plot material data
     if compare_to_material is not None:
