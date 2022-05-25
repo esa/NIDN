@@ -33,10 +33,7 @@ def _check_grid_scale(cfg):
     for i, thickness in enumerate(cfg.PER_LAYER_THICKNESS):
         x_start = cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance
         x_end = x_start + thickness
-        print(x_start, int(scaling * x_end))
-        print(x_end, int(scaling * x_start))
         size = int(scaling * x_end) - int(scaling * x_start)
-        print(size, size / scaling)
         if thickness != size / scaling:
             downscaled = size / scaling
             logger.warning(
