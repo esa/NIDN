@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from ..materials.material_collection import MaterialCollection
 from ..materials.find_closest_material import _find_closest_material
 from ..training.model.model_to_eps_grid import model_to_eps_grid
+from ..utils.global_constants import NIDN_FONTSIZE
 
 
 def plot_material_grid(
@@ -37,12 +38,12 @@ def plot_material_grid(
     )
 
     # Get closest materials
-    errors, material_id = _find_closest_material(eps, run_cfg,material_collection)
+    errors, material_id = _find_closest_material(eps, run_cfg, material_collection)
 
     cmap = plt.get_cmap("tab20", material_collection.N_materials)
 
     # Here we plot it
-    fig = plt.figure(figsize=(10, 5), dpi=150)
+    fig = plt.figure(figsize=(10, 5), dpi=300)
     fig.patch.set_facecolor("white")
     if plot_error:
         ax = fig.add_subplot(121, projection="3d")
@@ -67,12 +68,12 @@ def plot_material_grid(
         p, ticks=np.arange(1, material_collection.N_materials + 1)
     )  # This is where we get the discrete colormap
     cbar.set_ticklabels(material_collection.material_names)
-    cbar.ax.tick_params(labelsize=7)
+    cbar.ax.tick_params(labelsize=NIDN_FONTSIZE - 4)
     # cbar.set_label("Materials", labelpad=-1)
 
     ax.grid(False)  # Hide grid lines
-    ax.set_xlabel("$N_x =$" + str(Nx))
-    ax.set_ylabel("$N_y =$" + str(Ny))
+    # ax.set_xlabel("$N_x =$" + str(Nx))
+    # ax.set_ylabel("$N_y =$" + str(Ny))
     # ax.set_zlabel("# of layers", rotation=60)  # TODO Fix rotation
     ax.set_xticks([])
     ax.set_yticks([])
@@ -81,7 +82,8 @@ def plot_material_grid(
     z_labels = [""] * N_layers
     for idx in range(N_layers):
         z_labels[idx] = "L" + str(idx + 1)
-    ax.set_zticklabels(z_labels)  # Where L1 is (seemingly) the bottom one
+    # Where L1 is (seemingly) the bottom one
+    ax.set_zticklabels(z_labels, fontsize=NIDN_FONTSIZE - 4)
 
     if plot_error:
         ax = fig.add_subplot(122, projection="3d")
