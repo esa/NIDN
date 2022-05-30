@@ -30,14 +30,15 @@ def _check_grid_scale(cfg):
         UNIT_MAGNITUDE / scale_in_wl,
         cfg.FDTD_min_gridpoints_per_unit_magnitude,
     )
-    for i in range(len(cfg.PER_LAYER_THICKNESS)):
-        if cfg.PER_LAYER_THICKNESS[i] % scale_in_wl != 0:
-            downscaled = (
-                int(cfg.PER_LAYER_THICKNESS[i] * UNIT_MAGNITUDE / scale_in_wl) / scaling
-            )
+    for i, thickness in enumerate(cfg.PER_LAYER_THICKNESS):
+        x_start = cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance
+        x_end = x_start + thickness
+        size = int(scaling * x_end) - int(scaling * x_start)
+        if thickness != size / scaling:
+            downscaled = size / scaling
             logger.warning(
-                f"Due to the grid resolution, the thickness of layer {i + 1} is set to {downscaled:.3f} µm" +
-                f"instead of the specified {cfg.PER_LAYER_THICKNESS[i]} µm"
+                f"Due to the grid resolution, the thickness of layer {i + 1} is set to {downscaled:.3f} µm"
+                + f"instead of the specified {thickness} µm"
             )
 
 
