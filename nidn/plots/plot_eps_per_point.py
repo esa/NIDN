@@ -66,9 +66,9 @@ def plot_eps_per_point(run_cfg, compare_to_material=None, save_path=None, legend
             for N_layer in range(eps.shape[2]):
                 eps_point_real = eps_np[x, y, N_layer].real
                 eps_point_imag = eps_np[x, y, N_layer].imag
-                ax.plot(wl, eps_point_real, linewidth=2, c=NIDN_PLOT_COLOR_1)
+                ax.plot(wl, eps_point_real, linewidth=2)
                 ax.minorticks_off()
-                ax2.plot(wl, eps_point_imag, linewidth=2, c=NIDN_PLOT_COLOR_1)
+                ax2.plot(wl, eps_point_imag, linewidth=2)
                 ax2.minorticks_off()
 
                 # if not legend:
