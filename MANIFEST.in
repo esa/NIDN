@@ -1,2 +1,3 @@
 include nidn/utils/resources/default_config.toml
 include nidn/materials/data/*.csv
+include README.MD
