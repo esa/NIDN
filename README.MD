@@ -100,8 +100,6 @@ To change the logging verbosity call `nidn.setLogLevel(level)` where level is on
 
 Detailed docs of NIDN can be built with sphinx. To do so, make sure (sphinx)[https://www.sphinx-doc.org/en/master/usage/installation.html] is installed and run `make html` in the docs folder to get a local html version of the docs. readthedocs support may follow.
 
-You can find all available integrators [here](https://torchquad.readthedocs.io/en/main/integration_methods.html).
-
 ### Supported Materials
 
 If you try to design a material with the `classification` approach (see [mentioned notebooks](https://github.com/esa/NIDN/blob/main/notebooks/Inverse_Material_Design_with_RCWA.ipynb) for more details), all materials in the [materials folder](https://github.com/esa/NIDN/tree/main/nidn/materials/data) will be utilized. You can manually add other materials there using data from, e.g., [refractiveindex.info](https://refractiveindex.info/).
@@ -110,7 +108,7 @@ If you try to design a material with the `classification` approach (see [mention
 
 ## Roadmap
 
-See the [open issues](https://github.com/esa/torchquad/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/esa/nidn/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
 
@@ -121,7 +119,7 @@ The project is open to community contributions. Feel free to open an [issue](htt
 If you want to contribute, please
 
 1. Fork the project on [GitHub](https://github.com/esa/nidn).
-2. Get the most up-to-date code by following this quick guide for installing torchquad from source:
+2. Get the most up-to-date code by following this quick guide for installing nidn from source:
    1. Get [miniconda](https://docs.conda.io/en/latest/miniconda.html) or similar
    2. Clone the repo
    ```sh
@@ -154,7 +152,7 @@ Only PRs created on the `main` branch with all tests passing will be considered.
 
 ## License
 
-Distributed under the GPL-3.0 License. See [LICENSE](https://github.com/esa/torchquad/blob/main/LICENSE) for more information.
+Distributed under the GPL-3.0 License. See [LICENSE](https://github.com/esa/nidn/blob/main/LICENSE) for more information.
 
 <!-- CONTACT -->
 
