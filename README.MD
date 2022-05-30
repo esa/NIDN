@@ -33,7 +33,7 @@ Neural Inverse Design of Nanostructures (NIDN) is a Python project by the Advanc
 
 <p align="center">
   <a href="https://github.com/esa/nidn">
-    <img src="docs/NIDN_Scheme_v2.drawio.drawio.png" alt="Scheme"  width="1214" height="612">
+    <img src="docs/NIDN_Scheme_v2.drawio.drawio.png" alt="Scheme"  width="910" height="459">
   </a>
 </p>
 
