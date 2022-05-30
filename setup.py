@@ -36,6 +36,8 @@ setup(
     ],
     packages=[
         "nidn",
+        "nidn.fdtd",
+        "nidn.fdtd_integration",
         "nidn.materials",
         "nidn.plots",
         "nidn.tests",
