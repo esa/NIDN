@@ -31,6 +31,12 @@
 
 Neural Inverse Design of Nanostructures (NIDN) is a Python project by the Advanced Concepts Team of ESA. The goal of the project is to enable inverse design of stacks of nanostructures, metamaterials, photonic crystals, etc., using neural networks in PyTorch. As forward models, it supports [rigorous coupled-wave analysis](https://en.wikipedia.org/wiki/Rigorous_coupled-wave_analysis) and a [finite-difference time-domain](https://eecs.wsu.edu/~schneidj/ufdtd/) solver. There is an accompanying paper about to be published.
 
+<p align="center">
+  <a href="https://github.com/esa/nidn">
+    <img src="docs/NIDN_Scheme_v2.drawio.drawio.png" alt="Scheme"  width="1214" height="612">
+  </a>
+</p>
+
 ### Built With
 
 This project is based on:
