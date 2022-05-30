@@ -34,10 +34,11 @@ if "TORCH_DEVICE" not in os.environ:
     os.environ["TORCH_DEVICE"] = "cpu"
 
 logger.info(f"Initialized NIDN for {os.environ['TORCH_DEVICE']}")
-
 # Set precision (and potentially GPU)
 torch.set_default_tensor_type(torch.DoubleTensor)
 logger.info("Using double precision")
+logger.info(f"Switching log level to warning.")
+set_log_level("WARNING")
 
 __all__ = [
     "compute_spectrum",

@@ -16,6 +16,7 @@ setup(
     url="https://github.com/esa/nidn",
     author="ESA Advanced Concepts Team",
     author_email="pablo.gomez@esa.int",
+    include_package_data=True,
     install_requires=[
         "dotmap>=1.3.24",
         "loguru>=0.5.3",
@@ -24,6 +25,7 @@ setup(
         "pandas>=1.3.1",
         "scipy>=1.6.0",
         "tqdm>=4.56.1",
+        "toml>=0.10.2",
         "torch>=1.9",
     ],
     classifiers=[
