@@ -199,7 +199,7 @@ def _check_value_ranges(cfg: DotMap):
     if not cfg.FDTD_source_type in ["point", "line"]:
         raise RuntimeError(f'The FDTD_source_type must either be "line" or "point"')
 
-    if not cfg.FDTD_pulse_type in ["pulse", "continuous"]:
+    if not cfg.FDTD_pulse_type in ["ricker", "hanning", "continuous"]:
         raise RuntimeError(
             f'The FDTD_pulse_type must either be "pulse" or "continuous"'
         )

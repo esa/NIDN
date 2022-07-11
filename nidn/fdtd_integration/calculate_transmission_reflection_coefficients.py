@@ -96,13 +96,13 @@ def calculate_transmission_reflection_coefficients(
     )
 
     if transmission_coefficient < 0 or transmission_coefficient > 1:
-        raise ValueError(
-            f"The transmission coefficient is outside of the physical range between 0 and 1"
+        logger.error(
+            f"The transmission coefficient is outside of the physical range between 0 and 1. The transmission coefficient is {transmission_coefficient}"
         )
 
     if reflection_coefficient < 0 or reflection_coefficient > 1:
-        raise ValueError(
-            f"The reflection coefficient is outside of the physical range between 0 and 1"
+        logger.error(
+            f"The reflection coefficient is outside of the physical range between 0 and 1. The reflection coefficient is {reflection_coefficient}"
         )
     if transmission_coefficient + reflection_coefficient > 1:
         logger.warning(
