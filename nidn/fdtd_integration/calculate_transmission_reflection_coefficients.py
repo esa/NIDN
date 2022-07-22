@@ -3,14 +3,14 @@ from loguru import logger
 
 
 def calculate_transmission_reflection_coefficients(
-    transmission_signals,
-    reflection_signals,
+    transmission_signals, reflection_signals, cfg
 ):
     """Calculates the transmission coefficient and reflection coefficient for the signals presented.
 
     Args:
         transmission_signals (tuple[array,array]): Transmission signal from a free-space fdtd simulaiton, and transmission signal from a fdtd simulation with an added object
         reflection_signals (_type_): Reflection signal from a free-space fdtd simulaiton, and reflection signal from a fdtd simulation with an added object
+        cfg (DotMap): Configuration dictionary
 
     Returns:
         tuple[float, float]: Transmission coefficient and reflection coefficient
@@ -22,6 +22,12 @@ def calculate_transmission_reflection_coefficients(
 
     _check_for_all_zero_signal(transmission_signals)
     _check_for_all_zero_signal(reflection_signals)
+
+    # Eliminate transient part of the signal
+    transmission_signals[0] = _eliminate_transient_part(transmission_signals[0], cfg)
+    transmission_signals[1] = _eliminate_transient_part(transmission_signals[1], cfg)
+    reflection_signals[0] = _eliminate_transient_part(reflection_signals[0], cfg)
+    true_reflection = _eliminate_transient_part(true_reflection, cfg)
 
     # find peaks for all signals
     peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
@@ -128,6 +134,92 @@ def _check_for_all_zero_signal(signals):
         raise ValueError(
             "The free-space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detector."
         )
+
+
+def _eliminate_transient_part(signal, cfg, plot=False):
+    """Eliminates the transient part of the signal
+    Args:
+        signal (tensor): signal to perform the calculations on
+        cfg (DotMap): configuration dictionary
+        plot (bool, optional): If True, plots the signal before and after the elimination. Defaults to False.
+    Returns:
+        tensor: The signal without the transient part
+    """
+    if plot:
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(7.5, 5.0), dpi=150)
+        plt.plot(signal, lw=3, linestyle="--")
+        plt.ylabel("Signal", fontsize=8)
+        plt.xlabel("Timestep", fontsize=8)
+        plt.tick_params(axis="both", which="major", labelsize=8)
+        plt.show()
+
+    logger.debug(f"Eliminating transient part of the signal of length {len(signal)}")
+    # Window size in which we investigate variance
+    window_size = 3 * cfg.FDTD_min_gridpoints_per_unit_magnitude
+    logger.trace(f"Window size is {window_size}")
+
+    # Eliminate zero part of the signal
+    first_non_zero_index = 0
+    for i in range(len(signal)):
+        if abs(signal[i]) > 1e-16:
+            first_non_zero_index = i
+            break
+    logger.trace(f"First non-zero index: {first_non_zero_index}")
+    signal = signal[first_non_zero_index:]
+
+    # Check signal is still long enough
+    signal_length = len(signal)
+    if signal_length < 2 * window_size:
+        logger.error(
+            "FDTD Signal is too short to compute R,T,A. Please increase FDTD_niter in the config."
+        )
+
+    # Split into chunks
+    chunks = list(torch.split(signal, window_size))
+    # Merge last two chunks to have rather one too big than too small
+    chunks[-2] = torch.cat((chunks[-1], chunks[-2]))
+    chunks = chunks[:-2]
+    logger.trace(f"Number of chunks: {len(chunks)}")
+    logger.trace(f"Chunksizes are {[len(chunk) for chunk in chunks]}")
+    ranges_per_window = torch.tensor([chunk.max() - chunk.min() for chunk in chunks])
+    logger.trace("Ranges per window: {}".format(ranges_per_window))
+    change_to_previous_chunk = (ranges_per_window[0:-1] - ranges_per_window[1:]).abs()
+    logger.trace("Change to previous chunk: {}".format(change_to_previous_chunk))
+    relative_change_to_maximum_change = (
+        change_to_previous_chunk / change_to_previous_chunk.max()
+    )
+    logger.trace(
+        "Relative change to maximum change: {}".format(
+            relative_change_to_maximum_change
+        )
+    )
+
+    # Now we find the last window where the relative change is above a certain threshold
+    last_window_over_ten_percent_change = len(relative_change_to_maximum_change) - 1
+    while relative_change_to_maximum_change[last_window_over_ten_percent_change] < 0.1:
+        last_window_over_ten_percent_change -= 1
+        if last_window_over_ten_percent_change < 0:
+            raise (
+                logger.error(
+                    "FDTD Signal did not reach a steady state. Please increase FDTD_niter in the config."
+                )
+            )
+
+    logger.debug(f"First window over 10% change: {last_window_over_ten_percent_change}")
+
+    signal = signal[(last_window_over_ten_percent_change + 1) * window_size :]
+
+    if plot:
+        plt.figure(figsize=(7.5, 5.0), dpi=150)
+        plt.plot(signal, lw=3, linestyle="--")
+        plt.ylabel("Signal", fontsize=8)
+        plt.xlabel("Timestep", fontsize=8)
+        plt.tick_params(axis="both", which="major", labelsize=8)
+        plt.show()
+
+    return signal
 
 
 # From : https://stackoverflow.com/questions/54498775/pytorch-argrelmax-function-or-c

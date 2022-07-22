@@ -16,7 +16,7 @@ def test_calculate_coefficient():
     (
         transmission_coefficient_ms,
         reflection_coefficient_ms,
-    ) = calculate_transmission_reflection_coefficients(signal_array, signal_array)
+    ) = calculate_transmission_reflection_coefficients(signal_array, signal_array, cfg)
     assert transmission_coefficient_ms.item() - 0.25 < 1e-7
     assert reflection_coefficient_ms.item() - 0.25 < 1e-7
 

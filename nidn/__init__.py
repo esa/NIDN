@@ -38,7 +38,7 @@ logger.info(f"Initialized NIDN for {os.environ['TORCH_DEVICE']}")
 torch.set_default_tensor_type(torch.DoubleTensor)
 logger.info("Using double precision")
 logger.info(f"Switching log level to warning.")
-set_log_level("DEBUG")
+set_log_level("WARNING")
 
 __all__ = [
     "compute_spectrum",
