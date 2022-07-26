@@ -29,76 +29,11 @@ def calculate_transmission_reflection_coefficients(
     reflection_signals[0] = _eliminate_transient_part(reflection_signals[0], cfg)
     true_reflection = _eliminate_transient_part(true_reflection, cfg)
 
-    # find peaks for all signals
-    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
-    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])
-    peaks_reflection_freespace = _torch_find_peaks(reflection_signals[0])
-    peaks_reflection_material = _torch_find_peaks(true_reflection)
-    transmission_coefficient = torch.tensor(0.0)
-
-    if len(peaks_transmission_material) > 1:
-        mean_squared_transmission_material = _mean_square(
-            transmission_signals[1][
-                peaks_transmission_material[0]
-                .item() : peaks_transmission_material[-1]
-                .item()
-            ]
-        )
-
-    else:
-        mean_squared_transmission_material = (max(transmission_signals[1]) ** 2) / 2
-        logger.warning(
-            "There is not enough timesteps for the transmission signal to have the proper lenght/ or no signal is transmited. The signal should at least contain 2 peaks, but {} is found.The FDTD_niter should be increased, to be sure that the resutls are valid.".format(
-                len(peaks_transmission_material)
-            )
-        )
-    mean_squared_transmission_free_space = 1
-    if len(peaks_transmission_freespace) > 1:
-        mean_squared_transmission_free_space = _mean_square(
-            transmission_signals[0][
-                peaks_transmission_freespace[0]
-                .item() : peaks_transmission_freespace[-1]
-                .item()
-            ]
-        )
-    else:
-        mean_squared_transmission_free_space = (max(transmission_signals[0]) ** 2) / 2
-
-    transmission_coefficient = (
-        mean_squared_transmission_material / mean_squared_transmission_free_space
-    )
-
-    reflection_coefficient = torch.tensor(0.0)
-
-    if len(peaks_reflection_material) > 1:
-        mean_squared_reflection_material = _mean_square(
-            true_reflection[
-                peaks_reflection_material[0]
-                .item() : peaks_reflection_material[-1]
-                .item()
-            ]
-        )
-    else:
-        mean_squared_reflection_material = (max(true_reflection) ** 2) / 2
-        logger.warning(
-            "There is not enough timesteps for the reflected signal to have the proper lenght. The signal should at least contain 2 peaks, but {} is found. The FDTD_niter should be increased, to be sure that the resutls are valid.".format(
-                len(peaks_reflection_material)
-            )
-        )
-    mean_squared_reflection_free_space = 1
-    if len(peaks_reflection_freespace) > 1:
-        mean_squared_reflection_free_space = _mean_square(
-            reflection_signals[0][
-                peaks_reflection_freespace[0]
-                .item() : peaks_reflection_freespace[-1]
-                .item()
-            ]
-        )
-    else:
-        mean_squared_reflection_free_space = (max(reflection_signals[0]) ** 2) / 2
-
-    reflection_coefficient = (
-        mean_squared_reflection_material / mean_squared_reflection_free_space
+    (
+        reflection_coefficient,
+        transmission_coefficient,
+    ) = _peak_based_coefficient_computation(
+        transmission_signals, reflection_signals[0], true_reflection
     )
 
     if transmission_coefficient < 0 or transmission_coefficient > 1:
@@ -129,11 +64,149 @@ def _mean_square(tensor):
 
 
 def _check_for_all_zero_signal(signals):
-
     if _mean_square(signals[0]) <= 1e-15:
         raise ValueError(
             "The free-space signal is all zero. Increase the number of FDTD_niter to ensure that the signal reaches the detector."
         )
+
+
+def _FFT_based_coefficient_computation(
+    transmission_signals, reflection_signal, true_reflection, plot=True
+):
+    """Calculates the transmission coefficient and reflection coefficient using the FFT method.
+
+    Args:
+        transmission_signals (tuple[array,array]): Transmission signal from a free-space fdtd simulaiton, and transmission signal from a fdtd simulation with an added object
+        reflection_signal (array): Reflection signal from a free-space fdtd simulation, and reflection signal from a fdtd simulation with an added object
+        true_reflection (array): The true reflection signal, which is the material reflection signal minus the detector reflection signal.
+        plot (bool, optional): If True, plots the FFTs. Defaults to False.
+    Returns:
+        tuple[float, float]: Transmission coefficient and reflection coefficient
+    """
+    # Calculate the FFT of the signals and amplitude as magnitude
+    transmission_fft = torch.fft.rfft(transmission_signals[0], norm="forward").abs()
+    transmission_free_space_fft = torch.fft.rfft(
+        transmission_signals[1], norm="forward"
+    ).abs()
+    reflection_fft = torch.fft.rfft(reflection_signal, norm="forward").abs()
+    true_reflection_fft = torch.fft.rfft(true_reflection, norm="forward").abs()
+
+    if plot:
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(7.5, 5.0), dpi=150)
+        plt.plot(transmission_fft, lw=3, linestyle="None", marker="o")
+        plt.plot(transmission_free_space_fft, lw=3, linestyle="None", marker="d")
+        plt.plot(reflection_fft, lw=3, linestyle="None", marker="s")
+        plt.plot(true_reflection_fft, lw=3, linestyle="None", marker="x")
+        plt.xscale("log")
+        plt.ylabel("Magnitude", fontsize=8)
+        plt.xlabel("Frequency", fontsize=8)
+        plt.tick_params(axis="both", which="major", labelsize=8)
+        plt.legend(
+            ["Transmission", "FreeSpaceTransmission", "Reflection", "True Reflection"],
+            fontsize=8,
+        )
+        plt.show()
+
+    logger.debug(
+        f"Transmission FFT min,max,mean,std: "
+        + f"{transmission_fft.min():.2e}, {transmission_fft.max():.2e}, {transmission_fft.mean():.2e}, {transmission_fft.std():.2e}"
+    )
+    logger.debug(
+        f"Transmission Free Space FFT min,max,mean,std: "
+        + f"{transmission_free_space_fft.min():.2e}, {transmission_free_space_fft.max():.2e}, {transmission_free_space_fft.mean():.2e}, {transmission_free_space_fft.std():.2e}"
+    )
+    logger.debug(
+        f"Reflection FFT min,max,mean,std: "
+        + f"{reflection_fft.min():.2e}, {reflection_fft.max():.2e}, {reflection_fft.mean():.2e}, {reflection_fft.std():.2e}"
+    )
+    logger.debug(
+        f"True Reflection FFT min,max,mean,std: "
+        + f"{true_reflection_fft.min():.2e}, {true_reflection_fft.max():.2e}, {true_reflection_fft.mean():.2e}, {true_reflection_fft.std():.2e}"
+    )
+
+    # Calculate the transmission coefficient
+    transmission_coefficient = (
+        transmission_fft.max() / transmission_free_space_fft.max()
+    )
+    reflection_coefficient = reflection_fft.max() / true_reflection_fft.max()
+
+    return reflection_coefficient, transmission_coefficient
+
+
+def _peak_based_coefficient_computation(
+    transmission_signals, reflection_signal, true_reflection
+):
+    # find peaks for all signals
+    peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
+    peaks_transmission_material = _torch_find_peaks(transmission_signals[1])
+    peaks_reflection_freespace = _torch_find_peaks(reflection_signal)
+    peaks_reflection_material = _torch_find_peaks(true_reflection)
+
+    if len(peaks_transmission_material) > 1:
+        mean_squared_transmission_material = _mean_square(
+            transmission_signals[1][
+                peaks_transmission_material[0]
+                .item() : peaks_transmission_material[-1]
+                .item()
+            ]
+        )
+    else:
+        mean_squared_transmission_material = (max(transmission_signals[1]) ** 2) / 2
+        logger.warning(
+            "There are not enough timesteps for the transmission signal to have the proper length / or no signal is transmited. The signal should at least contain 2 peaks, but {} is found.The FDTD_niter should be increased, to be sure that the resutls are valid.".format(
+                len(peaks_transmission_material)
+            )
+        )
+
+    if len(peaks_transmission_freespace) > 1:
+        mean_squared_transmission_free_space = _mean_square(
+            transmission_signals[0][
+                peaks_transmission_freespace[0]
+                .item() : peaks_transmission_freespace[-1]
+                .item()
+            ]
+        )
+    else:
+        mean_squared_transmission_free_space = (max(transmission_signals[0]) ** 2) / 2
+
+    if len(peaks_reflection_material) > 1:
+        mean_squared_reflection_material = _mean_square(
+            true_reflection[
+                peaks_reflection_material[0]
+                .item() : peaks_reflection_material[-1]
+                .item()
+            ]
+        )
+    else:
+        mean_squared_reflection_material = (max(true_reflection) ** 2) / 2
+        logger.warning(
+            "There are not enough timesteps for the reflected signal to have the proper length. The signal should at least contain 2 peaks, but {} is found. The FDTD_niter should be increased, to be sure that the resutls are valid.".format(
+                len(peaks_reflection_material)
+            )
+        )
+
+    if len(peaks_reflection_freespace) > 1:
+        mean_squared_reflection_free_space = _mean_square(
+            reflection_signal[
+                peaks_reflection_freespace[0]
+                .item() : peaks_reflection_freespace[-1]
+                .item()
+            ]
+        )
+    else:
+        mean_squared_reflection_free_space = (max(reflection_signal) ** 2) / 2
+
+    transmission_coefficient = (
+        mean_squared_transmission_material / mean_squared_transmission_free_space
+    )
+
+    reflection_coefficient = (
+        mean_squared_reflection_material / mean_squared_reflection_free_space
+    )
+
+    return reflection_coefficient, transmission_coefficient
 
 
 def _eliminate_transient_part(signal, cfg, plot=False):
