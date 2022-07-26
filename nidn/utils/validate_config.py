@@ -164,7 +164,7 @@ def _check_value_ranges(cfg: DotMap):
     ]
 
     for key in all_positive_list_keys:
-        if not (all(cfg[key]) > 0.0):
+        if key in cfg.keys() and not (all(cfg[key]) > 0.0):
             raise RuntimeError(f"All elements in {key} must be a positive integer")
     for key in all_positive_or_zero_list_keys:
         if not (all(cfg[key]) >= 0.0):
