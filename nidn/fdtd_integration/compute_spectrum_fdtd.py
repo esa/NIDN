@@ -71,7 +71,10 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
             transmission_coefficient,
             reflection_coefficient,
         ) = calculate_transmission_reflection_coefficients(
-            transmission_signal, reflection_signal, cfg
+            transmission_signal,
+            reflection_signal,
+            wavelength=physical_wavelengths[i],
+            cfg=cfg,
         )
         transmission_spectrum.append(transmission_coefficient)
         reflection_spectrum.append(reflection_coefficient)

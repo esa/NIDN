@@ -1,15 +1,18 @@
 import torch
 from loguru import logger
 
+from ..utils.global_constants import UNIT_MAGNITUDE
+
 
 def calculate_transmission_reflection_coefficients(
-    transmission_signals, reflection_signals, cfg
+    transmission_signals, reflection_signals, wavelength, cfg
 ):
     """Calculates the transmission coefficient and reflection coefficient for the signals presented.
 
     Args:
         transmission_signals (tuple[array,array]): Transmission signal from a free-space fdtd simulaiton, and transmission signal from a fdtd simulation with an added object
         reflection_signals (_type_): Reflection signal from a free-space fdtd simulaiton, and reflection signal from a fdtd simulation with an added object
+        wavelength (float): Physical wavelength of the light used in this simulation
         cfg (DotMap): Configuration dictionary
 
     Returns:
@@ -24,10 +27,18 @@ def calculate_transmission_reflection_coefficients(
     _check_for_all_zero_signal(reflection_signals)
 
     # Eliminate transient part of the signal
-    transmission_signals[0] = _eliminate_transient_part(transmission_signals[0], cfg)
-    transmission_signals[1] = _eliminate_transient_part(transmission_signals[1], cfg)
-    reflection_signals[0] = _eliminate_transient_part(reflection_signals[0], cfg)
-    true_reflection = _eliminate_transient_part(true_reflection, cfg)
+    transmission_signals[0] = _eliminate_transient_part(
+        transmission_signals[0], wavelength, cfg, is_freespace=True
+    )
+    transmission_signals[1] = _eliminate_transient_part(
+        transmission_signals[1], wavelength, cfg, is_freespace=False
+    )
+    reflection_signals[0] = _eliminate_transient_part(
+        reflection_signals[0], wavelength, cfg, is_freespace=True
+    )
+    true_reflection = _eliminate_transient_part(
+        true_reflection, wavelength, cfg, is_freespace=False
+    )
 
     (
         reflection_coefficient,
@@ -36,6 +47,18 @@ def calculate_transmission_reflection_coefficients(
         transmission_signals, reflection_signals[0], true_reflection
     )
 
+    # Check if the coefficients are within the physical range
+    (
+        transmission_coefficient,
+        reflection_coefficient,
+    ) = _check_and_normalize_coefficients(
+        transmission_coefficient, reflection_coefficient
+    )
+
+    return transmission_coefficient, reflection_coefficient
+
+
+def _check_and_normalize_coefficients(transmission_coefficient, reflection_coefficient):
     if transmission_coefficient < 0 or transmission_coefficient > 1:
         logger.error(
             f"The transmission coefficient is outside of the physical range between 0 and 1. The transmission coefficient is {transmission_coefficient}"
@@ -45,9 +68,16 @@ def calculate_transmission_reflection_coefficients(
         logger.error(
             f"The reflection coefficient is outside of the physical range between 0 and 1. The reflection coefficient is {reflection_coefficient}"
         )
-    if transmission_coefficient + reflection_coefficient > 1:
+    coefficient_sum = transmission_coefficient + reflection_coefficient
+    if coefficient_sum > 1 and coefficient_sum < 1.05:
         logger.warning(
-            f"The sum of the transmission and reflection coefficient is greater than 1, which is physically impossible"
+            f"The sum of the transmission and reflection coefficient is greater than 1 ({coefficient_sum:.4f}), which is physically impossible. Normalizing to 1."
+        )
+        transmission_coefficient = transmission_coefficient / (coefficient_sum)
+        reflection_coefficient = reflection_coefficient / (coefficient_sum)
+    elif coefficient_sum > 1.05:
+        logger.error(
+            f"The sum of the transmission and reflection coefficient is greater than 1 ({coefficient_sum:.4f}), which is physically impossible. The transmission coefficient is {transmission_coefficient} and the reflection coefficient is {reflection_coefficient}"
         )
     return transmission_coefficient, reflection_coefficient
 
@@ -71,7 +101,7 @@ def _check_for_all_zero_signal(signals):
 
 
 def _FFT_based_coefficient_computation(
-    transmission_signals, reflection_signal, true_reflection, plot=True
+    transmission_signals, reflection_signal, true_reflection, plot=False
 ):
     """Calculates the transmission coefficient and reflection coefficient using the FFT method.
 
@@ -83,6 +113,12 @@ def _FFT_based_coefficient_computation(
     Returns:
         tuple[float, float]: Transmission coefficient and reflection coefficient
     """
+    # TODO Improve the FFT method, e.g. as described here
+    raise (
+        NotImplementedError(
+            "FFT based coefficient computation still requires more work."
+        )
+    )
     # Calculate the FFT of the signals and amplitude as magnitude
     transmission_fft = torch.fft.rfft(transmission_signals[0], norm="forward").abs()
     transmission_free_space_fft = torch.fft.rfft(
@@ -138,6 +174,15 @@ def _FFT_based_coefficient_computation(
 def _peak_based_coefficient_computation(
     transmission_signals, reflection_signal, true_reflection
 ):
+    """Calculates the transmission coefficient and reflection coefficient using the peak method.
+
+    Args:
+         transmission_signals (tuple[array,array]): Transmission signal from a free-space fdtd simulaiton, and transmission signal from a fdtd simulation with an added object
+         reflection_signal (array): Reflection signal from a free-space fdtd simulation, and reflection signal from a fdtd simulation with an added object
+         true_reflection (array): The true reflection signal, which is the material reflection signal minus the detector reflection signal.
+     Returns:
+         tuple[float, float]: Transmission coefficient and reflection coefficient
+    """
     # find peaks for all signals
     peaks_transmission_freespace = _torch_find_peaks(transmission_signals[0])
     peaks_transmission_material = _torch_find_peaks(transmission_signals[1])
@@ -209,15 +254,20 @@ def _peak_based_coefficient_computation(
     return reflection_coefficient, transmission_coefficient
 
 
-def _eliminate_transient_part(signal, cfg, plot=False):
+def _eliminate_transient_part(signal, wavelength, cfg, is_freespace=False, plot=False):
     """Eliminates the transient part of the signal
     Args:
         signal (tensor): signal to perform the calculations on
         cfg (DotMap): configuration dictionary
+        wavelength (float): Physical wavelength of the light used in this simulation
+        is_freespace (bool): Influences change thresholds, True if the signal is from a free-space simulation, False if it is from a simulation with an object.
         plot (bool, optional): If True, plots the signal before and after the elimination. Defaults to False.
     Returns:
         tensor: The signal without the transient part
     """
+    # We threshold much more liberally for the free-space signal, since it is more likely to have a mild transient.
+    relative_change_treshold = 0.5 if is_freespace else 0.1
+
     if plot:
         import matplotlib.pyplot as plt
 
@@ -226,20 +276,25 @@ def _eliminate_transient_part(signal, cfg, plot=False):
         plt.ylabel("Signal", fontsize=8)
         plt.xlabel("Timestep", fontsize=8)
         plt.tick_params(axis="both", which="major", labelsize=8)
-        plt.show()
 
     logger.debug(f"Eliminating transient part of the signal of length {len(signal)}")
     # Window size in which we investigate variance
-    window_size = 3 * cfg.FDTD_min_gridpoints_per_unit_magnitude
+    # We divide by physical wavelength as the oscillation frequency
+    # depends on the wavelength
+    window_size = int(
+        12 * cfg.FDTD_min_gridpoints_per_unit_magnitude * (UNIT_MAGNITUDE / wavelength)
+    )
     logger.trace(f"Window size is {window_size}")
 
     # Eliminate zero part of the signal
     first_non_zero_index = 0
     for i in range(len(signal)):
-        if abs(signal[i]) > 1e-16:
+        if abs(signal[i]) > 1e-8:
             first_non_zero_index = i
             break
-    logger.trace(f"First non-zero index: {first_non_zero_index}")
+    logger.trace(
+        f"First non-zero index: {first_non_zero_index} of length {len(signal)}"
+    )
     signal = signal[first_non_zero_index:]
 
     # Check signal is still long enough
@@ -253,9 +308,18 @@ def _eliminate_transient_part(signal, cfg, plot=False):
     chunks = list(torch.split(signal, window_size))
     # Merge last two chunks to have rather one too big than too small
     chunks[-2] = torch.cat((chunks[-1], chunks[-2]))
-    chunks = chunks[:-2]
+    chunks = chunks[:-1]
     logger.trace(f"Number of chunks: {len(chunks)}")
     logger.trace(f"Chunksizes are {[len(chunk) for chunk in chunks]}")
+    # Plot vertical lines for chunks
+    if plot:
+        xcoords = torch.cumsum(
+            torch.tensor([first_non_zero_index] + [len(chunk) for chunk in chunks]), 0
+        )
+        print(xcoords)
+        for xc in xcoords:
+            plt.axvline(x=xc, color="r", linestyle="--")
+        plt.show()
     ranges_per_window = torch.tensor([chunk.max() - chunk.min() for chunk in chunks])
     logger.trace("Ranges per window: {}".format(ranges_per_window))
     change_to_previous_chunk = (ranges_per_window[0:-1] - ranges_per_window[1:]).abs()
@@ -271,7 +335,10 @@ def _eliminate_transient_part(signal, cfg, plot=False):
 
     # Now we find the last window where the relative change is above a certain threshold
     last_window_over_ten_percent_change = len(relative_change_to_maximum_change) - 1
-    while relative_change_to_maximum_change[last_window_over_ten_percent_change] < 0.1:
+    while (
+        relative_change_to_maximum_change[last_window_over_ten_percent_change]
+        < relative_change_treshold
+    ):
         last_window_over_ten_percent_change -= 1
         if last_window_over_ten_percent_change < 0:
             raise (
