@@ -114,6 +114,7 @@ def _FFT_based_coefficient_computation(
         tuple[float, float]: Transmission coefficient and reflection coefficient
     """
     # TODO Improve the FFT method, e.g. as described here
+    # https://eecs.wsu.edu/~schneidj/ufdtd/chap5.pdf P 22ff.
     raise (
         NotImplementedError(
             "FFT based coefficient computation still requires more work."
