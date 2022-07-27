@@ -281,9 +281,7 @@ def _eliminate_transient_part(signal, wavelength, cfg, is_freespace=False, plot=
     # Window size in which we investigate variance. We divide by physical wavelength as the oscillation frequency
     # depends on the wavelength. (the 1.33 was detemined heuristcally, there is probably an analytical term for it)
     window_size = int(
-        1.33
-        * cfg.FDTD_min_gridpoints_per_unit_magnitude
-        * (wavelength / UNIT_MAGNITUDE)
+        3 * cfg.FDTD_min_gridpoints_per_unit_magnitude * (wavelength / UNIT_MAGNITUDE)
     )
     logger.trace(f"Window size is {window_size}")
 
@@ -317,7 +315,6 @@ def _eliminate_transient_part(signal, wavelength, cfg, is_freespace=False, plot=
         xcoords = torch.cumsum(
             torch.tensor([first_non_zero_index] + [len(chunk) for chunk in chunks]), 0
         )
-        print(xcoords)
         for xc in xcoords:
             plt.axvline(x=xc, color="r", linestyle="--")
         plt.show()
