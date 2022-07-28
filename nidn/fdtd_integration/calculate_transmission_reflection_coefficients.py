@@ -301,54 +301,61 @@ def _eliminate_transient_part(signal, wavelength, cfg, is_freespace=False, plot=
     signal_length = len(signal)
     if signal_length < 2 * window_size:
         logger.error(
-            "FDTD Signal is too short to compute R,T,A. Please increase FDTD_niter in the config."
+            "FDTD Signal is too short to compute R,T,A. Please increase FDTD_niter in the config. Aborting transient removal."
         )
-
-    # Split into chunks
-    chunks = list(torch.split(signal, window_size))
-    # Merge last two chunks to have rather one too big than too small
-    chunks[-2] = torch.cat((chunks[-1], chunks[-2]))
-    chunks = chunks[:-1]
-    logger.trace(f"Number of chunks: {len(chunks)}")
-    logger.trace(f"Chunksizes are {[len(chunk) for chunk in chunks]}")
-    # Plot vertical lines for chunks
-    if plot:
-        xcoords = torch.cumsum(
-            torch.tensor([first_non_zero_index] + [len(chunk) for chunk in chunks]), 0
-        )
-        for xc in xcoords:
-            plt.axvline(x=xc, color="r", linestyle="--")
-        plt.show()
-    ranges_per_window = torch.tensor([chunk.max() - chunk.min() for chunk in chunks])
-    logger.trace("Ranges per window: {}".format(ranges_per_window))
-    change_to_previous_chunk = (ranges_per_window[0:-1] - ranges_per_window[1:]).abs()
-    logger.trace("Change to previous chunk: {}".format(change_to_previous_chunk))
-    relative_change_to_maximum_change = (
-        change_to_previous_chunk / change_to_previous_chunk.max()
-    )
-    logger.trace(
-        "Relative change to maximum change: {}".format(
-            relative_change_to_maximum_change
-        )
-    )
-
-    # Now we find the last window where the relative change is above a certain threshold
-    last_window_over_ten_percent_change = len(relative_change_to_maximum_change) - 1
-    while (
-        relative_change_to_maximum_change[last_window_over_ten_percent_change]
-        < relative_change_treshold
-    ):
-        last_window_over_ten_percent_change -= 1
-        if last_window_over_ten_percent_change < 0:
-            raise (
-                logger.error(
-                    "FDTD Signal did not reach a steady state. Please increase FDTD_niter in the config."
-                )
+    else:
+        # Split into chunks
+        chunks = list(torch.split(signal, window_size))
+        # Merge last two chunks to have rather one too big than too small
+        chunks[-2] = torch.cat((chunks[-1], chunks[-2]))
+        chunks = chunks[:-1]
+        logger.trace(f"Number of chunks: {len(chunks)}")
+        logger.trace(f"Chunksizes are {[len(chunk) for chunk in chunks]}")
+        # Plot vertical lines for chunks
+        if plot:
+            xcoords = torch.cumsum(
+                torch.tensor([first_non_zero_index] + [len(chunk) for chunk in chunks]),
+                0,
             )
+            for xc in xcoords:
+                plt.axvline(x=xc, color="r", linestyle="--")
+            plt.show()
+        ranges_per_window = torch.tensor(
+            [chunk.max() - chunk.min() for chunk in chunks]
+        )
+        logger.trace("Ranges per window: {}".format(ranges_per_window))
+        change_to_previous_chunk = (
+            ranges_per_window[0:-1] - ranges_per_window[1:]
+        ).abs()
+        logger.trace("Change to previous chunk: {}".format(change_to_previous_chunk))
+        relative_change_to_maximum_change = (
+            change_to_previous_chunk / change_to_previous_chunk.max()
+        )
+        logger.trace(
+            "Relative change to maximum change: {}".format(
+                relative_change_to_maximum_change
+            )
+        )
 
-    logger.debug(f"First window over 10% change: {last_window_over_ten_percent_change}")
+        # Now we find the last window where the relative change is above a certain threshold
+        last_window_over_ten_percent_change = len(relative_change_to_maximum_change) - 1
+        while (
+            relative_change_to_maximum_change[last_window_over_ten_percent_change]
+            < relative_change_treshold
+        ):
+            last_window_over_ten_percent_change -= 1
+            if last_window_over_ten_percent_change < 0:
+                raise (
+                    logger.error(
+                        "FDTD Signal did not reach a steady state. Please increase FDTD_niter in the config."
+                    )
+                )
 
-    signal = signal[(last_window_over_ten_percent_change + 1) * window_size :]
+        logger.debug(
+            f"First window over 10% change: {last_window_over_ten_percent_change}"
+        )
+
+        signal = signal[(last_window_over_ten_percent_change + 1) * window_size :]
 
     if plot:
         plt.figure(figsize=(7.5, 5.0), dpi=150)

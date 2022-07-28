@@ -72,8 +72,10 @@ def test_fdtd_simulation_single_layer():
     cfg = load_default_cfg()
     cfg.N_freq = 5
     cfg.N_layers = 1
-    cfg.physical_wavelength_range[0] = 1e-6
-    cfg.physical_wavelength_range[1] = 1e-5
+    cfg.physical_wavelength_range[0] = 0.4e-6
+    cfg.physical_wavelength_range[1] = 0.5e-6
+    cfg.FDTD_min_gridpoints_per_unit_magnitude = 100
+    cfg.PER_LAYER_THICKNESS = [0.38]
     eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
@@ -81,28 +83,17 @@ def test_fdtd_simulation_single_layer():
         cfg.N_freq,
         "linear",
     )
-    cfg.FDTD_niter = 300
+    cfg.FDTD_niter = 3000
     cfg.solver = "FDTD"
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
     reflection_spectrum, transmission_spectrum = compute_spectrum(eps_grid, cfg)
+
     validated_reflection_spectrum = torch.tensor(
-        [
-            0.01996015,
-            0.39330551,
-            0.44639092,
-            0.18894569,
-            0.43341999,
-        ]
+        [0.266668735247, 0.096685654550, 0.541316057208, 0.383675738997, 0.200519748705]
     )
     validated_transmission_spectrum = torch.tensor(
-        [
-            0.80365908,
-            0.58930942,
-            0.54395288,
-            0.72771733,
-            0.49183103,
-        ]
+        [0.733331264753, 0.900710835488, 0.457884307088, 0.616324261003, 0.79215577611]
     )
     assert all(
         torch.abs(torch.tensor(transmission_spectrum) - validated_transmission_spectrum)
@@ -123,11 +114,11 @@ def test_fdtd_simulation_four_layers():
     # Create grid with four uniform layer
     cfg = load_default_cfg()
     cfg.N_layers = 4
-    cfg.FDTD_niter = 600
+    cfg.FDTD_niter = 1000
     cfg.N_freq = 5
-    cfg.PER_LAYER_THICKNESS = [1.0, 1.0, 1.0, 1.0]
-    cfg.physical_wavelength_range[0] = 1e-6
-    cfg.physical_wavelength_range[1] = 1e-5
+    cfg.PER_LAYER_THICKNESS = [0.12, 0.12, 0.12, 0.12]
+    cfg.physical_wavelength_range[0] = 4e-7
+    cfg.physical_wavelength_range[1] = 5e-7
     eps_grid = torch.zeros(1, 1, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     cfg.target_frequencies = compute_target_frequencies(
         cfg.physical_wavelength_range[0],
@@ -142,22 +133,18 @@ def test_fdtd_simulation_four_layers():
     eps_grid[:, :, 2, :] = layer_builder.build_uniform_layer("gallium_arsenide")
     eps_grid[:, :, 3, :] = layer_builder.build_uniform_layer("silicon_nitride")
     reflection_spectrum, transmission_spectrum = compute_spectrum(eps_grid, cfg)
+    print(reflection_spectrum)
+    print(transmission_spectrum)
     validated_reflection_spectrum = torch.tensor(
-        [
-            0.08163995,
-            0.21881801,
-            0.11293128,
-            0.08326362,
-            0.76207314,
-        ]
+        [0.881822561593, 0.849144767680, 0.248671325302, 0.710441537464, 0.819290191321]
     )
     validated_transmission_spectrum = torch.tensor(
         [
-            0.14337483,
-            0.63959249,
-            0.48796375,
-            0.21393022,
-            0.00167027,
+            0.001828167336,
+            0.000675301853,
+            0.000104852612,
+            3.007361599856e-06,
+            1.295376141331e-06,
         ]
     )
     assert all(
