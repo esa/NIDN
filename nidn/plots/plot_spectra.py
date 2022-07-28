@@ -79,6 +79,7 @@ def plot_spectra(
     prod_T_spectrum=None,
     markers=True,
     filename=None,
+    ylim=[[0.0, 1.0],[0.0, 1.0]],
 ):
     """Plots the produced RTA spectra together with the target spectra. Optionally saves it.
 
@@ -89,6 +90,7 @@ def plot_spectra(
         prod_T_spectrum (torch.tensor, optional): The produced transmission spectrum. Defaults to None, then will compute from model.
         markers (bool): Whether to plot markers for the target and produced spectra.
         filename (str, optional): Filename to save the plot in. Defaults to None, then the plot will be saved with the name "spectra.png".
+        ylim (list): The y-limits of the plot for the two spectra. Defaults to [[0.0, 1.0],[0.0, 1.0]].
     """
     target_R_spectrum = run_cfg.target_reflectance_spectrum
     target_T_spectrum = run_cfg.target_transmittance_spectrum
@@ -117,7 +119,6 @@ def plot_spectra(
     )
 
     # To align all plots
-    ylimits = [0.0, 1.0]
     # Code below is for gray bars in spectra
     # ylimits = [-0.2, 1.075]
     # if (
@@ -139,7 +140,7 @@ def plot_spectra(
         target_frequencies,
         prod_R_spectrum,
         target_R_spectrum,
-        ylimits,
+        ylim[0],
         121,
         "Reflectance",
         markers=markers,
@@ -149,7 +150,7 @@ def plot_spectra(
         target_frequencies,
         prod_T_spectrum,
         target_T_spectrum,
-        ylimits,
+        ylim[1],
         122,
         "Transmittance",
         markers=markers,

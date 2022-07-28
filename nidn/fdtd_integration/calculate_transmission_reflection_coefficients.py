@@ -69,7 +69,17 @@ def _check_and_normalize_coefficients(transmission_coefficient, reflection_coeff
             f"The reflection coefficient is outside of the physical range between 0 and 1. The reflection coefficient is {reflection_coefficient}"
         )
     coefficient_sum = transmission_coefficient + reflection_coefficient
-    if coefficient_sum > 1 and coefficient_sum < 1.05:
+    # Given the transient removal there can sometimes be a small error
+    # in the calculation of the coefficients leading to coeffsum > 1.
+    # Depending on the severity we either inform / warn and normalize
+    # or raise an error.
+    if coefficient_sum > 1 and coefficient_sum < 1.01:
+        logger.info(
+            f"The sum of the transmission and reflection coefficient is marginally greater than 1 ({coefficient_sum:.4f}), which is physically impossible. Normalizing to 1."
+        )
+        transmission_coefficient = transmission_coefficient / (coefficient_sum)
+        reflection_coefficient = reflection_coefficient / (coefficient_sum)
+    elif coefficient_sum > 1 and coefficient_sum < 1.05:
         logger.warning(
             f"The sum of the transmission and reflection coefficient is greater than 1 ({coefficient_sum:.4f}), which is physically impossible. Normalizing to 1."
         )
