@@ -31,9 +31,26 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug(physical_wavelengths)
     logger.debug("Number of layers: " + str(len(permittivity[0, 0, :, 0])))
 
+    if (len(cfg.PER_LAYER_THICKNESS) == 1) and (cfg.N_layers > 1):
+        cfg.PER_LAYER_THICKNESS = cfg.PER_LAYER_THICKNESS * cfg.N_layers
+    thicknesses = torch.tensor(cfg.PER_LAYER_THICKNESS)
+    # The scaling is the number of grid points per unit magnitude. This is the maximum of the relation between the unit magnitude and 1/10th of the smallest wavelength,
+    # and a constant which is defaulted to 10. If this scaling becomes too low, i.e. below 2, there might be some errors in creating the grid,
+    # as there are too few grid points for certain elements to be placed correctly.
+    scaling = torch.maximum(
+        torch.tensor(
+            UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
+        ),
+        torch.tensor(cfg.FDTD_min_gridpoints_per_unit_magnitude),
+    )
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
+
+        _check_sufficient_timesteps(
+            cfg, thicknesses, physical_wavelengths[i], permittivity[:, :, :, i], scaling
+        )
+        print(physical_wavelengths[i])
         logger.debug("Simulating for wavelenght: {}".format(physical_wavelengths[i]))
         transmission_signal = []
         reflection_signal = []
@@ -153,3 +170,28 @@ def _average_along_detector(signal):
             s[2] += p[2] / len(signal[i])
         avg[i] = s
     return avg
+
+
+def _summed_thickness_times_permittivity(thicknesses, permittivity):
+    summed_permittivity = 0
+    for i in range(len(thicknesses)):
+        summed_permittivity += thicknesses[i] * permittivity[:, :, i].real
+    return summed_permittivity
+
+
+def _check_sufficient_timesteps(
+    cfg: DotMap, thicknesses, wavelength, permittivity, scaling
+):
+    recommended_timesteps = int(((
+        cfg.FDTD_free_space_distance
+        + 3 * _summed_thickness_times_permittivity(thicknesses, permittivity)
+        + 2 * wavelength * 1e6
+    ) / (1 / torch.sqrt(torch.tensor(2.0)) * (1 / scaling))).item()// 1)
+    if cfg.FDTD_niter < recommended_timesteps:
+        cfg.FDTD_niter = recommended_timesteps
+        logger.warning(
+            "The number of timesteps was increased to {} to ensure that the signal reaches steady state before transmission and reflection calculation".format(
+                recommended_timesteps
+            )
+        )
+    #TODO: Maybe not change niter in cfg, but rather just change for each simulated frequency
