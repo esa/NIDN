@@ -29,50 +29,43 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         fdtd:Grid: Grid with all the added object, ready to be run
     """
     set_backend("torch")
-    if (len(cfg.PER_LAYER_THICKNESS) == 1) and (cfg.N_layers > 1):
-        cfg.PER_LAYER_THICKNESS = cfg.PER_LAYER_THICKNESS * cfg.N_layers
-    thicknesses = torch.tensor(cfg.PER_LAYER_THICKNESS)
     # The scaling is the number of grid points per unit magnitude. This is the maximum of the relation between the unit magnitude and 1/10th of the smallest wavelength,
     # and a constant which is defaulted to 10. If this scaling becomes too low, i.e. below 2, there might be some errors in creating the grid,
     # as there are too few grid points for certain elements to be placed correctly.
-    scaling = torch.maximum(
-        torch.tensor(
-            UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
-        ),
-        torch.tensor(cfg.FDTD_min_gridpoints_per_unit_magnitude),
-    )
 
     x_grid_size = (
-        scaling
+        cfg.scaling
         * (
             cfg.FDTD_pml_thickness * 2
             + cfg.FDTD_free_space_distance * 2
-            + torch.sum(thicknesses)
+            + torch.sum(cfg.thicknesses)
         )
     ).int()
 
     y_grid_size = 3
     logger.debug(
         "Initializing FDTD grid with size {} by {} grid points, with a scaling factor of {} grid points per um".format(
-            x_grid_size, y_grid_size, scaling
+            x_grid_size, y_grid_size, cfg.scaling
         )
     )
     grid = Grid(
         (x_grid_size.item(), y_grid_size, 1),
-        grid_spacing=UNIT_MAGNITUDE / scaling,
+        grid_spacing=UNIT_MAGNITUDE / cfg.scaling,
         permittivity=1.0,
         permeability=1.0,
     )
-    grid = _add_boundaries(grid, int(cfg.FDTD_pml_thickness * scaling))
+    grid = _add_boundaries(grid, int(cfg.FDTD_pml_thickness * cfg.scaling))
 
     # Determine detector positions
     detector_x = (
-        cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance + torch.sum(thicknesses)
+        cfg.FDTD_pml_thickness
+        + cfg.FDTD_free_space_distance
+        + torch.sum(cfg.thicknesses)
     )
 
     detector_y = torch.tensor(cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
-    detector_x *= scaling
-    detector_y *= scaling
+    detector_x *= cfg.scaling
+    detector_y *= cfg.scaling
     detector_x += cfg.FDTD_gridpoints_from_material_to_detector
     detector_y -= cfg.FDTD_gridpoints_from_material_to_detector
 
@@ -89,8 +82,8 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
         detector_y.int().item(),
     )
 
-    source_x = (cfg.FDTD_source_position[0] * scaling).int()
-    source_y = (cfg.FDTD_source_position[1] * scaling).int()
+    source_x = (cfg.FDTD_source_position[0] * cfg.scaling).int()
+    source_y = (cfg.FDTD_source_position[1] * cfg.scaling).int()
 
     logger.trace(
         "Placing source at "
@@ -110,20 +103,20 @@ def init_fdtd(cfg: DotMap, include_object, wavelength, permittivity):
 
     if include_object:
         x_start = torch.tensor(cfg.FDTD_pml_thickness + cfg.FDTD_free_space_distance)
-        x_end = x_start + thicknesses[0]
+        x_end = x_start + cfg.thicknesses[0]
         for i in range(permittivity.shape[2]):
             # TODO: Implement possibility for patterned grid, currently uniform layer is used
             grid = _add_object(
                 grid,
-                (scaling * x_start).int(),
-                (scaling * x_end).int(),
+                (cfg.scaling * x_start).int(),
+                (cfg.scaling * x_end).int(),
                 permittivity[0][0][i],
                 frequency=SPEED_OF_LIGHT / wavelength,
             )
 
             if i < permittivity.shape[2] - 1:
-                x_start += thicknesses[i]
-                x_end += thicknesses[i + 1]
+                x_start += cfg.thicknesses[i]
+                x_end += cfg.thicknesses[i + 1]
             else:
                 break
 
