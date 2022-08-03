@@ -164,7 +164,7 @@ def _check_value_ranges(cfg: DotMap):
     ]
 
     for key in all_positive_list_keys:
-        if not (all(cfg[key]) > 0.0):
+        if key in cfg.keys() and not (all(cfg[key]) > 0.0):
             raise RuntimeError(f"All elements in {key} must be a positive integer")
     for key in all_positive_or_zero_list_keys:
         if not (all(cfg[key]) >= 0.0):
@@ -199,7 +199,7 @@ def _check_value_ranges(cfg: DotMap):
     if not cfg.FDTD_source_type in ["point", "line"]:
         raise RuntimeError(f'The FDTD_source_type must either be "line" or "point"')
 
-    if not cfg.FDTD_pulse_type in ["pulse", "continuous"]:
+    if not cfg.FDTD_pulse_type in ["ricker", "hanning", "continuous"]:
         raise RuntimeError(
             f'The FDTD_pulse_type must either be "pulse" or "continuous"'
         )

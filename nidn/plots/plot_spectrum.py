@@ -50,7 +50,13 @@ def _add_plot(
 
 
 def plot_spectrum(
-    run_cfg, R_spectrum, T_spectrum, markers=True, save_path=None, filename=None
+    run_cfg,
+    R_spectrum,
+    T_spectrum,
+    markers=True,
+    save_path=None,
+    filename=None,
+    show_absorption=False,
 ):
     """Plots the produced RTA spectra. Optionally saves it.
 
@@ -61,6 +67,7 @@ def plot_spectrum(
         markers (bool): Whether to plot markers for the target and produced spectra.
         save_path (str, optional): Folder to save the plot in. Defaults to None, then the plot will not be saved.
         filename (str, optional): Filename to save the plot in. Defaults to None, then the plot will be saved with the name "spectrum.png".
+        show_absorption (bool, optional): Whether to show the absorption spectrum. Defaults to False.
     """
 
     if not "target_frequencies" in run_cfg.keys():
@@ -100,7 +107,7 @@ def plot_spectrum(
         target_frequencies,
         R_spectrum,
         ylimits,
-        121,
+        (121 if not show_absorption else 131),
         "Reflectance",
         markers=markers,
     )
@@ -109,18 +116,19 @@ def plot_spectrum(
         target_frequencies,
         T_spectrum,
         ylimits,
-        122,
+        (121 if not show_absorption else 132),
         "Transmittance",
         markers=markers,
     )
-    # fig = _add_plot(
-    #     fig,
-    #     target_frequencies,
-    #     A_spectrum,
-    #     ylimits,
-    #     133,
-    #     "Absorptance",
-    # )
+    if show_absorption:
+        fig = _add_plot(
+            fig,
+            target_frequencies,
+            A_spectrum,
+            ylimits,
+            133,
+            "Absorptance",
+        )
 
     fig.autofmt_xdate()
     plt.tight_layout()

@@ -9,4 +9,5 @@ def load_default_cfg():
         os.path.dirname(__file__) + "/resources/", "default_config.toml"
     )
     with open(path) as cfg:
-        return DotMap(toml.load(cfg))
+        # dynamic=False inhibits automatic generation of non-existing keys
+        return DotMap(toml.load(cfg), _dynamic=False)
