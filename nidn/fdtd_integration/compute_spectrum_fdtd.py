@@ -171,7 +171,7 @@ def _summed_thickness_times_sqrt_permittivity(thicknesses, permittivity):
 
     Args:
         thicknesses (tensor): tensor with the thickness of each layer of the material stack
-        permittivity (tensor): tensor with the real relative permittivity for each layer of the material stack
+        permittivity (tensor): tensor with the relative permittivity for each layer of the material stack
 
     Returns:
         float: sum of thickness times sqrt(e_r) for each layer
@@ -212,7 +212,7 @@ def _check_if_enough_timesteps(cfg: DotMap, wavelength, permittivity):
     logger.debug("Minimum recomended timesteps: {}".format(recommended_timesteps))
     if cfg.FDTD_niter < recommended_timesteps:
         logger.warning(
-            "The number of timesteps should be increased to minimum {} to ensure that the result from the simulation remains physicly accurate".format(
+            "The number of timesteps should be increased to minimum {} to ensure that the result from the simulation remains physically accurate.".format(
                 recommended_timesteps
             )
         )
