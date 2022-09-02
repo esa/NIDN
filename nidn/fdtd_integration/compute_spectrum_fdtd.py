@@ -1,10 +1,10 @@
 from dotmap import DotMap
-from matplotlib import docstring
 from tqdm import tqdm
 from loguru import logger
 import torch
 
 from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
+from nidn.fdtd_integration.compute_fdtd_grid_scaling import _compute_fdtd_grid_scaling
 from nidn.utils.global_constants import UNIT_MAGNITUDE
 
 from ..trcwa.get_frequency_points import get_frequency_points
@@ -34,16 +34,8 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
 
     if (len(cfg.PER_LAYER_THICKNESS) == 1) and (cfg.N_layers > 1):
         cfg.PER_LAYER_THICKNESS = cfg.PER_LAYER_THICKNESS * cfg.N_layers
-    cfg.thicknesses = torch.tensor(cfg.PER_LAYER_THICKNESS)
-    # The scaling is the number of grid points per unit magnitude. This is the maximum of the relation between the unit magnitude and 1/10th of the smallest wavelength,
-    # and a constant which is defaulted to 10. If this scaling becomes too low, i.e. below 2, there might be some errors in creating the grid,
-    # as there are too few grid points for certain elements to be placed correctly.
-    cfg.scaling = torch.maximum(
-        torch.tensor(
-            UNIT_MAGNITUDE / (cfg.physical_wavelength_range[0] * FDTD_GRID_SCALE)
-        ),
-        torch.tensor(cfg.FDTD_min_gridpoints_per_unit_magnitude),
-    )
+
+    cfg.FDTD_grid_scaling = _compute_fdtd_grid_scaling(cfg)
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
@@ -209,14 +201,13 @@ def _check_if_enough_timesteps(cfg: DotMap, wavelength, permittivity):
                 cfg.FDTD_free_space_distance
                 + number_of_internal_reflections
                 * _summed_thickness_times_sqrt_permittivity(
-                    cfg.thicknesses, permittivity
+                    cfg.PER_LAYER_THICKNESS, permittivity
                 )
                 + wavelengths_of_steady_state_signal * wavelength / UNIT_MAGNITUDE
             )
             * torch.sqrt(torch.tensor(2.0))
-            * cfg.scaling
+            * cfg.FDTD_grid_scaling
         ).item()
-        // 1
     )
     logger.debug("Minimum recomended timesteps: {}".format(recommended_timesteps))
     if cfg.FDTD_niter < recommended_timesteps:

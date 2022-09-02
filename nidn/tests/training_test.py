@@ -1,3 +1,5 @@
+from nidn.fdtd_integration.compute_fdtd_grid_scaling import _compute_fdtd_grid_scaling
+
 from ..training.run_training import run_training
 from ..utils.load_default_cfg import load_default_cfg
 
@@ -52,6 +54,7 @@ def test_rcwa_training():
 def test_fdtd_training():
     cfg = _setup()
     cfg.solver = "FDTD"
+    cfg.FDTD_grid_scaling = _compute_fdtd_grid_scaling(cfg)
     run_training(cfg)
     # Should have at least learned something
     assert cfg.results.loss_log[-1] < 0.3

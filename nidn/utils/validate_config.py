@@ -56,7 +56,7 @@ def _check_for_keys(cfg: DotMap):
 
     # Some keys that may be set in the cfg during runtime
     optional_keys = ["target_frequencies","FDTD_grid","model","out_features","results","best_model_state_dict","material_collection",
-                     "N_materials", "thicknesses","scaling"]
+                     "N_materials", "thicknesses","FDTD_grid_scaling"]
     # fmt: on
     for key in required_keys:
         if key not in cfg:
