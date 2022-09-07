@@ -1,8 +1,8 @@
-from re import T
-from numpy import NaN, require
 import torch
 
-from nidn.utils.global_constants import EPS_0, PI, SPEED_OF_LIGHT
+from nidn.utils.global_constants import EPS_0, PI, SPEED_OF_LIGHT, UNIT_MAGNITUDE
+from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
+from nidn.fdtd_integration.compute_fdtd_grid_scaling import _compute_fdtd_grid_scaling
 
 from ..fdtd_integration.init_fdtd import init_fdtd
 from ..fdtd_integration.compute_spectrum_fdtd import _get_detector_values
@@ -28,6 +28,9 @@ def test_fdtd_grid_creation():
         cfg.N_freq,
         "linear",
     )
+
+    cfg.FDTD_grid_scaling = _compute_fdtd_grid_scaling(cfg)
+
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")
     eps_grid[:, :, 1, :] = layer_builder.build_uniform_layer("germanium")
@@ -186,6 +189,7 @@ def test_deviation_from_original_fdtd():
         cfg.N_freq,
         cfg.freq_distribution,
     )
+    cfg.FDTD_grid_scaling = _compute_fdtd_grid_scaling(cfg)
     eps_grid = torch.zeros(cfg.Nx, cfg.Ny, cfg.N_layers, cfg.N_freq, dtype=torch.cfloat)
     layer_builder = LayerBuilder(cfg)
     eps_grid[:, :, 0, :] = layer_builder.build_uniform_layer("titanium_oxide")

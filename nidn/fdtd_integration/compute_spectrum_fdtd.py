@@ -4,6 +4,7 @@ from loguru import logger
 import torch
 
 from nidn.fdtd_integration.constants import FDTD_GRID_SCALE
+from nidn.fdtd_integration.compute_fdtd_grid_scaling import _compute_fdtd_grid_scaling
 from nidn.utils.global_constants import UNIT_MAGNITUDE
 
 from ..trcwa.get_frequency_points import get_frequency_points
@@ -31,9 +32,17 @@ def compute_spectrum_fdtd(permittivity, cfg: DotMap):
     logger.debug(physical_wavelengths)
     logger.debug("Number of layers: " + str(len(permittivity[0, 0, :, 0])))
 
+    if (len(cfg.PER_LAYER_THICKNESS) == 1) and (cfg.N_layers > 1):
+        cfg.PER_LAYER_THICKNESS = cfg.PER_LAYER_THICKNESS * cfg.N_layers
+
+    cfg.FDTD_grid_scaling = _compute_fdtd_grid_scaling(cfg)
     # For each wavelength, calculate transmission and reflection coefficents
     disable_progress_bar = logger._core.min_level >= 20
     for i in tqdm(range(len(physical_wavelengths)), disable=disable_progress_bar):
+
+        _check_if_enough_timesteps(
+            cfg, physical_wavelengths[i], permittivity[:, :, :, i]
+        )
         logger.debug("Simulating for wavelenght: {}".format(physical_wavelengths[i]))
         transmission_signal = []
         reflection_signal = []
@@ -153,3 +162,57 @@ def _average_along_detector(signal):
             s[2] += p[2] / len(signal[i])
         avg[i] = s
     return avg
+
+
+def _summed_thickness_times_sqrt_permittivity(thicknesses, permittivity):
+    """
+    Helper function to calculate the sum of the product of the thickness and
+    the square root of the permittivity for each layer in a material stack.
+
+    Args:
+        thicknesses (tensor): tensor with the thickness of each layer of the material stack
+        permittivity (tensor): tensor with the relative permittivity for each layer of the material stack
+
+    Returns:
+        float: sum of thickness times sqrt(e_r) for each layer
+    """
+    summed_permittivity = 0
+    for i in range(len(thicknesses)):
+        summed_permittivity += thicknesses[i] * torch.sqrt(permittivity.real.max())
+    return summed_permittivity
+
+
+def _check_if_enough_timesteps(cfg: DotMap, wavelength, permittivity):
+    """
+    Function to find the recommended minimum number of timesteps.
+    The signal should have passed trough the material, been reflected to the start of the material and reflected again to the
+    rear detector before the signal is assumed to be steady state. The max permittivity is used for all layers, in case of patterned layers in the future.
+
+    Args:
+        cfg (DotMap): config
+        wavelength (float): wavelength of the simulation
+        permittivity (tensor): tensor of relative permittivities for each layer
+    """
+    wavelengths_of_steady_state_signal = 5
+    number_of_internal_reflections = 3
+    recommended_timesteps = int(
+        (
+            (
+                cfg.FDTD_free_space_distance
+                + number_of_internal_reflections
+                * _summed_thickness_times_sqrt_permittivity(
+                    cfg.PER_LAYER_THICKNESS, permittivity
+                )
+                + wavelengths_of_steady_state_signal * wavelength / UNIT_MAGNITUDE
+            )
+            * torch.sqrt(torch.tensor(2.0))
+            * cfg.FDTD_grid_scaling
+        ).item()
+    )
+    logger.debug("Minimum recomended timesteps: {}".format(recommended_timesteps))
+    if cfg.FDTD_niter < recommended_timesteps:
+        logger.warning(
+            "The number of timesteps should be increased to minimum {} to ensure that the result from the simulation remains physically accurate.".format(
+                recommended_timesteps
+            )
+        )
