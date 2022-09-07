@@ -20,7 +20,7 @@ def plot_model_grid(run_cfg, save_path=None):
 
     # Here we calculate the absolute value of the permittivity over all frequencies for each grid point
     eps = torch.mean(eps, dim=3)
-    eps = torch.sqrt(eps.real ** 2 + eps.imag ** 2)
+    eps = torch.sqrt(eps.real**2 + eps.imag**2)
 
     abs_values = eps.detach().cpu().numpy()
 
@@ -63,3 +63,5 @@ def plot_model_grid(run_cfg, save_path=None):
 
     if save_path is not None:
         plt.savefig(save_path + "/model_grid.png", dpi=150)
+    else:
+        plt.show()

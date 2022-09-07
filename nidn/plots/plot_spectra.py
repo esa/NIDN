@@ -175,3 +175,5 @@ def plot_spectra(
             plt.savefig(save_path + "/" + filename + ".png", dpi=300)
         # fig.clf()
         # plt.close(fig)
+    else:
+        plt.show()

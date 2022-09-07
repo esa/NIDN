@@ -138,3 +138,5 @@ def plot_spectrum(
             plt.savefig(save_path + "/spectrum.png", dpi=150)
         else:
             plt.savefig(save_path + "/" + filename + ".png", dpi=300)
+    else:
+        plt.show()

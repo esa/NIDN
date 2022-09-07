@@ -61,3 +61,5 @@ def plot_epsilon_grid(eps, run_cfg, save_path=None):
 
     if save_path is not None:
         plt.savefig(save_path + "/eps_grid.png", dpi=150)
+    else:
+        plt.show()

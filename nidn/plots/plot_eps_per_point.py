@@ -154,3 +154,5 @@ def plot_eps_per_point(
         plt.savefig(save_path + "/eps_per_points" + str(file_id) + ".png", dpi=150)
         # fig.clf()
         # plt.close(fig)
+    else:
+        plt.show()
