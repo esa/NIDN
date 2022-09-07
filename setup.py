@@ -9,10 +9,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="nidn",
-    version="0.1.0",
+    version="0.1.1",
     description="A package for inverse material design of nanostructures using neural networks.",
-    # long_description=open("README.md").read(),
-    # long_description_content_type="text/markdown",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     url="https://github.com/esa/nidn",
     author="ESA Advanced Concepts Team",
     author_email="pablo.gomez@esa.int",
