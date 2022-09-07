@@ -99,7 +99,7 @@ def plot_spectrum(
     #         max(max(A_spectrum), max(T_spectrum), max(R_spectrum)) + 0.1,
     #     ]
 
-    fig = plt.figure(figsize=(15, 5), dpi=300)
+    fig = plt.figure(figsize=(12, 4), dpi=150)
     fig.patch.set_facecolor("white")
 
     fig = _add_plot(
@@ -116,7 +116,7 @@ def plot_spectrum(
         target_frequencies,
         T_spectrum,
         ylimits,
-        (121 if not show_absorption else 132),
+        (122 if not show_absorption else 132),
         "Transmittance",
         markers=markers,
     )
@@ -138,3 +138,5 @@ def plot_spectrum(
             plt.savefig(save_path + "/spectrum.png", dpi=150)
         else:
             plt.savefig(save_path + "/" + filename + ".png", dpi=300)
+    else:
+        plt.show()

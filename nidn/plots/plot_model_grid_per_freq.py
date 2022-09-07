@@ -88,3 +88,5 @@ def plot_model_grid_per_freq(run_cfg, freq_idx=[0, 1, 2, 3], save_path=None):
 
     if save_path is not None:
         plt.savefig(save_path + "/model_grid_per_freq.png", dpi=150)
+    else:
+        plt.show()

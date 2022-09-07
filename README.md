@@ -38,7 +38,7 @@ Neural Inverse Design of Nanostructures (NIDN) is a Python project by the Advanc
 
 <p align="center">
   <a href="https://github.com/esa/nidn">
-    <img src="docs/NIDN_Scheme_v2.drawio.drawio.png" alt="Scheme"  width="910" height="459">
+    <img src="docs/source/NIDN_Scheme_v2.drawio.drawio.png" alt="Scheme"  width="910" height="459">
   </a>
   <p align="center">
     Neural Inverse Design of Nanostructures with PyTorch
@@ -63,6 +63,10 @@ This project is based on:
 
 For more details than provided with NIDN on the forward models please refer to their docs. The adaptations of there code are in the folders [nidn/trcwa/](https://github.com/esa/NIDN/tree/main/nidn/trcwa) and [nidn/fdtd/](https://github.com/esa/NIDN/tree/main/nidn/fdtd).
 
+Below you can see results of an exemplary optimization of a three-uniform-layer material to design a 1150nm filter.
+
+![Exemplary optimization of a three-uniform-layer material to design a 1150nm filter. | width=300](/examples/BP-filter-3layer-opt.gif)
+![Exemplary optimization of a three-uniform-layer material to design a 1150nm filter. | width=300](/examples/BP-filter-3layer-eps.gif)
 <!-- GETTING STARTED -->
 
 ## Getting Started

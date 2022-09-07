@@ -114,3 +114,6 @@ def plot_material_grid(
 
     if save_path is not None:
         plt.savefig(save_path + "/material_grid.png", dpi=150)
+    else:
+        plt.show()
+

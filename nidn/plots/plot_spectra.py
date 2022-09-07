@@ -79,7 +79,7 @@ def plot_spectra(
     prod_T_spectrum=None,
     markers=True,
     filename=None,
-    ylim=[[0.0, 1.0],[0.0, 1.0]],
+    ylim=[[0.0, 1.0], [0.0, 1.0]],
 ):
     """Plots the produced RTA spectra together with the target spectra. Optionally saves it.
 
@@ -173,3 +173,7 @@ def plot_spectra(
             plt.savefig(save_path + "/spectra_comparison.png", dpi=150)
         else:
             plt.savefig(save_path + "/" + filename + ".png", dpi=300)
+        # fig.clf()
+        # plt.close(fig)
+    else:
+        plt.show()

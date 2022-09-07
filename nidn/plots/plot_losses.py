@@ -19,3 +19,6 @@ def plot_losses(run_cfg, save_path=None):
     plt.legend(["L1", "Loss", "Weighted Average Loss"])
     if save_path is not None:
         plt.savefig(save_path + "/losses.png", dpi=150)
+    else:
+        plt.show()
+
