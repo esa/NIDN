@@ -132,3 +132,4 @@ my_notebooks
 .vscode
 results
 cfg
+notebooks/plots/
