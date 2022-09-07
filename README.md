@@ -1,5 +1,10 @@
 # Neural Inverse Design of Nanostructures (NIDN)
 
+[![Documentation Status](https://readthedocs.org/projects/nidn/badge/?version=latest)](https://nidn.readthedocs.io/en/latest/?badge=latest) ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/esa/nidn/Running%20tests/main?style=flat-square) ![GitHub last commit](https://img.shields.io/github/last-commit/esa/nidn?style=flat-square)
+![GitHub](https://img.shields.io/github/license/esa/nidn?style=flat-square) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nidn?style=flat-square)
+![GitHub contributors](https://img.shields.io/github/contributors/esa/nidn?style=flat-square)
+![GitHub issues](https://img.shields.io/github/issues/esa/nidn?style=flat-square) ![GitHub pull requests](https://img.shields.io/github/issues-pr/esa/nidn?style=flat-square)
+
 <!-- TABLE OF CONTENTS -->
 <details open="open">
   <summary>Table of Contents</summary>
@@ -35,6 +40,18 @@ Neural Inverse Design of Nanostructures (NIDN) is a Python project by the Advanc
   <a href="https://github.com/esa/nidn">
     <img src="docs/NIDN_Scheme_v2.drawio.drawio.png" alt="Scheme"  width="910" height="459">
   </a>
+  <p align="center">
+    Neural Inverse Design of Nanostructures with PyTorch
+    <br />
+    <a href="https://nidn.readthedocs.io"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/esa/NIDN/blob/main/notebooks/Inverse_Material_Design_with_RCWA.ipynb">View Example notebook</a>
+    ·
+    <a href="https://github.com/esa/nidn/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/esa/nidn/issues">Request Feature</a>
+  </p>
 </p>
 
 ### Built With
@@ -98,7 +115,7 @@ This is the case you aim to design a material matching some target spectral char
 
 To change the logging verbosity call `nidn.setLogLevel(level)` where level is one of `TRACE`,`DEBUG`,`INFO`,`WARN` and `ERROR`.
 
-Detailed docs of NIDN can be built with sphinx. To do so, make sure (sphinx)[https://www.sphinx-doc.org/en/master/usage/installation.html] is installed and run `make html` in the docs folder to get a local html version of the docs. readthedocs support may follow.
+Detailed docs of NIDN are [online](https://nidn.readthedocs.io/en/latest/) can be built with sphinx. To do so, make sure [sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html) is installed and run `make html` in the docs folder to get a local html version of the docs. readthedocs support may follow.
 
 ### Supported Materials
 
