@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "NIDN: Neural Inverse Design of Nanostructures"
+authors:
+  - given-names: Pablo
+    family-names: Gómez
+    email: pablo.gomez@esa.int
+    affiliation: >-
+      European Space Agency, Advanced Concepts Team,
+      Noordwijk, 2201AZ, The Netherlands
+    orcid: 'https://orcid.org/0000-0002-5631-8240'
+  - given-names: Håvard
+    name-particle: Hem
+    family-names: Toftevaag
+  - given-names: Torbjørn
+    family-names: Bogen-Storø
+  - given-names: Derek
+    family-names: Aranguren van Egmond
+  - given-names: José
+    name-particle: M.
+    family-names: Llorens
+repository-code: "https://github.com/esa/nidn/"
+repository-artifact: "https://pypi.org/project/nidn/"
+license: GPL-3.0
+preferred-citation:
+  type: article
+  authors:
+  - given-names: Pablo
+    family-names: Gómez
+    email: pablo.gomez@esa.int
+    affiliation: >-
+      European Space Agency, Advanced Concepts Team,
+      Noordwijk, 2201AZ, The Netherlands
+    orcid: 'https://orcid.org/0000-0002-5631-8240'
+  - given-names: Håvard
+    name-particle: Hem
+    family-names: Toftevaag
+  - given-names: Torbjørn
+    family-names: Bogen-Storø
+  - given-names: Derek
+    family-names: Aranguren van Egmond
+  - given-names: José
+    name-particle: M.
+    family-names: Llorens
+  doi: "10.48550/arXiv.2208.05480"
+  journal: "arXiv"
+  title: "NIDN: Neural Inverse Design of Nanostructures"
+  year: 2022
