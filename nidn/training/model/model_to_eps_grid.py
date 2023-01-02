@@ -69,7 +69,7 @@ def _eval_model(
     """Evaluates the model on the grid.
 
     Args:
-        run_cfg (DotMap): run config
+        run_cfg (DotMap): Run config.
         model (torch.model): Trained neural network model. Should map one 4D input.
         Nx_undersampled (int): Number of grid points in x direction. Potentially unesampled if eps_oversampling > 1.
         Ny_undersampled (int): Number of grid points in y direction. Potentially unesampled if eps_oversampling > 1.
