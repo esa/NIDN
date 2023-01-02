@@ -133,6 +133,8 @@ class FrequencyRoutines:
             # end_freq_idx = ((length_with_padding/2)-1)
             end_freq_idx = -1
         else:
+            raise NotImplementedError("This code although available needs to be reviewed.")
+            begin_freq, end_freq = freq_window_tuple
             # closest frequencies
             begin_freq_idx = bd.abs(spectrum_freqs - begin_freq).argmin()
             end_freq_idx = bd.abs(spectrum_freqs - end_freq).argmin()
