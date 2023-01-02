@@ -35,8 +35,8 @@ jobs:
           environment-name: nidn
           cache-downloads: true
     - name: Test with pytest
-      shell: bash -l {0}
-      run: |
+        shell: bash -l {0}
+        run: |
           micromamba activate nidn
           micromamba install pytest
           pytest
