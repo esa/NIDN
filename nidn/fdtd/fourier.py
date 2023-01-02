@@ -133,6 +133,8 @@ class FrequencyRoutines:
             # end_freq_idx = ((length_with_padding/2)-1)
             end_freq_idx = -1
         else:
+            raise NotImplementedError("This code although available needs to be reviewed.")
+            begin_freq, end_freq = freq_window_tuple
             # closest frequencies
             begin_freq_idx = bd.abs(spectrum_freqs - begin_freq).argmin()
             end_freq_idx = bd.abs(spectrum_freqs - end_freq).argmin()
@@ -299,43 +301,3 @@ class FrequencyRoutines:
         #                         compute_frequencies(length_with_padding, dt, freq_window_tuple=None)
         #
         # spectrum_freqs[begin_freq:end_freq]
-
-    def plot_impedance(
-        self,
-        freq_window_tuple=None,
-        fft_num_bins_in_window=None,
-        fft_bin_freq_resolution=None,
-    ):
-        """
-        Frequencies are in Hz.
-        """
-
-        plt.plot(times_padded, voltages)
-
-        plt.plot(times_padded, currents)
-        # plt.plot(, abs(voltage_spectrum[begin_freq:end_freq]), label="volt")
-        plt.plot(
-            spectrum_freqs[begin_freq:end_freq],
-            abs(current_spectrum[begin_freq:end_freq]),
-            label="curr",
-        )
-
-        plt.figure()
-        #
-        # Z0 = scipy.constants.physical_constants['characteristic impedance of vacuum'][0]
-
-        impedance_spectrum = abs(voltage_spectrum / current_spectrum)
-
-        plt.plot(
-            spectrum_freqs[begin_freq:end_freq], impedance_spectrum[begin_freq:end_freq]
-        )
-        # plt.plot(spectrum_freqs[begin_freq:end_freq],impedance_spectrum[begin_freq:end_freq])
-        plt.savefig("/tmp/impedance_spectrum.svg")
-        # # plt.plot(spectrum_freqs,(voltage_spectrum/current_spectrum))
-        # plt.plot(spectrum_freqs[begin_freq:end_freq],(voltage_spectrum[begin_freq:end_freq]/current_spectrum[begin_freq:end_freq]).real)
-        # plt.plot(spectrum_freqs[begin_freq:end_freq],(voltage_spectrum[begin_freq:end_freq]/current_spectrum[begin_freq:end_freq]).imag)
-
-        plt.show()
-        # power_spectrum = -1.0*((voltage_spectrum[begin_freq:end_freq]*np.conj(current_spectrum[begin_freq:end_freq])).real)
-        # power_spectrum /= np.linalg.norm(power_spectrum)
-        # plt.plot(spectrum_freqs[begin_freq:end_freq],power_spectrum)
