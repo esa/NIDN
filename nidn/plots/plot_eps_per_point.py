@@ -22,8 +22,14 @@ def plot_eps_per_point(
         legend (bool, optional): Whether to show layer legend
         file_id (str, optional): Whether to add a postfix string
     """
-    # Create epsilon grid from the model
-    eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
+    # Create epsilon grid from the model if not stored in cfg
+    if "eps" in run_cfg.keys():
+        eps = run_cfg.eps
+    else:
+        eps, _ = model_to_eps_grid(run_cfg.model, run_cfg)
+
+    if not torch.is_tensor(eps):
+        eps = torch.tensor(eps)
     eps_np = eps.detach().cpu().numpy()
 
     material_collection = MaterialCollection(run_cfg.target_frequencies)

@@ -4,6 +4,7 @@ import torch.nn as nn
 
 from ..utils.nerf import NERF
 from ..utils.siren import Siren
+from ..utils.voxel import Voxel
 
 
 def init_network(
@@ -33,4 +34,14 @@ def init_network(
             outermost_activation=nn.Sigmoid(),
             first_omega_0=run_cfg.siren_omega,
             hidden_omega_0=run_cfg.siren_omega,
+        )
+    elif run_cfg.model_type == "voxel":
+        return Voxel(
+            cfg=run_cfg,
+        )
+    else:
+        raise NotImplementedError(
+            "Model "
+            + run_cfg.model_type
+            + " is not implemented. Available are nerf, siren and voxel."
         )
