@@ -24,19 +24,19 @@ jobs:
       run: |
         $CONDA/bin/conda env update --file environment.yml --name base
     - name: Search for severe code errors with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          pip install flake8
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --max-line-length=127
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --max-line-length=127
     - name: provision-with-micromamba
-        uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: environment.yml
-          environment-name: nidn
-          cache-downloads: true
+      uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-file: environment.yml
+        environment-name: nidn
+        cache-downloads: true
     - name: Test with pytest
-        shell: bash -l {0}
-        run: |
-          micromamba activate nidn
-          micromamba install pytest
-          pytest
+      shell: bash -l {0}
+      run: |
+        micromamba activate nidn
+        micromamba install pytest
+        pytest
