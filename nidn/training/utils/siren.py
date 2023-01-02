@@ -1,4 +1,6 @@
 # From https://github.com/vsitzmann/siren/blob/master/explore_siren.ipynb
+from collections import OrderedDict
+
 from torch import nn
 import torch
 import numpy as np
