@@ -1,6 +1,6 @@
 # Neural Inverse Design of Nanostructures (NIDN)
 
-[![Documentation Status](https://readthedocs.org/projects/nidn/badge/?version=latest)](https://nidn.readthedocs.io/en/latest/?badge=latest) ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/esa/nidn/.github/workflows/run_tests.yml?branch=main?style=flat-square) ![GitHub last commit](https://img.shields.io/github/last-commit/esa/nidn?style=flat-square)
+[![Documentation Status](https://readthedocs.org/projects/nidn/badge/?version=latest)](https://nidn.readthedocs.io/en/latest/?badge=latest) [![Tests](https://github.com/esa/NIDN/actions/workflows/run_tests.yml/badge.svg)](https://github.com/esa/NIDN/actions/workflows/run_tests.yml) ![GitHub last commit](https://img.shields.io/github/last-commit/esa/nidn?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/esa/nidn?style=flat-square) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nidn?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors/esa/nidn?style=flat-square)
 ![GitHub issues](https://img.shields.io/github/issues/esa/nidn?style=flat-square) ![GitHub pull requests](https://img.shields.io/github/issues-pr/esa/nidn?style=flat-square)
